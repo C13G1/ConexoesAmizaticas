@@ -51,7 +51,7 @@ struct Home: StaticPage {
                 .font(.title2)
                 .margin(.bottom, 14)
 
-            Image("/images/dog.jpg", description: "Foto de destaque do app")
+            Image("/images/dog.jpg", description: "Foto do doguinho")
                 .resizable()
                 .cornerRadius(10)
         }
@@ -62,7 +62,7 @@ struct Home: StaticPage {
                 .font(.title2)
                 .margin(.bottom, 12)
 
-            Text("Em breve no TestFlight. Inscreva-se para receber acesso exclusivo!")
+            Text("Em breve no TestFlight.")
                 .margin(.bottom, 24)
 
             Link("Acessar o TestFlight", target: "https://testflight.apple.com/")
@@ -75,7 +75,7 @@ struct Home: StaticPage {
                 .font(.body)
                 .foregroundStyle(.secondary)
 
-            Text("Desenvolvido por Cami, Dayó, Enzo, Jonas, Mathias, Thomas")
+            Text("Desenvolvido por Camis, Dayô, Enzo, Jonas, Mathias, Thomas")
                 .foregroundStyle(.secondary)
         }
         .padding(.top, 22)
