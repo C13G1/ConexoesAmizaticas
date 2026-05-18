@@ -36,7 +36,6 @@ jobs:
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-spm-
-      - uses: actions/checkout@v4
 
       - name: Build Ignite site
         run: cd LandingPage && swift run
