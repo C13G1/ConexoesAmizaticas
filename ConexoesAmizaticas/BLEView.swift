@@ -9,10 +9,12 @@ import SwiftUI
 import CoreBluetooth
 
 struct BLEView: View {
-    @State var bleManager: BLEManager!
+    @State var bleManager: BLEManager?
+    @State var friend: User?
     
     var body: some View {
-        ZStack {
+        VStack {
+            
             Button(action: {}, label: {
                 Text("Find Friend")
             })
@@ -21,10 +23,14 @@ struct BLEView: View {
             .foregroundStyle(.blue)
             .simultaneousGesture(DragGesture(minimumDistance: 0)
                 .onChanged({ _ in
-                    bleManager.startBLE()
+                    if let bleManager = bleManager {
+                        bleManager.startBLE()
+                    }
                 })
                     .onEnded({ _ in
-                        bleManager.stopBLE()
+                        if let bleManager = bleManager {
+                            bleManager.stopBLE()
+                        }
                     }))
         }
         .onAppear() {
