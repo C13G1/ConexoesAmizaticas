@@ -11,7 +11,7 @@ import SwiftUI
 
 @Model
 class Post: Identifiable {
-    var images: [Image]
+    var images: [Image] = []
     var text: String?
     var date: Date
     var id: UUID
