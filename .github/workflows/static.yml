@@ -2,53 +2,56 @@
 name: Build and Deploy Ignite to Pages
 
 on:
-  # Runs on pushes targeting the main branch
   push:
     branches: ["main", "feature/landingPage"]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # Build and deploy job
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+  build:
+    runs-on: macos-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup Swift
-        uses: swift-actions/setup-swift@v1
+        uses: fwal/setup-swift@v1
         with:
           swift-version: "5.9"
 
-      - name: Build Ignite site
-        run: |
-          cd LandingPage
-          swift run
+      - name: Cache Swift Package Manager
+        uses: actions/cache@v3
+        with:
+          path: .build
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+      - name: Build Ignite site
+        working-directory: ./LandingPage
+        run: swift run
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: './LandingPage/Build'
 
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
