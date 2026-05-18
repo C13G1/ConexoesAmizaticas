@@ -9,6 +9,33 @@ import SwiftData
 import Foundation
 
 @Model
+class ConnectionModel {
+    private(set) var friend: UserModel
+    var metaManager: MetaManagerModel
+    var feedManager: FeedManagerModel
+    var firstConnection: Date
+    var lastMet: Date?
+    var timeConnected: TimeInterval {
+        let endDate = Date.now
+        let timeConnected = endDate.timeIntervalSince(firstConnection)
+        return timeConnected
+    }
+    var recordNotMeet: TimeInterval? {
+        let endDate = Date.now
+        guard let lastMet = lastMet else { return nil }
+        let timeConnected = endDate.timeIntervalSince(lastMet)
+        return timeConnected
+    }
+    
+    init(friend: UserModel, lastMet: Date? = nil) {
+        self.friend = friend
+        self.metaManager = MetaManagerModel()
+        self.feedManager = FeedManagerModel()
+        self.firstConnection = Date.now
+        self.lastMet = lastMet
+    }
+}
+
 class Connection {
     private(set) var friend: User
     var metaManager: MetaManager

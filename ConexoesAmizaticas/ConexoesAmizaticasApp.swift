@@ -12,7 +12,11 @@ import SwiftData
 struct ConexoesAmizaticasApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            UserModel.self,
+            PostModel.self,
+            FeedManagerModel.self,
+            ConnectionModel.self,
+            MetaManagerModel.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

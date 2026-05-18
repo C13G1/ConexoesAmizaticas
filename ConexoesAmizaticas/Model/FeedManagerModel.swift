@@ -9,6 +9,12 @@ import Foundation
 import SwiftData
 
 @Model
+class FeedManagerModel {
+    private var posts: [PostModel] = []
+    
+    init() {}
+}
+
 class FeedManager {
     private var posts: [Post] = []
     
@@ -21,5 +27,4 @@ class FeedManager {
     func deletePost(id: UUID) {
         posts.removeAll(where: {$0.id == id})
     }
-    
 }
