@@ -13,13 +13,27 @@ let SCORE_AMIGO_PROXIMO: Double = 1 / 2
 let SCORE_MELHOR_AMIGO: Double = 5 / 6
 
 @Model
+class MetaManagerModel {
+    private(set) var meta: RelationshipState
+    private(set) var currentRelationshipState: RelationshipState
+    private(set) var score: Double
+    
+    init(meta: RelationshipState = .conhecido, currentRelationshipState: RelationshipState = .conhecido, score: Double = 0.0) {
+        self.meta = meta
+        self.currentRelationshipState = currentRelationshipState
+        self.score = score
+    }
+}
+
 class MetaManager {
     private(set) var meta: RelationshipState
     private(set) var currentRelationshipState: RelationshipState
     private(set) var score: Double
     
-    func setMeta(_ meta: RelationshipState) {
-        self.meta = meta
+    init() {
+        self.meta = .conhecido
+        self.currentRelationshipState = .conhecido
+        self.score = 0.0
     }
     
     private func calculateRelationshipState() {
@@ -39,14 +53,12 @@ class MetaManager {
         currentRelationshipState = rs
     }
     
+    func setMeta(_ meta: RelationshipState) {
+        self.meta = meta
+    }
+    
     func addOrSubtractScore(_ score: Double) {
         self.score += score
         calculateRelationshipState()
-    }
-    
-    init() {
-        self.meta = .conhecido
-        self.currentRelationshipState = .conhecido
-        self.score = 0.0
     }
 }

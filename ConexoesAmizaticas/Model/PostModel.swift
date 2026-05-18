@@ -10,11 +10,25 @@ import SwiftData
 import SwiftUI
 
 @Model
+class PostModel {
+    var images: [Data] = []
+    var text: String? = nil
+    var date: Date = Date.now
+    var id: UUID = UUID()
+    
+    init(images: [Data], text: String? = nil, date: Date = Date.now) {
+        self.images = images
+        self.text = text
+        self.date = date
+        self.id = UUID()
+    }
+}
+
 class Post: Identifiable {
-    var images: [Image]
-    var text: String?
-    var date: Date
-    var id: UUID
+    var images: [Image] = []
+    var text: String? = nil
+    var date: Date = Date.now
+    var id: UUID = UUID()
     
     init(images: [Image], text: String? = nil, date: Date = Date.now) {
         self.images = images

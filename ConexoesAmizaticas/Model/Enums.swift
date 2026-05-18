@@ -13,3 +13,9 @@ enum RelationshipState: String, Codable {
     case amigoProximo = "amigo próximo"
     case melhorAmigo  = "melhor amigo"
 }
+
+enum CodingKeys: String, CodingKey {
+    case name
+    case profilePicture
+    case id
+}
