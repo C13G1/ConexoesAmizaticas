@@ -24,7 +24,7 @@ struct PostTests {
     
     @Test func appendImageWithSuccessTest() {
         let sut = post
-        sut.appendImage(Image("image4"))
+        sut.appendImage(Image("image3"))
         
         #expect(sut.images == [Image("image1"), Image("image2"), Image("image3")])
     }
