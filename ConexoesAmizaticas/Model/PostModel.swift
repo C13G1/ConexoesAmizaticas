@@ -10,42 +10,28 @@ import SwiftData
 import SwiftUI
 
 @Model
-class PostModel {
-    var images: [Data] = []
-    var text: String? = nil
-    var date: Date = Date.now
-    var id: UUID = UUID()
+class Post: Identifiable {
+    var images: [Data]  = []
+    var text:   String? = nil
+    var date:   Date    = Date.now
+    var id:     UUID    = UUID()
     
     init(images: [Data], text: String? = nil, date: Date = Date.now) {
         self.images = images
-        self.text = text
-        self.date = date
-        self.id = UUID()
-    }
-}
-
-class Post: Identifiable {
-    var images: [Image] = []
-    var text: String? = nil
-    var date: Date = Date.now
-    var id: UUID = UUID()
-    
-    init(images: [Image], text: String? = nil, date: Date = Date.now) {
-        self.images = images
-        self.text = text
-        self.date = date
-        self.id = UUID()
+        self.text   = text
+        self.date   = date
+        self.id     = UUID()
     }
     
     func editText(_ newText: String) {
         self.text = newText
     }
     
-    func appendImage(_ image: Image) {
+    func appendImageData(_ image: Data) {
         images.append(image)
     }
     
-    func deleteImage(_ image: Image) {
+    func deleteDataImage(_ image: Data) {
         images.removeAll(where: {$0 == image})
     }
 }

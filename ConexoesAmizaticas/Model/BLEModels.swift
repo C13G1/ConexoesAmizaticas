@@ -22,10 +22,10 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
     let portCharacteristicID: CBUUID = CBUUID(string: "B2C20EFB-B20F-4F0D-B708-4EA408F2C500")
     let userCharacteristicID: CBUUID = CBUUID(string: "1E1AE8D4-2CAA-497C-928E-23388577D248")
     let advertisingKey: Int = Int.random(in: 1...100_000_000)
-    let profile = UserModel(name: "souja boy")
     var psm: CBL2CAPPSM!
     var inputStream: InputStream!
     var outputStream: OutputStream!
+    let profile = User(name: "souja boy")
     
     init(view: BLEView) {
         self.view = view
@@ -202,15 +202,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
     
     func decodeData(data: Data) throws {
         let friendDTO = try JSONDecoder().decode(userDTO.self, from: data)
-        let profilePicture: Image
-        if let UIprofilePicture = UIImage(data: friendDTO.profilePicture) {
-            profilePicture = Image(uiImage: UIprofilePicture)
-        }
-        else {
-            print("erro decodificando dados da imagem")
-            profilePicture = Image("DefaultPicture")
-        }
-        let friend = User(name: friendDTO.name, profilePicture: profilePicture, id: friendDTO.id)
+        let friend = User(name: friendDTO.name, profilePicture: friendDTO.profilePicture, id: friendDTO.id)
         view.updateFriend(friend)
     }
     
@@ -232,7 +224,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
     func sendProfile() throws {
         print("trying to send data")
         if self.outputStream.hasSpaceAvailable {
-            let profileDTO = userDTO(name: profile.name, profilePicture: profile.profilePicture, id: profile.id)
+            let profileDTO = userDTO(name: profile.name, profilePicture: profile.profileImage, id: profile.id)
             let data = try JSONEncoder().encode(profileDTO)
             data.withUnsafeBytes { buffer in
                 guard let pointer = buffer.bindMemory(to: UInt8.self).baseAddress else {
