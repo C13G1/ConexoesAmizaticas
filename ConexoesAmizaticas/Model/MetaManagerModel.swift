@@ -8,27 +8,15 @@
 import Foundation
 import SwiftData
 
-let SCORE_AMIGO: Double = 1 / 4
+let SCORE_AMIGO:         Double = 1 / 4
 let SCORE_AMIGO_PROXIMO: Double = 1 / 2
-let SCORE_MELHOR_AMIGO: Double = 5 / 6
+let SCORE_MELHOR_AMIGO:  Double = 5 / 6
 
-@Model
-class MetaManagerModel {
-    private(set) var meta: RelationshipState
-    private(set) var currentRelationshipState: RelationshipState
-    private(set) var score: Double
-    
-    init(meta: RelationshipState = .conhecido, currentRelationshipState: RelationshipState = .conhecido, score: Double = 0.0) {
-        self.meta = meta
-        self.currentRelationshipState = currentRelationshipState
-        self.score = score
-    }
-}
-
+@Model 
 class MetaManager {
-    private(set) var meta: RelationshipState
+    private(set) var meta:                     RelationshipState
     private(set) var currentRelationshipState: RelationshipState
-    private(set) var score: Double
+    private(set) var score:                    Double
     
     init() {
         self.meta = .conhecido

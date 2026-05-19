@@ -16,7 +16,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
     let serviceID: CBUUID = CBUUID(string: "451A3F17-0062-41E1-82CC-98496CDA05FB")
     let characteristicID: CBUUID = CBUUID(string: "B2C20EFB-B20F-4F0D-B708-4EA408F2C500")
     let advertisingKey: Int = Int.random(in: 1...100_000_000)
-    let profile = UserModel(name: "souja boy")
+    let profile = User(name: "souja boy")
     
     init(view: BLEView!) {
         self.view = view
