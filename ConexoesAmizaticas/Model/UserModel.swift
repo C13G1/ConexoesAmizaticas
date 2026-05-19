@@ -9,11 +9,11 @@ import SwiftUI
 
 @Model
 class UserModel: Codable {
-    private var name: String
-    private var profilePicture: Data
-    public var id: UUID
+    private(set) var name: String
+    private(set) var profilePicture: Data
+    private(set) var id: UUID
     
-    init(name: String = "DaultName", profilePicture: Data = Data()) {
+    init(name: String = "DefaultName", profilePicture: Data = Data()) {
         self.name = name
         self.profilePicture = profilePicture
         self.id = UUID()
@@ -32,14 +32,14 @@ class UserModel: Codable {
 }
  
 class User {
-    private var name: String
-    private var profilePicture: Image
-    public var id: UUID
+    private(set) var name: String
+    private(set) var profilePicture: Image
+    private(set) var id: UUID
     
-    init(name: String = "DefaultName", profilePicture: Image = Image("defaultPicture")) {
+    init(name: String = "DefaultName", profilePicture: Image = Image("defaultPicture"), id: UUID = UUID()) {
         self.name = name
         self.profilePicture = profilePicture
-        self.id = UUID()
+        self.id = id
     }
     
     func editProfilePicture(_ image: Image) {
@@ -53,4 +53,10 @@ class User {
     func getID() -> UUID{
         return id
     }
+}
+
+struct userDTO: Codable {
+    var name: String
+    var profilePicture: Data
+    var id: UUID
 }

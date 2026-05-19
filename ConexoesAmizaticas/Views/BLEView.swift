@@ -14,7 +14,7 @@ struct BLEView: View {
     
     var body: some View {
         VStack {
-            
+            MockUserView()
             Button(action: {}, label: {
                 Text("Find Friend")
             })
@@ -23,11 +23,13 @@ struct BLEView: View {
             .foregroundStyle(.blue)
             .simultaneousGesture(DragGesture(minimumDistance: 0)
                 .onChanged({ _ in
+                    print("apertou botao")
                     if let bleManager = bleManager {
                         bleManager.startBLE()
                     }
                 })
                     .onEnded({ _ in
+                        print("soltou botao")
                         if let bleManager = bleManager {
                             bleManager.stopBLE()
                         }
@@ -36,6 +38,9 @@ struct BLEView: View {
         .onAppear() {
             self.bleManager = BLEManager(view: self)
         }
+    }
+    func updateFriend(_ friend: User) {
+        self.friend = friend
     }
 }
 
