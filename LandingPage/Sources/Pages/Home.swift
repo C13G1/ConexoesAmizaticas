@@ -12,7 +12,7 @@ struct Home: StaticPage {
                       body, html { overflow:hidden; background:#1C1C1C; }
                     </style>
                     <div style="position:fixed; inset:0; width:100vw; height:100vh;">
-                      <img src="/images/hero.png"
+                      <img src="images/hero.png"
                            style="position:absolute; top:50%; left:50%;
                                   transform:translate(-50%,-50%);
                                   width:100%; height:100%;
