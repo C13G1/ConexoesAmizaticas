@@ -6,24 +6,32 @@ struct Home: StaticPage {
 
     var body: some HTML {
         Section {
-            """
-                    <style>
-                      * { margin:0; padding:0; box-sizing:border-box; }
-                      body, html { overflow:hidden; background:#1C1C1C; }
-                    </style>
-                    <div style="position:fixed; inset:0; width:100vw; height:100vh;">
-                      <img src="images/hero.png"
-                           style="position:absolute; top:50%; left:50%;
-                                  transform:translate(-50%,-50%);
-                                  width:100%; height:100%;
-                                  object-fit:contain;" />
-                      <a href="https://testflight.apple.com" target="_blank"
-                         style="position:absolute; top:75%; left:42%;
-                                width:16%; height:9.6%;
-                                border-radius:999px; display:block;
-                                cursor:pointer; z-index:10;"></a>
-                    </div>
-                    """
+            Image("/images/hero.png", description: "ZELU Hero")
+                .resizable()
+                .style(.position, "absolute")
+                .style(.top, "50%")
+                .style(.left, "50%")
+                .style(.transform, "translate(-50%, -50%)")
+                .style(.zIndex, "1")
+            
+            Link("", target: "https://testflight.apple.com")
+                .style(.position, "absolute")
+                .style(.top, "75%")
+                .style(.left, "42%")
+                .style(.width, "16%")
+                .style(.height, "9.6%")
+                .style(.borderRadius, "999px")
+                .style(.cursor, "pointer")
+                .style(.zIndex, "10")
+                .style(.background, "transparent")
+                .style(.border, "none")
         }
+        .style(.position, "relative")
+        .style(.width, "100%")
+        .style(.height, "100vh")
+        .style(.overflow, "hidden")
+        .style(.margin, "0")
+        .style(.padding, "0")
+        .style(.background, "#1C1C1C")
     }
 }
