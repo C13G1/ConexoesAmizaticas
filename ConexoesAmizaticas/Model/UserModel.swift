@@ -9,13 +9,13 @@ import SwiftUI
  
 @Model
 class User: Codable {
-    private var name:         String
-    private var profileImage: Data
-    public  var id:           UUID
+    private var name         : String
+    private var profileImage : Data
+    public  var id           : UUID
     
-    init(name: String = "DefaultName", profilePicture: Data = Data()) {
+    init(name: String = "DefaultName", profileImage: Data = Data()) {
         self.name         = name
-        self.profileImage = profilePicture
+        self.profileImage = profileImage
         self.id           = UUID()
     }
     
