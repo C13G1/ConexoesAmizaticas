@@ -20,12 +20,13 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
     var connectedPeripheral: CBPeripheral!
     let serviceID: CBUUID = CBUUID(string: "451A3F17-0062-41E1-82CC-98496CDA05FB")
     let portCharacteristicID: CBUUID = CBUUID(string: "B2C20EFB-B20F-4F0D-B708-4EA408F2C500")
-    let userCharacteristicID: CBUUID = CBUUID(string: "1E1AE8D4-2CAA-497C-928E-23388577D248")
     let advertisingKey: Int = Int.random(in: 1...100_000_000)
     var psm: CBL2CAPPSM!
+    var channelL2CAP: CBL2CAPChannel!
     var inputStream: InputStream!
     var outputStream: OutputStream!
-    let profile = User(name: "souja boy")
+    var dataStream: Data = Data()
+    let profile = User(name: "souja boy", profilePicture: UIImage(named: "yodaPicture")!.jpegData(compressionQuality: 0.1)!)
     
     init(view: BLEView) {
         self.view = view
@@ -121,8 +122,8 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
         print("received read request")
         if request.characteristic.uuid == portCharacteristicID {
             let data = Data(bytes: &psm, count: 16)
-                request.value = data
-                peripheral.respond(to: request, withResult: .success)
+            request.value = data
+            peripheral.respond(to: request, withResult: .success)
         }
     }
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: (any Error)?) {
@@ -157,6 +158,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
             return
         }
         print("opened L2CAP channel")
+        self.channelL2CAP = channel
         guard let outputStream = channel.outputStream,
               let inputStream = channel.inputStream else {
             print("couldnt create streams")
@@ -170,39 +172,60 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
         self.outputStream.schedule(in: .main, forMode: .default)
         self.outputStream.open()
         self.inputStream.open()
-        do {
-            try sendProfile()
-        }
-        catch {
-            print("erro ao mandar o perfil")
-        }
+    }
+    
+    func peripheralManager(_ peripheral: CBPeripheralManager, didOpen channel: CBL2CAPChannel?, error: (any Error)?) {
         
+        if let error = error {
+            print(error)
+        }
+        guard let channel = channel else {
+            print("channel is nil")
+            return
+        }
+        print("opened L2CAP channel")
+        self.channelL2CAP = channel
+        guard let outputStream = channel.outputStream,
+              let inputStream = channel.inputStream else {
+            print("couldnt create streams")
+            return
+        }
+        self.outputStream = outputStream
+        self.inputStream = inputStream
+        self.outputStream.delegate = self
+        self.inputStream.delegate = self
+        self.inputStream.schedule(in: .main, forMode: .default)
+        self.outputStream.schedule(in: .main, forMode: .default)
+        self.outputStream.open()
+        self.inputStream.open()
     }
     
     func receiveData() {
         print("trying to receive data")
-        var data = Data()
         var buffer = [UInt8](repeating: 0, count: 1024)
         while inputStream.hasBytesAvailable {
             print("reading bytes")
             let bytesReceived = inputStream.read(&buffer, maxLength: BUFFER_SIZE)
             
             if bytesReceived > 0 {
-                data.append(buffer, count: bytesReceived)
+                self.dataStream.append(buffer, count: bytesReceived)
+            }
+            else {
+                print("eita porra")
             }
         }
         do {
-            try decodeData(data: data)
+            try decodeData()
         }
         catch {
             print("erro decodificando data")
         }
-        
     }
     
-    func decodeData(data: Data) throws {
-        let friendDTO = try JSONDecoder().decode(userDTO.self, from: data)
+    func decodeData() throws {
+        let friendDTO = try JSONDecoder().decode(userDTO.self, from: self.dataStream)
         let friend = User(name: friendDTO.name, profilePicture: friendDTO.profilePicture, id: friendDTO.id)
+        print("data decoded")
         view.updateFriend(friend)
     }
     
@@ -216,12 +239,15 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
             print("stream aberta")
         case .endEncountered:
             print("stream fechada")
+        case .hasSpaceAvailable:
+            print("espaço aberto")
         default:
             print("vish sla")
         }
     }
     
     func sendProfile() throws {
+        
         print("trying to send data")
         if self.outputStream.hasSpaceAvailable {
             let profileDTO = userDTO(name: profile.name, profilePicture: profile.profileImage, id: profile.id)
@@ -231,6 +257,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
                     print("erro ao criar ponteiro")
                     return
                 }
+                print("data created")
                 let bytesWritten = self.outputStream.write(pointer, maxLength: data.count)
                 if bytesWritten < 0 {
                     print("erro ao enviar dados")
@@ -239,6 +266,9 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
                     print("dados enviados")
                 }
             }
+        }
+        else {
+            print("no space available")
         }
     }
 }

@@ -8,16 +8,12 @@
 import SwiftUI
 
 struct MockUserView: View {
-    @State var user: User = User()
+    @Binding var user: User
     var body: some View {
         VStack {
-            user.profilePicture
+            Image(uiImage: UIImage(data: user.profileImage)!) 
             Text(user.name)
             Text(user.id.uuidString)
         }
     }
-}
-
-#Preview {
-    MockUserView()
 }
