@@ -14,9 +14,9 @@ let SCORE_MELHOR_AMIGO:  Double = 5 / 6
 
 @Model 
 class MetaManager {
-    private(set) var meta:                     RelationshipState
-    private(set) var currentRelationshipState: RelationshipState
-    private(set) var score:                    Double
+    private(set) var meta                     : RelationshipState
+    private(set) var currentRelationshipState : RelationshipState
+    private(set) var score                    : Double
     
     init() {
         self.meta = .conhecido
