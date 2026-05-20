@@ -26,19 +26,20 @@ class User: Codable {
         self.profileImage = try container.decode(Data.self, forKey: .profilePicture)
         self.id           = try container.decode(UUID.self, forKey: .id)
     }
+    func editName(_ name: String) {
+        self.name = name
+    }
     
     func editProfileImageData(_ image: Data) {
         self.profileImage = image
     }
     
-    func editName(_ name: String) {
-        self.name = name
-    }
-    
-    func getID() -> UUID{
-        return id
-    }
-    
     func encode(to encoder: any Encoder) throws {}
+
 }
 
+struct userDTO: Codable {
+    var name: String
+    var profilePicture: Data
+    var id: UUID
+}

@@ -10,32 +10,33 @@ import CoreBluetooth
 
 struct BLEView: View {
     @State var bleManager: BLEManager?
-    @State var friend: User?
+    @State var friend: User = User()
     
     var body: some View {
         VStack {
-            
-            Button(action: {}, label: {
+            MockUserView(user: $friend)
+            Button(action: {
+                if let bleManager = bleManager {
+                    do {
+                        try bleManager.sendProfile()
+                    }
+                    catch {
+                        print("uuuhhhh...")
+                    }
+                }
+            }, label: {
                 Text("Find Friend")
             })
             .frame(width: 200, height: 80, alignment: .center)
             .clipShape(.capsule)
             .foregroundStyle(.blue)
-            .simultaneousGesture(DragGesture(minimumDistance: 0)
-                .onChanged({ _ in
-                    if let bleManager = bleManager {
-                        bleManager.startBLE()
-                    }
-                })
-                    .onEnded({ _ in
-                        if let bleManager = bleManager {
-                            bleManager.stopBLE()
-                        }
-                    }))
         }
         .onAppear() {
             self.bleManager = BLEManager(view: self)
         }
+    }
+    func updateFriend(_ friend: User) {
+        self.friend = friend
     }
 }
 
