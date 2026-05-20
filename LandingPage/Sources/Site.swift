@@ -4,8 +4,7 @@ import Ignite
 @main
 struct IgniteWebsite {
     static func main() async {
-        var site = ExampleSite()
-
+        var site = ZeluSite()
         do {
             try await site.publish()
         } catch {
@@ -14,14 +13,9 @@ struct IgniteWebsite {
     }
 }
 
-struct ExampleSite: Site {
-    var name = "ZELU"
-    var titleSuffix = " — Não deixe seus amigos no vácuo"
+struct ZeluSite: Site {
+    var name = "Zelu"
     var url = URL(static: "https://c13g1.github.io/ConexoesAmizaticas/")
-    var builtInIconsEnabled = true
-
-    var author = "ZELU Team"
-
     var homePage = Home()
     var layout = MainLayout()
 }
