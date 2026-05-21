@@ -18,10 +18,10 @@ class MetaManager {
     private(set) var currentRelationshipState : RelationshipState
     private(set) var score                    : Double
     
-    init() {
+    init(score: Double = 1.0) {
         self.meta = .conhecido
         self.currentRelationshipState = .conhecido
-        self.score = 0.0
+        self.score = score
     }
     
     private func calculateRelationshipState() {
