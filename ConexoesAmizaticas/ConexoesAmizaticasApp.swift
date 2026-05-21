@@ -29,7 +29,7 @@ struct ConexoesAmizaticasApp: App {
 
     var body: some Scene {
         WindowGroup {
-            BLEView()
+            FriendTestView()
         }
         .modelContainer(sharedModelContainer)
     }
