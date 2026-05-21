@@ -24,6 +24,7 @@ class FriendsScene: SKScene {
     
     override init(size: CGSize) {
         super.init(size: size)
+        initColliders()
         initFriends()
     }
     
@@ -67,6 +68,16 @@ class FriendsScene: SKScene {
             secondTouch = nil
             self.pinchDistance = 0
         }
+    }
+    
+    func initColliders() {
+        let collider = SKShapeNode(circleOfRadius: 400)
+        collider.strokeColor = .black
+        collider.fillColor = .white
+        collider.physicsBody = SKPhysicsBody(edgeLoopFrom: collider.path!)
+        
+        collider.position = CGPoint(x: frame.midX, y: frame.midY - 200)
+        addChild(collider)
     }
     
     func initFriends() {

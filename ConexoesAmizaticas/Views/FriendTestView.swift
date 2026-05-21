@@ -15,7 +15,7 @@ struct FriendTestView: View {
         return scene
     }
     var body: some View {
-        SpriteView(scene: scene, debugOptions: [.showsFPS])
+        SpriteView(scene: scene, debugOptions: [.showsFPS, .showsPhysics])
             .ignoresSafeArea()
     }
 }
