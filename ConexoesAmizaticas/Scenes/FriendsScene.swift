@@ -168,7 +168,7 @@ class FriendsScene: SKScene {
     func initFriends() {
         if orbit {
             for connection in connections {
-                let friend = FriendNode(score: connection.metaManager.score, image: connection.friend.profileImage)
+                let friend = FriendNode(score: connection.metaManager.score, image: connection.friend.profilePicture)
                 switch friend.orbitRadius {
                 case .conhecido:
                     orbitaConhecido.addFriend(friend: friend)
@@ -184,7 +184,7 @@ class FriendsScene: SKScene {
         }
         else {
             for connection in connections {
-                let friend = FriendNode(score: connection.metaManager.score, image: connection.friend.profileImage)
+                let friend = FriendNode(score: connection.metaManager.score, image: connection.friend.profilePicture)
                 friend.position = CGPoint(x: frame.midX + CGFloat.random(in: 1...10), y: frame.midY + CGFloat.random(in: 1...10))
             self.self.rootNode.addChild(friend)
             print("friend added")
@@ -193,7 +193,7 @@ class FriendsScene: SKScene {
     }
     
     func initTest() {
-        self.testNode = FriendNode(score: connections[0].metaManager.score, image: connections[0].friend.profileImage)
+        self.testNode = FriendNode(score: connections[0].metaManager.score, image: connections[0].friend.profilePicture)
         testNode.position = CGPoint(x: 0, y: +200)
         self.rootNode.addChild(testNode)
     }

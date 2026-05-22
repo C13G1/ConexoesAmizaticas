@@ -250,7 +250,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
         
         print("trying to send data")
         if self.outputStream.hasSpaceAvailable {
-            let profileDTO = userDTO(name: profile.name, profilePicture: profile.profileImage, id: profile.id)
+            let profileDTO = userDTO(name: profile.name, profilePicture: profile.profilePicture, id: profile.id)
             let data = try JSONEncoder().encode(profileDTO)
             data.withUnsafeBytes { buffer in
                 guard let pointer = buffer.bindMemory(to: UInt8.self).baseAddress else {
