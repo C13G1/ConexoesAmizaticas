@@ -10,12 +10,12 @@ import Foundation
 
 @Model
 class Connection {
-    private(set) var friend : User
-    var metaManager         : MetaManager
-    var feedManager         : FeedManager
-    var firstConnection     : Date
-    var lastMet             : Date?
-    var timeConnected       : TimeInterval {
+    private(set) var friend: User
+    var metaManager:         MetaManager
+    var feedManager:         FeedManager
+    var firstConnection:     Date
+    var lastMet:             Date?
+    var timeConnected: TimeInterval {
         let endDate       = Date.now
         let timeConnected = endDate.timeIntervalSince(firstConnection)
         
