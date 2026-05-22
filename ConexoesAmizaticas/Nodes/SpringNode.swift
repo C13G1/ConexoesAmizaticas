@@ -14,7 +14,9 @@ class SpringNode: SKNode {
     }
     
     override init() {
+        
         super.init()
+        self.isUserInteractionEnabled = false
         physicsBody = SKPhysicsBody()
         physicsBody?.isDynamic = false
         physicsBody?.affectedByGravity = false
