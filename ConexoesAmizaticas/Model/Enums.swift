@@ -14,6 +14,13 @@ enum RelationshipState: String, Codable {
     case melhorAmigo  = "melhor amigo"
 }
 
+enum OrbitRadius: Double {
+    case conhecido    = 100
+    case amigo        = 200
+    case amigoProximo = 300
+    case melhorAmigo  = 400
+}
+
 enum CodingKeys: String, CodingKey {
     case name
     case profilePicture
