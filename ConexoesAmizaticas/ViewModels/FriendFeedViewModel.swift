@@ -58,15 +58,36 @@ class FriendFeedViewModel {
         try? modelContext.save()
         refreshPosts()
     }
-        
+    
     func distance(_ index: Int) -> Double {
-        guard !posts.isEmpty else { return 0 }
-        return (draggingItem - Double(index)).remainder(dividingBy: Double(posts.count))
+        if !posts.isEmpty {
+            return (draggingItem - Double(index)).remainder(dividingBy: Double(posts.count))
+        } else {
+            return 0
+        }
     }
     
+    /// Function that determines the radius of the circle
+    /// increasing the multiplier will increase the distance
+    /// between cards
     func xOffset(_ index: Int) -> Double {
         let angle = Double.pi * 2 / Double(max(posts.count, 1)) * distance(index)
-        return sin(angle) * 200
+        return sin(angle) * 245
+    }
+    
+    /// Function that defines the arch of the carrousel
+    func yOffset(_ index: Int) -> Double {
+        let dist = abs(distance(index))
+        if dist > 1.5 { return -1000 }
+        
+        return -pow(dist * 30, 2) / 10
+    }
+    
+    /// Function that determines the angle of the lateral
+    /// cards on the carrousel
+    func rotationEffect(_ index: Int) -> Double {
+        let dist = distance(index)
+        return -dist * 30
     }
     
     func zIndex(_ index: Int) -> Double {
@@ -77,19 +98,25 @@ class FriendFeedViewModel {
         1.0 - abs(distance(index)) * 0.2
     }
     
+    /// Function that determines the opacity of the cards
+    /// making the cards that are not in the center or
+    /// sideways invisible
     func opacity(_ index: Int) -> Double {
-        max(0, 1 - abs(distance(index)) * 0.5)
+        let dist = abs(distance(index))
+        return dist > 1.5 ? 0.0 : 1.0
     }
     
     func onDragChanged(value: DragGesture.Value) {
-        draggingItem = snappedItem + value.translation.width / 200
+        draggingItem = snappedItem + value.translation.width / 500
     }
     
     func onDragEnded(value: DragGesture.Value) {
-        withAnimation(.easeOut(duration: 0.3)) {
-            draggingItem = snappedItem + value.predictedEndTranslation.width / 200
-            draggingItem = round(draggingItem).remainder(dividingBy: Double(max(posts.count, 1)))
-            snappedItem  = draggingItem
+        withAnimation {
+            draggingItem = snappedItem + value.predictedEndTranslation.width / 350
+            
+            let postsCount = Double(max(posts.count, 1))
+            draggingItem = round(draggingItem).remainder(dividingBy: postsCount)
+            snappedItem = draggingItem
             
             let count = posts.count
             activeIndex = count + Int(draggingItem)
