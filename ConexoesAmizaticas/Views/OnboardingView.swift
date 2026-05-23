@@ -31,10 +31,7 @@ struct OnboardingView: View {
                         .padding(.top, 112)
                         .foregroundStyle(.black)
                 })
-                
-                
             }
-                
         }
     }
 }
