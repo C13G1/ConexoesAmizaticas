@@ -19,11 +19,16 @@ struct AddPictureButton: View {
                 CurvedRectangle(depth: 0.58)
                     .stroke(Color.green,
                             style: StrokeStyle(
-                            lineWidth: 30,
-                            lineCap: .round
-                        )
+                                lineWidth: 30,
+                                lineCap: .round
+                            )
                     )
                     .frame(width: UIScreen.main.bounds.width * 0.6, height: 80)
+                
+                Image("addPhotoText")
+                    .resizable()
+                    .frame(width: UIScreen.main.bounds.width * 0.45, height: UIScreen.main.bounds.height * 0.036)
+                    .padding(.bottom, UIScreen.main.bounds.height * 0.05)
             }
         }
     }
@@ -33,4 +38,5 @@ struct AddPictureButton: View {
     let friend = User(name: "nome")
     let conn = Connection(friend: friend)
     return AddPictureButton(viewModel: FriendFeedViewModel(connection: conn))
+        .preferredColorScheme(.dark)
 }
