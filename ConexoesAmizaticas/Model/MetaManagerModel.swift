@@ -15,9 +15,9 @@ let SCORE_INSEPARAVEIS:  Double = 80
 
 @Model
 class MetaManager {
-    private(set) var meta:                     RelationshipState
+    private(set) var meta: RelationshipState
     private(set) var currentRelationshipState: RelationshipState
-    private(set) var score:                    Double
+    private(set) var score: Double
     
     init(score: Double = 1.0) {
         self.meta = .proximos
