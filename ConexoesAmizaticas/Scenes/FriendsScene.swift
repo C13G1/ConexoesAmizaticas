@@ -174,7 +174,7 @@ class FriendsScene: SKScene {
         }
         else {
             for connection in connections {
-                let friend = FriendNode(score: connection.metaManager.score, image: connection.friend.profileImage)
+                let friend = FriendNode(score: connection.metaManager.score, image: connection.friend.profilePicture)
                 var randomX = CGFloat.random(in: -100...100)
                 if randomX < 0 {
                     randomX = min(-60, randomX)
