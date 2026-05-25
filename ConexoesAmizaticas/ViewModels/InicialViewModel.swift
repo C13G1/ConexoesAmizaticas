@@ -44,10 +44,7 @@ class InicialViewModel {
         return friends
     }
     
-    func convertDataToImage(data: Data) -> Image?{
-        if let uiImage = UIImage(data: data) {
-            return Image(uiImage: uiImage)
-        }
-        return nil
+    func convertDataToImage(data: Data) -> UIImage? {
+        return UIImage(data: data)
     }
 }

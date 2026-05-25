@@ -13,7 +13,7 @@ class User: Codable {
     private var profileImage : Data
     public  var id           : UUID
     
-    init(name: String = "DefaultName", profileImage: Data = Data()) {
+    init(name: String = "DefaultName", profileImage: Data = Data(), id: UUID = UUID()) {
         self.name         = name
         self.profileImage = profileImage
         self.id           = UUID()
@@ -36,6 +36,11 @@ class User: Codable {
     
     func encode(to encoder: any Encoder) throws {}
 
+    func getProfileImageData() -> Data { return profileImage }
+    
+    func getName() -> String { return name }
+    
+    func getID() -> UUID { return id }
 }
 
 struct userDTO: Codable {
