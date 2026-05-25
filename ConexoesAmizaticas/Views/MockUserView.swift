@@ -11,7 +11,7 @@ struct MockUserView: View {
     @Binding var user: User
     var body: some View {
         VStack {
-            Image(uiImage: UIImage(data: user.profileImage)!) 
+            Image(uiImage: UIImage(data: user.profilePicture)!) 
             Text(user.name)
             Text(user.id.uuidString)
         }

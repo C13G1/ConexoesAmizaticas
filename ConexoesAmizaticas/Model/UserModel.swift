@@ -10,12 +10,12 @@ import SwiftUI
 @Model
 class User: Codable {
     private(set) var name:         String
-    private(set) var profileImage: Data
+    private(set) var profilePicture: Data
     private(set) var id:           UUID
     
     init(name: String = "DefaultName", profilePicture: Data = UIImage(named: "defaultPicture")?.jpegData(compressionQuality: 1) ?? Data(), id: UUID = UUID()) {
         self.name         = name
-        self.profileImage = profilePicture
+        self.profilePicture = profilePicture
         self.id           = id
     }
     
@@ -23,7 +23,7 @@ class User: Codable {
         let container     = try decoder.container(keyedBy: CodingKeys.self)
         
         self.name         = try container.decode(String.self, forKey: .name)
-        self.profileImage = try container.decode(Data.self, forKey: .profilePicture)
+        self.profilePicture = try container.decode(Data.self, forKey: .profilePicture)
         self.id           = try container.decode(UUID.self, forKey: .id)
     }
     func editName(_ name: String) {
@@ -31,7 +31,7 @@ class User: Codable {
     }
     
     func editProfileImageData(_ image: Data) {
-        self.profileImage = image
+        self.profilePicture = image
     }
     
     func encode(to encoder: any Encoder) throws {}

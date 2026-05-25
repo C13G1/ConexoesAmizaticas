@@ -155,7 +155,7 @@ class FriendsScene: SKScene {
     func initFriends() {
         if orbit {
             for connection in connections {
-                let friend = FriendNode(score: connection.metaManager.score, image: connection.friend.profileImage)
+                let friend = FriendNode(score: connection.metaManager.score, image: connection.friend.profilePicture)
                 switch friend.orbitRadius {
                 case RelationshipState.afastados.orbitRadius:
                     orbitaAfastados.addFriend(friend: friend)
