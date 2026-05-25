@@ -14,13 +14,15 @@ class OrbitNode: SKNode {
     init(orbitRadius: OrbitRadius) {
         self.orbitRadius = orbitRadius
         switch self.orbitRadius {
-        case .conhecido:
+        case .afastados:
+            self.orbitSpeed = 5
+        case .distantes:
             self.orbitSpeed = 4
-        case .amigo:
+        case .estaveis:
             self.orbitSpeed = 3
-        case .amigoProximo:
+        case .proximos:
             self.orbitSpeed = 2
-        case .melhorAmigo:
+        case .inseparaveis:
             self.orbitSpeed = 1
         default:
             self.orbitSpeed = 1
@@ -48,10 +50,11 @@ class OrbitNode: SKNode {
         let delta: Double = 1.0 / ratio
         friend.position = CGPoint(x: x * delta, y: y * delta)
         addChild(friend)
+        let springAnchor = SpringNode()
         let spring = SKPhysicsJointSpring.joint(withBodyA: friend.sprite.physicsBody!,
-                                                bodyB: friend.springAnchor.physicsBody!,
+                                                bodyB: springAnchor.physicsBody!,
                                                 anchorA: friend.sprite.position,
-                                                anchorB: friend.springAnchor.position)
+                                                anchorB: springAnchor.position)
         spring.frequency = 0.8
         spring.damping = 0.5
         self.scene!.physicsWorld.add(spring)
