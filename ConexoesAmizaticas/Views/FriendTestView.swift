@@ -10,18 +10,19 @@ import SpriteKit
 
 struct FriendTestView: View {
     var scene: FriendsScene {
-        let scene = FriendsScene(size: UIScreen.main.bounds.size, orbit: true)
-        scene.scaleMode = .resizeFill
+        let scene = FriendsScene(size: UIScreen.main.bounds.size, orbit: false)
+        scene.scaleMode = .aspectFill
         return scene
     }
     var body: some View {
-        VStack(alignment: .center) {
-            SpriteView(scene: scene, debugOptions: [])
-                .ignoresSafeArea()
+        VStack {
+            ZStack {
+                SpriteView(scene: scene, debugOptions: [.showsPhysics])
+                    .ignoresSafeArea()
+            }
         }
-        .clipShape(Circle())
-        .frame(width: 1000, height: 1000)
-            
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.themeBackground)
     }
 }
 

@@ -12,8 +12,8 @@ class FriendNode: SKShapeNode {
     var currentTouch: UITouch?
     var score: Double
     var sprite: SKShapeNode!
-    var springAnchor: SpringNode = SpringNode()
-    var orbitRadius: OrbitRadius = .conhecido
+    var orbitRadius: Double = RelationshipState.estaveis.orbitRadius
+    var lastTouchLocation: CGPoint!
     
     init(score: Double, image: Data) {
         self.score = score
@@ -23,32 +23,33 @@ class FriendNode: SKShapeNode {
         let image = UIImage(data: image)!
         self.sprite.fillTexture = SKTexture(image: image)
         self.sprite.fillColor = .white
-        self.sprite.physicsBody = SKPhysicsBody(circleOfRadius: 128)
-        self.sprite.physicsBody?.isDynamic = true
-        self.sprite.physicsBody?.affectedByGravity = false
-        self.sprite.isUserInteractionEnabled = false
-        
         
         super.init()
         
+        self.physicsBody = SKPhysicsBody(circleOfRadius: 128)
+        self.physicsBody?.isDynamic = true
+        self.physicsBody?.affectedByGravity = false
+        self.isUserInteractionEnabled = false
         self.scale = scale * score / 10
-        self.setScale(scale)
+        self.setScale(self.scale)
         self.isUserInteractionEnabled = true
         
         self.addChild(sprite)
-        self.addChild(springAnchor)
         
-        if self.score <= 25 {
-            self.orbitRadius = .conhecido
+        if self.score < 20 {
+            self.orbitRadius = RelationshipState.afastados.orbitRadius
         }
-        else if self.score <= 50 {
-            self.orbitRadius = .amigo
+        else if self.score < 40 {
+            self.orbitRadius = RelationshipState.distantes.orbitRadius
         }
-        else if self.score <= 75 {
-            self.orbitRadius = .amigoProximo
+        else if self.score < 60 {
+            self.orbitRadius = RelationshipState.estaveis.orbitRadius
+        }
+        else if self.score < 80 {
+            self.orbitRadius = RelationshipState.proximos.orbitRadius
         }
         else {
-            self.orbitRadius = .melhorAmigo
+            self.orbitRadius = RelationshipState.inseparaveis.orbitRadius
         }
 
     }
@@ -56,15 +57,19 @@ class FriendNode: SKShapeNode {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         currentTouch = touch
+        lastTouchLocation = touch.location(in: self.parent!)
         print("touched friend")
     }
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
+        lastTouchLocation = touch.location(in: self.parent!)
         currentTouch = touch
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.currentTouch = nil
-        findOrbit()
+        if let _ = self.parent as? OrbitNode {
+            findOrbit()
+        }
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -73,16 +78,19 @@ class FriendNode: SKShapeNode {
     
     func findOrbit() {
         let h = sqrt(position.x * position.x + position.y * position.y)
-        let ratio = h / orbitRadius.rawValue
+        let ratio = h / orbitRadius
         let delta: Double = 1.0 / ratio
         let oldPosition = self.position
-        self.position = CGPoint(x: position.x * delta, y: position.y * delta)
-//        self.sprite.position = oldPosition
+        let newPosition = CGPoint(x: position.x * delta, y: position.y * delta)
+        let spritePosition = CGPoint(x: oldPosition.x - newPosition.x, y: oldPosition.y - newPosition.y)
+        self.position = newPosition
+        self.sprite.position = spritePosition
     }
     
     func update() {
-        if let currentTouch = currentTouch {
-            self.position = currentTouch.location(in: self.parent!)
+        if let _ = currentTouch {
+            self.position.x += lastTouchLocation.x - self.position.x
+            self.position.y += lastTouchLocation.y - self.position.y
         }
     }
 }
