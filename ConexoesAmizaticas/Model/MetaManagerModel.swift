@@ -8,9 +8,10 @@
 import Foundation
 import SwiftData
 
-let SCORE_AMIGO:         Double = 1 / 4
-let SCORE_AMIGO_PROXIMO: Double = 1 / 2
-let SCORE_MELHOR_AMIGO:  Double = 5 / 6
+let SCORE_DISTANTES:     Double = 20
+let SCORE_ESTAVEIS:      Double = 40
+let SCORE_PROXIMOS:      Double = 60
+let SCORE_INSEPARAVEIS:  Double = 80
 
 @Model
 class MetaManager {
@@ -19,26 +20,28 @@ class MetaManager {
     private(set) var score:                    Double
     
     init(score: Double = 1.0) {
-        self.meta = .conhecido
-        self.currentRelationshipState = .conhecido
+        self.meta = .proximos
+        self.currentRelationshipState = .afastados
         self.score = score
     }
     
-    private func calculateRelationshipState() {
-        var rs: RelationshipState = .conhecido
-        if self.score < SCORE_AMIGO {
-            rs = .conhecido
+    private func calculateRelationshipState() -> RelationshipState {
+        if self.score < SCORE_DISTANTES {
+            return .afastados
         }
-        else if self.score >= SCORE_AMIGO {
-            rs = .amigo
+        else if self.score < SCORE_ESTAVEIS {
+            return .distantes
         }
-        else if self.score >= SCORE_AMIGO_PROXIMO {
-            rs = .amigoProximo
+        else if self.score < SCORE_PROXIMOS {
+            return .estaveis
         }
-        else if self.score >= SCORE_MELHOR_AMIGO {
-            rs = .melhorAmigo
+        else if self.score < SCORE_INSEPARAVEIS {
+            return .proximos
         }
-        currentRelationshipState = rs
+        else {
+            return .inseparaveis
+        }
+        
     }
     
     func setMeta(_ meta: RelationshipState) {
