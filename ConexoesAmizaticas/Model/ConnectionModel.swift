@@ -31,7 +31,7 @@ class Connection {
         return timeConnected
     }
     
-    init(friend: User, lastMet: Date? = nil, score: Double = 30.0) {
+    init(friend: User, lastMet: Date? = nil, score: Double = 80.0) {
         self.friend          = friend
         self.metaManager     = MetaManager(score: score)
         self.feedManager     = FeedManager()

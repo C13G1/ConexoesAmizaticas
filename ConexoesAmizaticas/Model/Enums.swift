@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 enum RelationshipState: String, Codable {
     case afastados    = "afastados"
@@ -43,6 +44,21 @@ enum RelationshipState: String, Codable {
             return 5
         }
     }
+    var color: UIColor {
+        switch self {
+        case .afastados:
+            return UIColor.themeAfastados
+        case .distantes:
+            return UIColor.themeDistantes
+        case .estaveis:
+            return UIColor.themeEstaveis
+        case .proximos:
+            return UIColor.themeProximos
+        case .inseparaveis:
+            return UIColor.themeInseparaveis
+        }
+    }
+    
 }
 
 enum OrbitRadius: Double {
