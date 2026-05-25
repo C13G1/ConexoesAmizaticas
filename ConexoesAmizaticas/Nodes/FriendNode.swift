@@ -25,7 +25,6 @@ class FriendNode: SKShapeNode {
         self.sprite.fillTexture = SKTexture(image: image)
         self.sprite.fillColor = .white
         self.sprite.strokeColor = connection.metaManager.currentRelationshipState.color
-        print(connection.metaManager.currentRelationshipState.color)
         self.sprite.lineWidth = 20
         super.init()
         
