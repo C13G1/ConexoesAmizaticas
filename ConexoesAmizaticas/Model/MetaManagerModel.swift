@@ -20,9 +20,10 @@ class MetaManager {
     private(set) var score: Double
     
     init(score: Double = 1.0) {
+        self.score = score
         self.meta = .proximos
         self.currentRelationshipState = .afastados
-        self.score = score
+        self.currentRelationshipState = calculateRelationshipState()
     }
     
     private func calculateRelationshipState() -> RelationshipState {
