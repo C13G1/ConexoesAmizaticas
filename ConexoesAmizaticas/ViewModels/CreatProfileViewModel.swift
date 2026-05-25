@@ -27,7 +27,7 @@ class CreatProfileViewModel {
                 print("Error to convert Image to Data")
                 return
             }
-            profile[0] = User.init(name: name, profileImage: data)
+            profile[0] = User.init(name: name, profilePicture: data)
             modelContext.insert(profile[0])
             fetchData()
         }
