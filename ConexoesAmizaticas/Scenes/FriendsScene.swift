@@ -47,7 +47,7 @@ class FriendsScene: SKScene {
         spiral.physicsBody?.isDynamic = false
         
         self.rootNode.addChild(spiral)
-        spiral.run(SKAction.repeatForever(SKAction.rotate(byAngle: -5, duration: 1)))
+        spiral.run(SKAction.repeatForever(SKAction.rotate(byAngle: -1, duration: 1)))
     }
     
     func initFriends() {
