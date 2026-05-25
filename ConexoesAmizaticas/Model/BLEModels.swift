@@ -26,7 +26,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
     var inputStream: InputStream!
     var outputStream: OutputStream!
     var dataStream: Data = Data()
-    let profile = User(name: "souja boy", profileImage: UIImage(named: "yodaPicture")!.jpegData(compressionQuality: 0.1)!)
+    let profile = User(name: "souja boy", profilePicture: UIImage(named: "yodaPicture")!.jpegData(compressionQuality: 0.1)!)
     
     init(view: BLEView) {
         self.view = view
@@ -224,7 +224,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
     
     func decodeData() throws {
         let friendDTO = try JSONDecoder().decode(userDTO.self, from: self.dataStream)
-        let friend = User(name: friendDTO.name, profileImage: friendDTO.profilePicture, id: friendDTO.id)
+        let friend = User(name: friendDTO.name, profilePicture: friendDTO.profilePicture, id: friendDTO.id)
         print("data decoded")
         view.updateFriend(friend)
     }
@@ -250,7 +250,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
         
         print("trying to send data")
         if self.outputStream.hasSpaceAvailable {
-            let profileDTO = userDTO(name: profile.getName(), profilePicture: profile.getProfileImageData(), id: profile.getID())
+            let profileDTO = userDTO(name: profile.name, profilePicture: profile.profilePicture, id: profile.id)
             let data = try JSONEncoder().encode(profileDTO)
             data.withUnsafeBytes { buffer in
                 guard let pointer = buffer.bindMemory(to: UInt8.self).baseAddress else {

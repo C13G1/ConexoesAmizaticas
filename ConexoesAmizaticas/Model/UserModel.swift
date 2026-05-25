@@ -9,34 +9,35 @@ import SwiftUI
  
 @Model
 class User: Codable {
-    private var name         : String
-    private var profileImage : Data
-    public  var id           : UUID
+    private(set) var name:           String
+    private(set) var profilePicture: Data
+    private(set) var id:             UUID
     
-    init(name: String = "DefaultName", profileImage: Data = Data(), id: UUID = UUID()) {
-        self.name         = name
-        self.profileImage = profileImage
-        self.id           = UUID()
+
+    init(name: String = "DefaultName", profilePicture: Data = UIImage(named: "defaultPicture")?.jpegData(compressionQuality: 1) ?? Data(), id: UUID = UUID()) {
+        self.name           = name
+        self.profilePicture = profilePicture
+        self.id             = id
     }
     
     required init(from decoder: any Decoder) throws {
-        let container     = try decoder.container(keyedBy: CodingKeys.self)
+        let container       = try decoder.container(keyedBy: CodingKeys.self)
         
-        self.name         = try container.decode(String.self, forKey: .name)
-        self.profileImage = try container.decode(Data.self, forKey: .profilePicture)
-        self.id           = try container.decode(UUID.self, forKey: .id)
+        self.name           = try container.decode(String.self, forKey: .name)
+        self.profilePicture = try container.decode(Data.self, forKey: .profilePicture)
+        self.id             = try container.decode(UUID.self, forKey: .id)
     }
     func editName(_ name: String) {
         self.name = name
     }
     
     func editProfileImageData(_ image: Data) {
-        self.profileImage = image
+        self.profilePicture = image
     }
     
     func encode(to encoder: any Encoder) throws {}
 
-    func getProfileImageData() -> Data { return profileImage }
+    func getProfileImageData() -> Data { return profilePicture }
     
     func getName() -> String { return name }
     
