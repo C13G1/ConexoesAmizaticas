@@ -26,6 +26,7 @@ class User: Codable {
         self.profilePicture = try container.decode(Data.self, forKey: .profilePicture)
         self.id = try container.decode(UUID.self, forKey: .id)
     }
+    
     func editName(_ name: String) {
         self.name = name
     }
