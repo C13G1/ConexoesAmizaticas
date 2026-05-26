@@ -12,19 +12,13 @@ import SwiftUI
 @Model
 class Post: Identifiable {
     var images: [Data]  = []
-    var text:   String? = nil
-    var date:   Date    = Date.now
-    var id:     UUID    = UUID()
+    var date: Date = Date.now
+    var id: UUID = UUID()
     
-    init(images: [Data], text: String? = nil, date: Date = Date.now) {
+    init(images: [Data], date: Date = Date.now) {
         self.images = images
-        self.text   = text
-        self.date   = date
-        self.id     = UUID()
-    }
-    
-    func editText(_ newText: String) {
-        self.text = newText
+        self.date = date
+        self.id = UUID()
     }
     
     func appendImageData(_ image: Data) {
@@ -35,4 +29,3 @@ class Post: Identifiable {
         images.removeAll(where: {$0 == image})
     }
 }
-

@@ -10,7 +10,7 @@ import SwiftData
 
 @Model
 class FeedManager {
-    private var posts: [Post] = []
+    private(set) var posts: [Post] = []
     
     init(){}
     

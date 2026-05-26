@@ -15,15 +15,17 @@ class FriendNode: SKShapeNode {
     var orbitRadius: Double = RelationshipState.estaveis.orbitRadius
     var lastTouchLocation: CGPoint!
     
-    init(score: Double, image: Data) {
-        self.score = score
-        
+    
+    init(connection: Connection) {
+        self.score = connection.metaManager.score
+        let imageData = connection.friend.profilePicture
         let path = UIBezierPath(roundedRect: CGRect(x: -128, y: -128, width: 256, height: 256), cornerRadius: 128).cgPath
         self.sprite = SKShapeNode(path: path)
-        let image = UIImage(data: image)!
+        let image = UIImage(data: imageData)!
         self.sprite.fillTexture = SKTexture(image: image)
         self.sprite.fillColor = .white
-        
+        self.sprite.strokeColor = connection.metaManager.currentRelationshipState.color
+        self.sprite.lineWidth = 20
         super.init()
         
         self.physicsBody = SKPhysicsBody(circleOfRadius: 128)

@@ -35,9 +35,9 @@ struct FriendsProfileView: View {
                                        subText: "há \(String(describing: viewModel.getLastMeet())) Dias")
             }
             TextedRoundedRectangle(width: 350,text: "maior tempo sem se encontrar", subText: "\(viewModel.getRecordTimeNotMeeting()) dias")
-            
+        
             TextedRoundedRectangle(width: 350,text: "maior tempo sem se encontrar", subText: "\(viewModel.getRecordTimeNotMeeting()) dias")
-            NavigationLink(destination: BLEView()) {
+            NavigationLink(destination: BLEView(profile: viewModel.connection.friend)) {
                 TextedRoundedRectangle(width: 351, height: 91,
                                        text: "registrar encontro",
                                        textSize: .system(size: 24),
