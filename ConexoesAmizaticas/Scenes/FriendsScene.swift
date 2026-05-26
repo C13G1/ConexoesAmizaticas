@@ -23,7 +23,7 @@ class FriendsScene: SKScene {
     init(size: CGSize, connections: [Connection]) {
         super.init(size: size)
         self.connections = connections
-        self.backgroundColor = .white
+        self.backgroundColor = .lightBackground
         self.addChild(rootNode)
         initBackground()
         initFriends()
