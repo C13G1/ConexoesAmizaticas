@@ -9,22 +9,16 @@ import SwiftUI
 import Foundation
 import SwiftData
 
+@Observable
 class InicialViewModel {
-    private(set) var modelContext           : ModelContext
+    private(set) var modelContext           : ModelContext!
     private(set) var profile                : User?
-    private(set) var connectionsWithFriends : [Connection]
-    
-    init(modelContext: ModelContext) {
-        self.modelContext                = modelContext
-        self.connectionsWithFriends      = []
-        
-        fetchData()
-    }
+    private(set) var connectionsWithFriends : [Connection] = []
     
     func fetchData() {
         do {
-            let userDescriptor        = FetchDescriptor<User>(sortBy: [SortDescriptor(\.id)])
-            let connectionsDescriptor = FetchDescriptor<Connection>(sortBy: [SortDescriptor(\.id)])
+            let userDescriptor        = FetchDescriptor<User>(/*sortBy: [SortDescriptor(\.id)]*/)
+            let connectionsDescriptor = FetchDescriptor<Connection>(/*sortBy: [SortDescriptor(\.id)]*/)
             
             var users                 = try modelContext.fetch(userDescriptor)
             let connections           = try modelContext.fetch(connectionsDescriptor)
@@ -47,5 +41,18 @@ class InicialViewModel {
     
     func convertDataToImage(data: Data) -> UIImage? {
         return UIImage(data: data)
+    }
+    
+    func setModelContext(modelContext: ModelContext){
+        self.modelContext = modelContext
+    }
+    
+    func getConnectionByFriend(friend: User) -> Connection?{
+        for c in connectionsWithFriends{
+            if c.friend.id == friend.id{
+                return c
+            }
+        }
+        return nil
     }
 }

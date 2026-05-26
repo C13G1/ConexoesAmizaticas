@@ -9,20 +9,17 @@ import SwiftData
 import SwiftUI
 
 struct SearchView: View {
-    @Environment(\.modelContext) private var modelContext
-    
-    @State private var viewModel: InicialViewModel?
-    @State private var friends: [User] = []
-    
+
+    @Binding var viewModel: InicialViewModel
     @State private var searchText: String = ""
     @FocusState private var isFocused: Bool
     
-    var searchResults: [User] {
+    var searchResults: [Connection] {
         if searchText.isEmpty {
             return []
         } else {
-            let results = friends.filter { friend in
-                friend.name.localizedStandardContains(searchText)
+            let results = viewModel.connectionsWithFriends.filter { c in
+                c.friend.name.localizedStandardContains(searchText)
             }
             
             return results
@@ -34,9 +31,9 @@ struct SearchView: View {
             VStack {
                 List {
                     ForEach(searchResults) { friend in
-                        //                        NavigationLink(destination: PerfumeView(perfume: perfume)) {
-                        //                            Text(perfume.name)
-                        //                        }
+                        NavigationLink(destination: FriendsProfileView()) {
+                            Text(friend.name)
+                        }
                     }
                 }
             }
@@ -45,17 +42,13 @@ struct SearchView: View {
                 text: $searchText,
                 placement: .navigationBarDrawer(displayMode: .always)
             )
-            .onAppear {
-                viewModel = InicialViewModel(modelContext: modelContext)
-                viewModel?.fetchData()
-                friends = viewModel!.getFriends()
-            }
         }
     }
 }
 
 #Preview {
-    SearchView()
+    @Previewable @State var viewModel = InicialViewModel()
+    SearchView(viewModel: $viewModel)
         .modelContainer(for: [
             User.self,
             Post.self,
