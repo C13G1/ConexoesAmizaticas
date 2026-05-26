@@ -10,6 +10,7 @@ import Foundation
 
 @Model
 class Connection {
+    private(set) var id: UUID = UUID()
     private(set) var friend: User
     var metaManager: MetaManager
     var feedManager: FeedManager
@@ -21,6 +22,7 @@ class Connection {
         
         return timeConnected
     }
+    
     var recordNotMeet: TimeInterval? {
         let endDate = Date.now
         guard let lastMet = lastMet else { return nil }
@@ -29,7 +31,7 @@ class Connection {
         return timeConnected
     }
     
-    init(friend: User, lastMet: Date? = nil, score: Double = 30.0) {
+    init(friend: User, lastMet: Date? = nil, score: Double = 80.0) {
         self.friend          = friend
         self.metaManager     = MetaManager(score: score)
         self.feedManager     = FeedManager()

@@ -27,9 +27,10 @@ class InicialViewModel {
             let connectionsDescriptor = FetchDescriptor<Connection>(sortBy: [SortDescriptor(\.id)])
             
             var users                 = try modelContext.fetch(userDescriptor)
-            let connection            = try modelContext.fetch(connectionsDescriptor)
+            let connections           = try modelContext.fetch(connectionsDescriptor)
+            guard users.count > 0 else { return }
             profile                   = users.removeFirst()
-            connectionsWithFriends    = connection
+            connectionsWithFriends    = connections
         } catch {
             print("Fetch failed")
         }
