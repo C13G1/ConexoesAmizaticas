@@ -12,7 +12,8 @@ struct InitialView: View {
         GeometryReader{ geometry in
             VStack(alignment: .center){
                 Spacer()
-                TabBarComponent(geometry: geometry)
+                Text("oie")
+//                TabBarComponent(geometry: geometry)
             }
         }
     }
