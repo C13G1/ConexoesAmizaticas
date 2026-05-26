@@ -16,16 +16,18 @@ struct TextedRoundedRectangle: View {
     let text           : String
     let textSize       : Font
     let textWeight     : Font.Weight
-    
+    let textColor      : Color
+
     let subText        : String?
     let subTextSize    : Font?
     let subTextWeight  : Font.Weight?
+    let subTextColor   : Color
 
     init(width: CGFloat = 165, height: CGFloat = 66,
          cornerRadius: CGFloat = 13, text: String,
-         textSize: Font = Font.system(size: 15),textWeight: Font.Weight = Font.Weight.light,
+         textSize: Font = Font.system(size: 15),textWeight: Font.Weight = Font.Weight.light, textColor: Color = Color.black,
          subText: String? = nil, subTextSize: Font? = Font.system(size: 24),
-         subTextWeight: Font.Weight? = Font.Weight.black,
+         subTextWeight: Font.Weight? = Font.Weight.black, subTextColor: Color = Color.black,
          backGoundColor: Color = Color.backgoundGreen) {
         
         self.width          = width
@@ -38,6 +40,8 @@ struct TextedRoundedRectangle: View {
         self.subTextWeight  = subTextWeight
         self.backGoundColor = backGoundColor
         self.cornerRadius   = cornerRadius
+        self.subTextColor   = subTextColor
+        self.textColor      = textColor
     }
     
     var body: some View {
@@ -50,11 +54,13 @@ struct TextedRoundedRectangle: View {
                     .font(textSize)
                     .fontWeight(textWeight)
                     .foregroundStyle(.black)
+                    .foregroundStyle(textColor)
                 if subText != nil {
                     Text(subText!)
                         .font(subTextSize)
                         .fontWeight(subTextWeight)
                         .foregroundStyle(.black)
+                        .foregroundStyle(subTextColor)
                 }
             }
             
