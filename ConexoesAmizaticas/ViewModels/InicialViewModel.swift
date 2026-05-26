@@ -28,6 +28,7 @@ class InicialViewModel {
             
             var users                 = try modelContext.fetch(userDescriptor)
             let connections           = try modelContext.fetch(connectionsDescriptor)
+            guard users.count > 0 else { return }
             profile                   = users.removeFirst()
             connectionsWithFriends    = connections
         } catch {
@@ -44,10 +45,7 @@ class InicialViewModel {
         return friends
     }
     
-    func convertDataToImage(data: Data) -> Image?{
-        if let uiImage = UIImage(data: data) {
-            return Image(uiImage: uiImage)
-        }
-        return nil
+    func convertDataToImage(data: Data) -> UIImage? {
+        return UIImage(data: data)
     }
 }

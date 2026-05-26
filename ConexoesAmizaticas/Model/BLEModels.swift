@@ -31,18 +31,13 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
     init(view: BLEView) {
         self.view = view
         super.init()
-        self.centralManager = CBCentralManager(delegate: self, queue: nil)
-        self.peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
         print("init blemanager")
     }
     
     func startBLE() {
         print("start ble")
-        centralManager.scanForPeripherals(withServices: [serviceID])
-        peripheralManager.startAdvertising([
-            CBAdvertisementDataServiceUUIDsKey: [serviceID],
-            CBAdvertisementDataLocalNameKey: "\(advertisingKey)"
-        ])
+        self.centralManager = CBCentralManager(delegate: self, queue: nil)
+        self.peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
     }
     
     func stopBLE() {
@@ -172,6 +167,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
         self.outputStream.schedule(in: .main, forMode: .default)
         self.outputStream.open()
         self.inputStream.open()
+        self.view.foundFriend = true
     }
     
     func peripheralManager(_ peripheral: CBPeripheralManager, didOpen channel: CBL2CAPChannel?, error: (any Error)?) {
@@ -198,6 +194,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
         self.outputStream.schedule(in: .main, forMode: .default)
         self.outputStream.open()
         self.inputStream.open()
+        self.view.foundFriend = true
     }
     
     func receiveData() {

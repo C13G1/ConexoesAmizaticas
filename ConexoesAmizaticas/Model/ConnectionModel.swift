@@ -22,14 +22,19 @@ class Connection {
         
         return timeConnected
     }
+    var timeSinceLastMet   : TimeInterval {
+        let endDate       = Date.now
+        let timeConnected = endDate.timeIntervalSince(lastMet ?? Date.now)
+        return timeConnected
+    }
     
     var recordNotMeet: TimeInterval? {
         let endDate = Date.now
         guard let lastMet = lastMet else { return nil }
-        let timeConnected = endDate.timeIntervalSince(lastMet)
-        
+        let timeConnected = endDate.timeIntervalSince(lastMet)        
         return timeConnected
     }
+    var recordTimeNotMeeting: TimeInterval?
     
     init(friend: User, lastMet: Date? = nil, score: Double = 80.0) {
         self.friend          = friend
