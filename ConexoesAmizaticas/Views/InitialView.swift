@@ -36,40 +36,42 @@ struct InitialView: View {
     }
     
     var body: some View {
-        ZStack {
-            SpriteView(scene: scene, debugOptions: [])
-                .frame(height: UIScreen.main.bounds.height)
-            
+        NavigationStack {
             ZStack {
-                ToolBar()
-                    .padding(.bottom, UIScreen.main.bounds.width * 2.28)
+                SpriteView(scene: scene, debugOptions: [])
+                    .frame(height: UIScreen.main.bounds.height)
                 
-                TabBar()
-                    .padding(.top, UIScreen.main.bounds.width * 2.15)
-            }
-            
-            if let _ = vm {
-                if vm.connectionsWithFriends.count == 0 {
-                    ZStack {
-                        VStack (spacing: 20){
-                            Text("Bem Vindo Ao Zelu")
-                                .font(.custom("Bolota", size: 32))
+                ZStack {
+                    ToolBar()
+                        .padding(.bottom, UIScreen.main.bounds.width * 2.28)
+                    
+                    TabBar()
+                        .padding(.top, UIScreen.main.bounds.width * 2.15)
+                }
+                
+                if let _ = vm {
+                    if vm.connectionsWithFriends.count == 0 {
+                        ZStack {
+                            VStack (spacing: 20){
+                                Text("Bem Vindo Ao Zelu")
+                                    .font(.custom("Bolota", size: 32))
+                                
+                                Text("adicione seus amigos para iniciar")
+                                    .font(.custom("Sora-Regular", size: 20))
+                                    .multilineTextAlignment(.center)
+                                    .frame(width: UIScreen.main.bounds.width * 0.6)
+                                
+                            }
+                            .foregroundStyle(.addFriendsText)
                             
-                            Text("adicione seus amigos para iniciar")
-                                .font(.custom("Sora-Regular", size: 20))
-                                .multilineTextAlignment(.center)
-                                .frame(width: UIScreen.main.bounds.width * 0.6)
-                            
+                            Image("roundArrowAddFriends")
+                                .resizable()
+                                .frame(width: UIScreen.main.bounds.width * 0.22, height: UIScreen.main.bounds.height * 0.1)
+                                .padding(.leading, UIScreen.main.bounds.width * 0.6)
+                                .padding(.top, UIScreen.main.bounds.height * 0.2)
                         }
-                        .foregroundStyle(.addFriendsText)
-                        
-                        Image("roundArrowAddFriends")
-                            .resizable()
-                            .frame(width: UIScreen.main.bounds.width * 0.22, height: UIScreen.main.bounds.height * 0.1)
-                            .padding(.leading, UIScreen.main.bounds.width * 0.6)
-                            .padding(.top, UIScreen.main.bounds.height * 0.22)
+                        .padding(.top, UIScreen.main.bounds.height * 0.3)
                     }
-                    .padding(.top, UIScreen.main.bounds.height * 0.3)
                 }
             }
         }

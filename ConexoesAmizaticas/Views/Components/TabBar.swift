@@ -15,8 +15,8 @@ struct TabBar: View {
                 .frame(width: UIScreen.main.bounds.width, height: 100)
             
             HStack {
-                Button {
-                    
+                NavigationLink {
+                    SearchView()
                 } label: {
                     ZStack {
                         Circle()
@@ -39,8 +39,8 @@ struct TabBar: View {
                 
                 Spacer()
                 
-                Button {
-                    
+                NavigationLink {
+                    AddFriendSheetView()
                 } label: {
                     ZStack {
                         Circle()
