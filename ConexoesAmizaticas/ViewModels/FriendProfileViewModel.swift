@@ -14,9 +14,51 @@ class FriendProfileViewModel {
     
     init(connection: Connection) {
         self.connection = connection
+        self.setRecordTimeNotMeeting()
     }
     
     func defineMeta(meta: RelationshipState){
         connection.metaManager.setMeta(meta)
+    }
+    
+    func getFriendImage() -> UIImage? {
+        return UIImage(data: connection.friend.getProfileImageData())
+    }
+    
+    func getFriendName() -> String {
+        return connection.friend.getName()
+    }
+    
+    func getConnectionTime() -> Int {
+        let connectionDate = Date(timeIntervalSinceNow: connection.timeConnected)
+        let now = Date()
+        let days = Calendar.current.dateComponents([.day], from: connectionDate, to: now).day ?? 1
+        return days
+    }
+    
+    func getTimeSinceLastMet() -> Int {
+        let connectionDate = Date(timeIntervalSinceNow: connection.timeSinceLastMet)
+        let now = Date()
+        let days = Calendar.current.dateComponents([.day], from: connectionDate, to: now).day ?? 0
+        return days
+    }
+    
+    func getLastMeet() -> Date? {
+        return connection.lastMet
+    }
+    
+    func setRecordTimeNotMeeting() {
+        if connection.timeSinceLastMet > connection.recordTimeNotMeeting ?? 0 {
+            connection.recordTimeNotMeeting = connection.timeSinceLastMet
+        }
+    }
+    
+    func getRecordTimeNotMeeting() -> Int{
+        setRecordTimeNotMeeting()
+        
+        let connectionDate = Date(timeIntervalSinceNow: connection.recordTimeNotMeeting ?? 0)
+        let now = Date()
+        let days = Calendar.current.dateComponents([.day], from: connectionDate, to: now).day ?? 0
+        return days
     }
 }

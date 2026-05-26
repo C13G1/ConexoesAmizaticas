@@ -29,7 +29,6 @@ enum RelationshipState: String, Codable {
             return 500
         }
     }
-    
     var orbitSpeed: Double {
         switch self {
         case .afastados:
