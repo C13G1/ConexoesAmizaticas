@@ -9,10 +9,6 @@ import SwiftUI
 
 struct ProfileCircleAndName: View {
     @Binding var vm: InicialViewModel
-    var circleWidthMultiplier: Double
-    var imageMultiplier: Double
-    var fontSize: Int
-    var isInitialView: Bool
     
     var body: some View {
         VStack {
@@ -22,33 +18,33 @@ struct ProfileCircleAndName: View {
                 } label: {
                     ZStack {
                         Circle()
-                            .frame(width: UIScreen.main.bounds.width * circleWidthMultiplier)
-                            .foregroundStyle(isInitialView ? .black : .lightBackground)
+                            .frame(width: UIScreen.main.bounds.width * 0.29)
+                            .foregroundStyle(.black)
                         Image(uiImage: uiImage)
                             .resizable()
                             .scaledToFill()
                             .frame(width: UIScreen.main.bounds.width
-                                   * imageMultiplier, height: UIScreen.main.bounds.width
-                                   * imageMultiplier)
+                                   * 0.25, height: UIScreen.main.bounds.width
+                                   * 0.25)
                             .clipShape(Circle())
                     }
                 }
             } else {
                 ZStack {
                     Circle()
-                        .frame(width: UIScreen.main.bounds.width * circleWidthMultiplier)
-                        .foregroundStyle(isInitialView ? .black : .lightBackground)
+                        .frame(width: UIScreen.main.bounds.width * 0.29)
+                        .foregroundStyle(.black)
                     Circle()
                         .frame(width: UIScreen.main.bounds.width
-                               * imageMultiplier, height: UIScreen.main.bounds.width
-                               * imageMultiplier)
+                               * 0.25, height: UIScreen.main.bounds.width
+                               * 0.25)
                         .foregroundStyle(.gray)
                 }
             }
             
             Text(vm.profile.name)
-                .font(.custom("Sora-ExtraBold", size: CGFloat(fontSize)))
-                .foregroundStyle(isInitialView ? .black : .lightBackground)
+                .font(.custom("Sora-ExtraBold", size: 20))
+                .foregroundStyle(.black)
         }
     }
 }
@@ -56,10 +52,6 @@ struct ProfileCircleAndName: View {
 #Preview {
     @Previewable @State var viewModel = InicialViewModel()
     ProfileCircleAndName(
-        vm: $viewModel,
-        circleWidthMultiplier: 0.29,
-        imageMultiplier: 0.25,
-        fontSize: 20,
-        isInitialView: true
+        vm: $viewModel
     )
 }

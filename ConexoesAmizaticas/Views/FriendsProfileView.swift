@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FriendsProfileView: View {
-    @AppStorage("SetMetaOnboarding") var SetMetaOnboarding: Bool = true
+    @AppStorage("SetMetaOnboarding") var SetMetaOnboarding: Bool = false
     @State var blurLevel: CGFloat = 0.0
     var viewModel : FriendProfileViewModel
     
@@ -23,6 +23,7 @@ struct FriendsProfileView: View {
                         .frame(width: UIScreen.main.bounds.width * 1.6)
                         .foregroundStyle(.friendProfileBackGround)
                         .padding(.top, (UIScreen.main.bounds.height * -0.49))
+                    
                     VStack{
                         Image(uiImage: viewModel.getFriendImage() ??
                               UIImage(named: "DefaultPicture")!)
@@ -34,7 +35,7 @@ struct FriendsProfileView: View {
                         
                         Text(viewModel.getFriendName().uppercased())
                             .font(.custom("Bolota", size: 48))
-                            .padding(.top, 22)
+                            .padding(.top, 8)
                             .fontWeight(.semibold)
                         
                         HStack(spacing: 20.5){
@@ -48,16 +49,18 @@ struct FriendsProfileView: View {
                                                    subText: viewModel.getMeta().rawValue,
                                                    subTextColor: viewModel.getProfileColor())
                         }
+                        
                         if viewModel.getTimeUntilMeet() < 0 {
                             TextedRoundedRectangle(width: 351,height: 77,
                                                    text: "vocês prometeram se encontrar dentro de",
                                                    textSize: 15,subText: "\(viewModel.getTimeUntilMeet() * -1) dias atrasados",
-                                                   subTextSize: 40,
+                                                   subTextSize: 36,
                                                    subTextColor: viewModel.getProfileColor())
                         }
                         else {
                             TextedRoundedRectangle(width: 351,height: 77,text: "vocês prometeram se encontrar dentro de", textSize: 15,
                                                    subText: "\(viewModel.getTimeUntilMeet()) dias",
+                                                   subTextSize: 36,
                                                    subTextColor: viewModel.getProfileColor())
                         }
                         
@@ -74,10 +77,12 @@ struct FriendsProfileView: View {
                                         .frame(width: UIScreen.main.bounds.height * 0.0957,
                                                height: UIScreen.main.bounds.width * 0.0741)
                                         .rotationEffect(Angle(degrees: 90))
+                                    
                                     Ellipse()
                                         .frame(width: UIScreen.main.bounds.width * 0.623,
                                                height: UIScreen.main.bounds.height * 0.123)
                                         .foregroundStyle(viewModel.getProfileColor())
+                                    
                                     CurvedRectangle(depth: 2)
                                         .stroke(viewModel.getProfileColor(),
                                                 style: StrokeStyle(
@@ -98,7 +103,7 @@ struct FriendsProfileView: View {
                         
                         
                         AddPictureButton(viewModel: FriendFeedViewModel(connection: viewModel.connection))
-                            .padding(.top, 30)
+                            .padding(.top, 35)
                         
                         Spacer()
                         

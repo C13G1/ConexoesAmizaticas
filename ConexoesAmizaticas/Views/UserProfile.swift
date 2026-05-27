@@ -64,12 +64,12 @@ struct UserProfile: View {
                             .frame(width: UIScreen.main.bounds.width * 0.15)
                             .foregroundStyle(.lightBackground)
                         Image(systemName: "pencil")
-                            .foregroundStyle(.black)
+                            .foregroundStyle(.themeBackground)
                             .font(.largeTitle)
                             .bold()
                     }
                     .frame(width: UIScreen.main.bounds.width * 0.19, height: UIScreen.main.bounds.width * 0.19)
-                    .background(.black)
+                    .background(.themeBackground)
                     .cornerRadius(100)
                 }
                 .padding(.bottom, UIScreen.main.bounds.height * 0.78)
@@ -77,13 +77,7 @@ struct UserProfile: View {
                 
                 VStack (spacing: 60){
                     VStack (spacing: 20){
-                        ProfileCircleAndName(
-                            vm: $vm,
-                            circleWidthMultiplier: 0.52,
-                            imageMultiplier: 0.48,
-                            fontSize: 45,
-                            isInitialView: false
-                        )
+                        ProfileHeader(vm: $vm)
                         
                         HStack(spacing: 70) {
                             VStack(alignment: .center) {
@@ -115,7 +109,7 @@ struct UserProfile: View {
                             ForEach(friendsByState, id: \.state) { item in
                                 SectorMark(
                                     angle: .value("Quantidade", item.count),
-                                    innerRadius: .ratio(0.8),
+                                    innerRadius: .ratio(0.85),
                                     angularInset: 0
                                 )
                                 .foregroundStyle(Color(item.state.color))
