@@ -29,7 +29,7 @@ struct InitialView: View {
     }()
     
     var body: some View {
-        NavigationStack(path: $navigation){
+        NavigationStack(path: $navigation) {
             ZStack {
                 SpriteView(scene: scene, debugOptions: [])
                     .frame(height: UIScreen.main.bounds.height)
@@ -68,12 +68,18 @@ struct InitialView: View {
             .navigationDestination(for: Connection.self) { value in
                 FriendsProfileView(connection: value)
             }
+            .navigationDestination(isPresented: $showVacuoView) {
+                VacuoView()
+            }
         }
         .onAppear {
             scene.updateConnections(receivedConnections: Set(vm.connectionsWithFriends))
             scene.onFriendTapped = { connection in
                 selectedConnection = connection
                 navigation.append(connection)
+            }
+            scene.onSpiralTapped = {
+                showVacuoView = true
             }
         }
         .onChange(of: connections) { _, newConnections in
