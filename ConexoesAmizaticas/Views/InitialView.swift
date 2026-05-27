@@ -14,9 +14,6 @@ struct InitialView: View {
     @Environment(\.modelContext) private var modelContext
     @State var vm: InicialViewModel = InicialViewModel()
     @State private var selectedConnection: Connection?
-    @State private var showFriendActions: Bool = false
-    @State private var showEditAlert: Bool = false
-    @State private var editingName: String = ""
     @State private var showVacuoView: Bool = false
     
     @Query private var connections: [Connection]
@@ -67,11 +64,10 @@ struct InitialView: View {
                     }
                     .padding(.top, UIScreen.main.bounds.height * 0.3)
                 }
-                
             }
-        }
-        .navigationDestination(for: Connection.self) { value in
-            FriendsProfileView(connection: value)
+            .navigationDestination(for: Connection.self) { value in
+                FriendsProfileView(connection: value)
+            }
         }
         .onAppear {
             scene.updateConnections(receivedConnections: Set(vm.connectionsWithFriends))

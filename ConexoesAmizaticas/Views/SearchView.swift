@@ -12,9 +12,15 @@ import SpriteKit
 struct SearchView: View {
     @Binding var viewModel: InicialViewModel
     @State private var searchText: String = ""
-    @FocusState private var isFocused: Bool
     @State var navPath: NavigationPath = NavigationPath()
     @State var reloadScreen: Bool = false
+    @State private var selectedConnection: Connection?
+    
+    @Query private var connections: [Connection]
+    @Query private var users: [User]
+    
+    @FocusState private var isFocused: Bool
+    
     var scene: FriendsScene = {
         let scene = FriendsScene(size: UIScreen.main.bounds.size, connections: Set(), sceneType: .search)
         scene.scaleMode = .aspectFill
@@ -34,7 +40,7 @@ struct SearchView: View {
     }
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navPath) {
             ZStack {
                 SpriteView(scene: scene, debugOptions: [.showsPhysics, .showsNodeCount, .showsDrawCount])
                     .ignoresSafeArea()
@@ -44,15 +50,26 @@ struct SearchView: View {
                 text: $searchText,
                 placement: .navigationBarDrawer(displayMode: .always)
             )
-            .onChange(of: searchText, {
-                let updatedFriends: Set<Connection> = Set(searchResults)
-                print("passing friends to func:\n\(updatedFriends)")
-                self.scene.updateConnections(receivedConnections: updatedFriends)
-            })
             .navigationDestination(for: Connection.self) { value in
                 FriendsProfileView(connection: value)
             }
         }
+        .onAppear {
+            scene.updateConnections(receivedConnections: Set(viewModel.connectionsWithFriends))
+            scene.onFriendTapped = { connection in
+                selectedConnection = connection
+                navPath.append(connection)
+            }
+        }
+        .onChange(of: connections) { _, newConnections in
+            scene.updateConnections(receivedConnections: Set(newConnections.filter { !$0.inVacuo }))
+            scene.updateNodeVisuals()
+        }
+        .onChange(of: searchText, {
+            let updatedFriends: Set<Connection> = Set(searchResults)
+            print("passing friends to func:\n\(updatedFriends)")
+            self.scene.updateConnections(receivedConnections: updatedFriends)
+        })
     }
 }
 
