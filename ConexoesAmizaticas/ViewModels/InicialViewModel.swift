@@ -12,7 +12,7 @@ import SwiftData
 @Observable
 class InicialViewModel {
     private(set) var modelContext           : ModelContext!
-    private(set) var profile                : User?
+    private(set) var profile                : User = User()
     private(set) var connectionsWithFriends : [Connection] = [
         Connection(friend: User(name: "BrotherdoDesertoAcho", profilePicture: UIImage(named: "BrotherdoDesertoAcho")!.jpegData(compressionQuality: 1)!), score: Double.random(in: 10...100)),
         Connection(friend: User(name: "DarthVader", profilePicture: UIImage(named: "DarthVader")!.jpegData(compressionQuality: 1)!), score: Double.random(in: 10...100)),

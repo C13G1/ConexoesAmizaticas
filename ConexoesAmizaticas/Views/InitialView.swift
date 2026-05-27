@@ -35,7 +35,7 @@ struct InitialView: View {
                     .frame(height: UIScreen.main.bounds.height)
                 
                 ZStack {
-                    ToolBar()
+                    ToolBar(vm: $vm)
                         .padding(.bottom, UIScreen.main.bounds.width * 2.28)
                     
                     TabBar(viewModel: $vm, user: currentUser)
