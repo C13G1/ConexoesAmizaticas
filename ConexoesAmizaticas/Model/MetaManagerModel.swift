@@ -49,8 +49,8 @@ class MetaManager {
         self.meta = meta
     }
     
-    func addOrSubtractScore(_ score: Double) {
-        self.score += score
-        calculateRelationshipState()
+    func addOrSubtractScore(_ value: Double) {
+        self.score = min(100, max(0, self.score + value))
+        self.currentRelationshipState = calculateRelationshipState()
     }
 }

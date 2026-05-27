@@ -9,6 +9,7 @@ import SwiftUI
 
 struct TabBar: View {
     @Binding var viewModel: InicialViewModel
+    var user: User
     
     var body: some View {
         ZStack {
@@ -41,9 +42,7 @@ struct TabBar: View {
                 
                 Spacer()
                 
-                NavigationLink {
-                    AddFriendSheetView()
-                } label: {
+                NavigationLink (destination: BLEView(profile: user)) {
                     ZStack {
                         Circle()
                             .frame(width: UIScreen.main.bounds.width * 0.15)

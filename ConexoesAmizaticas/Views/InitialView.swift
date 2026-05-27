@@ -8,10 +8,22 @@
 import SwiftUI
 import UIKit
 import _SpriteKit_SwiftUI
+import _SwiftData_SwiftUI
 
 struct InitialView: View {
     @Environment(\.modelContext) private var modelContext
     @State var vm: InicialViewModel = InicialViewModel()
+    @State private var selectedConnection: Connection?
+    @State private var showFriendActions: Bool = false
+    @State private var showEditAlert: Bool = false
+    @State private var editingName: String = ""
+    @State private var showVacuoView: Bool = false
+    
+    @Query private var connections: [Connection]
+    @Query private var users: [User]
+    
+    var currentUser: User { users.first ?? User() }
+    @State var navigation: NavigationPath = NavigationPath()
     
     var scene: FriendsScene = {
         let scene = FriendsScene(size: UIScreen.main.bounds.size, connections: Set(), sceneType: .initial)
@@ -20,7 +32,7 @@ struct InitialView: View {
     }()
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigation){
             ZStack {
                 SpriteView(scene: scene, debugOptions: [])
                     .frame(height: UIScreen.main.bounds.height)
@@ -29,7 +41,7 @@ struct InitialView: View {
                     ToolBar()
                         .padding(.bottom, UIScreen.main.bounds.width * 2.28)
                     
-                    TabBar(viewModel: $vm)
+                    TabBar(viewModel: $vm, user: currentUser)
                         .padding(.top, UIScreen.main.bounds.width * 2.15)
                 }
                 
@@ -58,8 +70,19 @@ struct InitialView: View {
                 
             }
         }
+        .navigationDestination(for: Connection.self) { value in
+            FriendsProfileView(connection: value)
+        }
         .onAppear {
             scene.updateConnections(receivedConnections: Set(vm.connectionsWithFriends))
+            scene.onFriendTapped = { connection in
+                selectedConnection = connection
+                navigation.append(connection)
+            }
+        }
+        .onChange(of: connections) { _, newConnections in
+            scene.updateConnections(receivedConnections: Set(newConnections.filter { !$0.inVacuo }))
+            scene.updateNodeVisuals()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()

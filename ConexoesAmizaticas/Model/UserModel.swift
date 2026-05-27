@@ -36,7 +36,12 @@ class User: Codable {
         self.profilePicture = image
     }
     
-    func encode(to encoder: any Encoder) throws {}
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(name, forKey: .name)
+        try container.encode(profilePicture, forKey: .profilePicture)
+        try container.encode(id, forKey: .id)
+    }
 
     func getProfileImageData() -> Data { return profilePicture }
     

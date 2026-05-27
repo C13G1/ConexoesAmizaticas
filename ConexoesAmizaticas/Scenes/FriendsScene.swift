@@ -20,7 +20,16 @@ class FriendsScene: SKScene {
     var lastTouchLocation: CGPoint!
     var deltaAngle: Double = 0
     let sceneType: SceneType!
-    
+
+    // identifica o toque na BOLHA
+    var onFriendTapped: ((Connection) -> Void)?
+    // identifica quando toca no vacuo
+    var onSpiralTapped: (() -> Void)?
+
+    // diferencia tap de drag
+    private var touchStartedOnSpiral = false
+    private var touchStartLocation: CGPoint?
+
     init(size: CGSize, connections: Set<Connection>, sceneType: SceneType) {
         self.sceneType = sceneType
         super.init(size: size)
@@ -33,69 +42,58 @@ class FriendsScene: SKScene {
         }
         initCamera()
     }
-    
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     func initCamera() {
         let camera = SKCameraNode()
         self.camera = camera
         addChild(camera)
     }
-    
+
     func initBackground() {
         let spiral = SKSpriteNode(texture: SKTexture(imageNamed: "Spiral"), size: CGSize(width: 122, height: 122))
+        spiral.name = "spiral"
         spiral.physicsBody = SKPhysicsBody(circleOfRadius: (spiral.size.width - 35) / 2)
         spiral.physicsBody?.affectedByGravity = false
         spiral.physicsBody?.isDynamic = false
-        
         self.rootNode.addChild(spiral)
     }
-    
+
     func initFriends() {
         for connection in connections {
-            let friend = FriendNode(connection: connection)
-            var randomX = CGFloat.random(in: -100...100)
-            if randomX < 0 {
-                randomX = min(-60, randomX)
-            }
-            else {
-                randomX = max(60, randomX)
-            }
-            var randomY = CGFloat.random(in: -100...100)
-            if randomY < 0 {
-                randomY = min(-60, randomY)
-            }
-            else {
-                randomY = max(60, randomY)
-            }
-            self.rootNode.addChild(friend)
-            let springAnchor = SpringNode()
-            self.rootNode.addChild(springAnchor)
-            let spring = SKPhysicsJointSpring.joint(
-                withBodyA: friend.physicsBody!,
-                bodyB: springAnchor.physicsBody!,
-                anchorA: friend.position,
-                anchorB: springAnchor.position)
-            spring.frequency = 0.8
-            spring.damping = 0.5
-            self.physicsWorld.add(spring)
-            friend.position = CGPoint(x: randomX, y: randomY)
-            print("friend added")
+            addFriendNode(for: connection)
         }
     }
-    
-    func updateConnections(receivedConnections: Set<Connection>) {
-        print("current nodes: \(self.rootNode.children.count)")
-        print("received connections:")
-        for connection in receivedConnections {
-            print("\(connection.friend.name)", terminator: ", ")
+
+    private func addFriendNode(for connection: Connection) {
+        let friend = FriendNode(connection: connection)
+        friend.onTapped = { [weak self] in
+            self?.onFriendTapped?(connection)
         }
-        print("")
-        
+        var randomX = CGFloat.random(in: -100...100)
+        randomX = randomX < 0 ? min(-60, randomX) : max(60, randomX)
+        var randomY = CGFloat.random(in: -100...100)
+        randomY = randomY < 0 ? min(-60, randomY) : max(60, randomY)
+
+        self.rootNode.addChild(friend)
+        let springAnchor = SpringNode()
+        self.rootNode.addChild(springAnchor)
+        let spring = SKPhysicsJointSpring.joint(
+            withBodyA: friend.physicsBody!,
+            bodyB: springAnchor.physicsBody!,
+            anchorA: friend.position,
+            anchorB: springAnchor.position)
+        spring.frequency = 0.8
+        spring.damping = 0.5
+        self.physicsWorld.add(spring)
+        friend.position = CGPoint(x: randomX, y: randomY)
+    }
+
+    func updateConnections(receivedConnections: Set<Connection>) {
         let connectionsToDelete = self.connections.subtracting(receivedConnections)
-        
         let connectionsToAdd = receivedConnections.subtracting(self.connections)
 
         self.connections.subtract(connectionsToDelete)
@@ -105,78 +103,56 @@ class FriendsScene: SKScene {
                 nodesToRemove.append(node)
             }
         }
-        print("deleting connections:")
-        for node in nodesToRemove {
-            print("\(node.name!)", terminator: ", ")
-        }
-        print("")
         self.rootNode.removeChildren(in: nodesToRemove)
-        
-        print("adding connections:")
+
         for connection in connectionsToAdd {
-            print("\(connection.friend.name)", terminator: ", ")
-            let friend = FriendNode(connection: connection)
-            var randomX = CGFloat.random(in: -100...100)
-            if randomX < 0 {
-                randomX = min(-60, randomX)
-            }
-            else {
-                randomX = max(60, randomX)
-            }
-            var randomY = CGFloat.random(in: -100...100)
-            if randomY < 0 {
-                randomY = min(-60, randomY)
-            }
-            else {
-                randomY = max(60, randomY)
-            }
-            self.rootNode.addChild(friend)
-            let springAnchor = SpringNode()
-            self.rootNode.addChild(springAnchor)
-            let spring = SKPhysicsJointSpring.joint(
-                withBodyA: friend.physicsBody!,
-                bodyB: springAnchor.physicsBody!,
-                anchorA: friend.position,
-                anchorB: springAnchor.position)
-            spring.frequency = 0.8
-            spring.damping = 0.5
-            self.physicsWorld.add(spring)
-            friend.position = CGPoint(x: randomX, y: randomY)
+            addFriendNode(for: connection)
             self.connections.insert(connection)
         }
-        print("")
-        print("updated connections:")
-        for connection in connections {
-            print("\(connection.friend.id.uuidString)", terminator: ", ")
-        }
-        print("")
     }
-    
+
+    func updateNodeVisuals() {
+        for child in rootNode.children {
+            guard let friendNode = child as? FriendNode else { continue }
+            guard let connection = connections.first(where: { $0.friend.id.uuidString == (friendNode.name ?? "") }) else { continue }
+            let score = connection.metaManager.score
+            friendNode.score = score
+            friendNode.setScale(0.05 * CGFloat(score) / 10)
+            friendNode.sprite.strokeColor = connection.metaManager.currentRelationshipState.color
+            if score < 20 { friendNode.orbitRadius = RelationshipState.afastados.orbitRadius }
+            else if score < 40 { friendNode.orbitRadius = RelationshipState.distantes.orbitRadius }
+            else if score < 60 { friendNode.orbitRadius = RelationshipState.estaveis.orbitRadius }
+            else if score < 80 { friendNode.orbitRadius = RelationshipState.proximos.orbitRadius }
+            else { friendNode.orbitRadius = RelationshipState.inseparaveis.orbitRadius }
+        }
+    }
+
+    func filterByName(_ text: String) {
+        for child in rootNode.children {
+            guard let friendNode = child as? FriendNode else { continue }
+            let connection = connections.first { $0.friend.id.uuidString == (friendNode.name ?? "") }
+            let visible = text.isEmpty || (connection?.friend.name.localizedCaseInsensitiveContains(text) ?? false)
+            friendNode.isHidden = !visible
+            friendNode.physicsBody?.isDynamic = visible
+            if !visible {
+                friendNode.physicsBody?.velocity = .zero
+                friendNode.physicsBody?.angularVelocity = 0
+            }
+        }
+    }
+
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
-        print("touchedScene")
         firstTouch = touch
+        let sceneLocation = touch.location(in: self)
+        touchStartLocation = sceneLocation
         lastTouchLocation = touch.location(in: self.rootNode)
         touchAngle = self.rootNode.zRotation
         deltaAngle = 0
-        
-        // Lógica de pinch
-        //            if let secondTouch = secondTouch {
-        //                return
-        //            }
-        //            else {
-        //                secondTouch = touch
-        //                print("second touch")
-        //                self.pinchDistance = distance(SIMD2(firstTouch.location(in: scene!).x, firstTouch.location(in: scene!).y), SIMD2(secondTouch.location(in: scene!).x, secondTouch.location(in: scene!).y))
-        //                print("pinch distance: \(self.pinchDistance ?? 0)")
-        //            }
-        //        }
-        //        else {
-        //            firstTouch = touch
-        //            print("first touch")
-        //        }
+
+        touchStartedOnSpiral = nodes(at: sceneLocation).contains { $0.name == "spiral" }
     }
-    
+
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         lastTouchLocation = touch.location(in: self.rootNode)
@@ -184,32 +160,36 @@ class FriendsScene: SKScene {
         let tan = (location.x) / (location.y)
         let newAngle = atan(tan)
         let deltaAngle = (newAngle - touchAngle)
-        
         self.rootNode.zRotation -= newAngle
         self.deltaAngle = deltaAngle
-        print("deltaAngle: \(deltaAngle)")
-        print("rotation: \(self.rootNode.zRotation * 180.0 / Double.pi)")
-        
-        // Lógica de pinch
-        //        if let firstTouch = firstTouch, let secondTouch = secondTouch {
-        //            self.pinchDistance = distance(SIMD2(firstTouch.location(in: scene!).x, firstTouch.location(in: scene!).y), SIMD2(secondTouch.location(in: scene!).x, secondTouch.location(in: scene!).y))
-        //            print("pinch distance: \(self.pinchDistance ?? 0)")
-        //        }
     }
-    
+
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
+
+        // se movimento < 10 foi tap
+        if touchStartedOnSpiral, let start = touchStartLocation {
+            let end = touch.location(in: self)
+            let dx = end.x - start.x
+            let dy = end.y - start.y
+            if sqrt(dx * dx + dy * dy) < 10 {
+                onSpiralTapped?()
+            }
+        }
+
         if touch == firstTouch {
             firstTouch = nil
             self.pinchDistance = 0
             self.touchAngle = 0
-        }
-        else if touch == secondTouch {
+        } else if touch == secondTouch {
             secondTouch = nil
             self.pinchDistance = 0
         }
+
+        touchStartedOnSpiral = false
+        touchStartLocation = nil
     }
-    
+
     override func update(_ currentTime: TimeInterval) {
         for child in self.rootNode.children {
             if let friend = child as? FriendNode {
