@@ -11,7 +11,7 @@ let MAX_RADIUS: Double = 400
 let MIN_RADIUS: Double = 100
 
 class FriendsScene: SKScene {
-    var connections: [Connection] = []
+    var connections: Set<Connection> = Set()
     var firstTouch: UITouch!
     var secondTouch: UITouch!
     var pinchDistance: Double!
@@ -19,14 +19,18 @@ class FriendsScene: SKScene {
     var rootNode: SKNode = SKNode()
     var lastTouchLocation: CGPoint!
     var deltaAngle: Double = 0
+    let sceneType: SceneType!
     
-    init(size: CGSize, connections: [Connection]) {
+    init(size: CGSize, connections: Set<Connection>, sceneType: SceneType) {
+        self.sceneType = sceneType
         super.init(size: size)
         self.connections = connections
         self.backgroundColor = .white
         self.addChild(rootNode)
-        initBackground()
-        initFriends()
+        if sceneType == .initial {
+            initBackground()
+            initFriends()
+        }
         initCamera()
     }
     
@@ -47,7 +51,6 @@ class FriendsScene: SKScene {
         spiral.physicsBody?.isDynamic = false
         
         self.rootNode.addChild(spiral)
-        spiral.run(SKAction.repeatForever(SKAction.rotate(byAngle: -1, duration: 1)))
     }
     
     func initFriends() {
@@ -67,7 +70,6 @@ class FriendsScene: SKScene {
             else {
                 randomY = max(60, randomY)
             }
-            friend.position = CGPoint(x: randomX, y: randomY)
             self.rootNode.addChild(friend)
             let springAnchor = SpringNode()
             self.rootNode.addChild(springAnchor)
@@ -79,8 +81,75 @@ class FriendsScene: SKScene {
             spring.frequency = 0.8
             spring.damping = 0.5
             self.physicsWorld.add(spring)
+            friend.position = CGPoint(x: randomX, y: randomY)
             print("friend added")
         }
+    }
+    
+    func updateConnections(receivedConnections: Set<Connection>) {
+        print("current nodes: \(self.rootNode.children.count)")
+        print("received connections:")
+        for connection in receivedConnections {
+            print("\(connection.friend.name)", terminator: ", ")
+        }
+        print("")
+        
+        let connectionsToDelete = self.connections.subtracting(receivedConnections)
+        
+        let connectionsToAdd = receivedConnections.subtracting(self.connections)
+
+        self.connections.subtract(connectionsToDelete)
+        var nodesToRemove: [SKNode] = []
+        for connection in connectionsToDelete {
+            if let node = self.rootNode.childNode(withName: connection.friend.id.uuidString) {
+                nodesToRemove.append(node)
+            }
+        }
+        print("deleting connections:")
+        for node in nodesToRemove {
+            print("\(node.name!)", terminator: ", ")
+        }
+        print("")
+        self.rootNode.removeChildren(in: nodesToRemove)
+        
+        print("adding connections:")
+        for connection in connectionsToAdd {
+            print("\(connection.friend.name)", terminator: ", ")
+            let friend = FriendNode(connection: connection)
+            var randomX = CGFloat.random(in: -100...100)
+            if randomX < 0 {
+                randomX = min(-60, randomX)
+            }
+            else {
+                randomX = max(60, randomX)
+            }
+            var randomY = CGFloat.random(in: -100...100)
+            if randomY < 0 {
+                randomY = min(-60, randomY)
+            }
+            else {
+                randomY = max(60, randomY)
+            }
+            self.rootNode.addChild(friend)
+            let springAnchor = SpringNode()
+            self.rootNode.addChild(springAnchor)
+            let spring = SKPhysicsJointSpring.joint(
+                withBodyA: friend.physicsBody!,
+                bodyB: springAnchor.physicsBody!,
+                anchorA: friend.position,
+                anchorB: springAnchor.position)
+            spring.frequency = 0.8
+            spring.damping = 0.5
+            self.physicsWorld.add(spring)
+            friend.position = CGPoint(x: randomX, y: randomY)
+            self.connections.insert(connection)
+        }
+        print("")
+        print("updated connections:")
+        for connection in connections {
+            print("\(connection.friend.id.uuidString)", terminator: ", ")
+        }
+        print("")
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {

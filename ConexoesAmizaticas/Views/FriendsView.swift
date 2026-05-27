@@ -11,22 +11,9 @@ import SpriteKit
 struct FriendsView: View {
     @Environment(\.modelContext) private var modelContext
     @State var vm: InicialViewModel!
-    @State var friends: [Connection] = [
-        Connection(friend: User(profilePicture: UIImage(named: "BrotherdoDesertoAcho")!.jpegData(compressionQuality: 1)!), score: Double.random(in: 10...100)),
-        Connection(friend: User(profilePicture: UIImage(named: "DarthVader")!.jpegData(compressionQuality: 1)!), score: Double.random(in: 10...100)),
-        Connection(friend: User(profilePicture: UIImage(named: "YodaFantasma")!.jpegData(compressionQuality: 1)!), score: Double.random(in: 10...100)),
-        Connection(friend: User(profilePicture: UIImage(named: "C3PO")!.jpegData(compressionQuality: 1)!), score:
-            Double.random(in: 10...100)),
-        Connection(friend: User(profilePicture: UIImage(named: "CaraAzul")!.jpegData(compressionQuality: 1)!), score:
-            Double.random(in: 10...100)),
-        Connection(friend: User(profilePicture: UIImage(named: "Slavei")!.jpegData(compressionQuality: 1)!), score:
-            Double.random(in: 10...100)),
-        Connection(friend: User(profilePicture: UIImage(named: "Careca")!.jpegData(compressionQuality: 1)!), score:
-            Double.random(in: 10...100)),
-        Connection(friend: User(profilePicture: UIImage(named: "JarJarBinks")!.jpegData(compressionQuality: 1)!), score: Double.random(in: 10...100)),
-        Connection(friend: User(profilePicture: UIImage(named: "BrotherdoDesertoAcho")!.jpegData(compressionQuality: 1)!), score: Double.random(in: 10...100)),]
+    @State var friends: [Connection] = []
     var scene: FriendsScene {
-        let scene = FriendsScene(size: UIScreen.main.bounds.size, connections: friends)
+        let scene = FriendsScene(size: UIScreen.main.bounds.size, connections: Set(friends), sceneType: .initial)
         scene.scaleMode = .aspectFill
         return scene
     }
@@ -40,7 +27,6 @@ struct FriendsView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.themeBackground)
         .onAppear() {
-            self.vm = InicialViewModel(modelContext: self.modelContext)
             self.friends = vm.connectionsWithFriends
         }
     }
