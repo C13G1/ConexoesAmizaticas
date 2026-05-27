@@ -124,22 +124,24 @@ struct FriendsProfileView: View {
                         blurLevel = 0
                     }
                 }
-                VStack{
-                    Text("novo amigo\nadicionado!")
-                        .font(.custom("Bolota", size: 32))
-                        .foregroundStyle(.friendProfileBackGround)
-                    
-                    Text("altere a sua meta com\n\(viewModel.getFriendName()) aqui!")
-                        .font(.custom("Sora", size: 20))
-                        .foregroundStyle(.friendProfileBackGround)
-                        .multilineTextAlignment(.center)
-                        .padding(.top, 12)
+                if SetMetaOnboarding {
+                    VStack{
+                        Text("novo amigo\nadicionado!")
+                            .font(.custom("Bolota", size: 32))
+                            .foregroundStyle(.friendProfileBackGround)
+                        
+                        Text("altere a sua meta com\n\(viewModel.getFriendName()) aqui!")
+                            .font(.custom("Sora", size: 20))
+                            .foregroundStyle(.friendProfileBackGround)
+                            .multilineTextAlignment(.center)
+                            .padding(.top, 12)
+                    }
+                    .padding(.bottom, UIScreen.main.bounds.height * 0.0985)
                 }
-                .padding(.bottom, UIScreen.main.bounds.height * 0.0985)
             }
             .toolbar {
                 ToolbarItem {
-                    NavigationLink(destination: EmptyView()) {
+                    NavigationLink(destination: SetMetaView(viewModel: viewModel)) {
                         ZStack{
                             if SetMetaOnboarding{
                                 Circle()

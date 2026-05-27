@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct SetMetaView: View {
+    @AppStorage("SetMetaOnboarding") var SetMetaOnboarding: Bool = true
     @Environment(\.modelContext) private var modelContext
     @State var meta: Meta
     var viewModel : FriendProfileViewModel
@@ -67,6 +68,9 @@ struct SetMetaView: View {
                     print("Erro ao salvar meta")
                 }
             }
+        }
+        .onAppear{
+            SetMetaOnboarding = false
         }
     }
 }
