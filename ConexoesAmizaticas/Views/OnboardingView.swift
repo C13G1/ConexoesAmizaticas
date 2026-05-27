@@ -6,36 +6,97 @@
 //
 
 import SwiftUI
+import PhotosUI
+import SwiftData
 
 struct OnboardingView: View {
+    @Environment(\.modelContext) private var modelContext
+
+    @State private var name: String = ""
+    @State private var selectedPhoto: PhotosPickerItem?
+    @State private var profileImageData: Data?
+
+    private var canProceed: Bool {
+        !name.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
     var body: some View {
         ZStack(alignment: .top) {
             RoundedRectangle(cornerRadius: 64)
-                .frame(width: 361, height: 493)
+                .frame(width: 361, height: 580)
                 .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 64))
-            VStack {
+
+            VStack(spacing: 0) {
                 Text("Seja bem vindo!")
                     .font(.system(size: 36, weight: .bold))
                     .padding(.top, 42)
-                Text("O Zelu é um aplicativo que vai revolucionar sua forma de cultivar seus relacionamentos.\nAdicione seus amigos e crie metas para não perder sua conexão com seus amigos.")
+
+                // Seletor de foto de perfil
+                PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                    ZStack {
+                        Circle()
+                            .frame(width: 100, height: 100)
+                            .foregroundStyle(.themeYellow.opacity(0.4))
+                        if let data = profileImageData, let uiImage = UIImage(data: data) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFill()
+                                .clipShape(Circle())
+                                .frame(width: 100, height: 100)
+                        } else {
+                            Image(systemName: "person.crop.circle.badge.plus")
+                                .font(.system(size: 38))
+                                .foregroundStyle(.black.opacity(0.6))
+                        }
+                    }
+                }
+                .padding(.top, 24)
+                .onChange(of: selectedPhoto) { _, item in
+                    Task {
+                        if let data = try? await item?.loadTransferable(type: Data.self) {
+                            profileImageData = data
+                        }
+                    }
+                }
+
+                // Campo de nome
+                TextField("Seu nome", text: $name)
+                    .font(.custom("Sora-Regular", size: 16))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(.white.opacity(0.25))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal, 32)
+                    .padding(.top, 20)
+
+                Text("O Zelu é um aplicativo que vai revolucionar sua forma de cultivar seus relacionamentos.")
                     .font(.system(size: 15))
-                    .frame(width: 361)
-                    .padding(.top, 34)
+                    .frame(width: 297)
+                    .padding(.top, 20)
                     .multilineTextAlignment(.center)
-                Button(action: {
-                    
-                }, label: {
+
+                Button(action: createProfile) {
                     Image(systemName: "arrow.right")
                         .resizable()
                         .frame(width: 43, height: 43)
-                        .padding(.top, 112)
-                        .foregroundStyle(.black)
-                })
+                        .foregroundStyle(canProceed ? .black : .gray)
+                }
+                .disabled(!canProceed)
+                .padding(.top, 40)
             }
         }
+    }
+
+    private func createProfile() {
+        let finalImageData = profileImageData
+            ?? UIImage(named: "defaultPicture")?.jpegData(compressionQuality: 1)
+            ?? Data()
+        let user = User(name: name.trimmingCharacters(in: .whitespaces), profilePicture: finalImageData)
+        modelContext.insert(user)
     }
 }
 
 #Preview {
     OnboardingView()
+        .modelContainer(for: User.self, inMemory: true)
 }

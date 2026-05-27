@@ -14,6 +14,10 @@
 		<string>Sora-Thin.ttf</string>
 		<string>Bolota.ttf</string>
 	</array>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>O Zelu usa Bluetooth para detectar amigos por perto e trocar perfis.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>O Zelu precisa acessar suas fotos para você escolher uma foto de perfil.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

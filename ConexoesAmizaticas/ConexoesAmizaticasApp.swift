@@ -29,7 +29,7 @@ struct ConexoesAmizaticasApp: App {
 
     var body: some Scene {
         WindowGroup {
-            FriendsView()
+            ContentView()
         }
         .modelContainer(sharedModelContainer)
     }

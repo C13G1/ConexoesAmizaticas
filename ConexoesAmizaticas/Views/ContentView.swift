@@ -9,13 +9,19 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    
+    // Verifica se o perfil do usuário já foi criado
+    @Query private var users: [User]
+
     var body: some View {
-        InitialView()
+        if users.isEmpty {
+            OnboardingView()
+        } else {
+            FriendsView()
+        }
     }
 }
 
 #Preview {
     ContentView()
+        .modelContainer(for: [User.self, Connection.self], inMemory: true)
 }
