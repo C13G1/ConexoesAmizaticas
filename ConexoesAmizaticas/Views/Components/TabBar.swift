@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct TabBar: View {
+    @Binding var viewModel: InicialViewModel
+    
     var body: some View {
         ZStack {
             SemiCircle()
@@ -16,7 +18,7 @@ struct TabBar: View {
             
             HStack {
                 NavigationLink {
-                    SearchView()
+                    SearchView(viewModel: $viewModel)
                 } label: {
                     ZStack {
                         Circle()
@@ -59,8 +61,4 @@ struct TabBar: View {
             .padding(.bottom, UIScreen.main.bounds.width * 0.38)
         }
     }
-}
-
-#Preview {
-    TabBar()
 }

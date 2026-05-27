@@ -25,7 +25,7 @@ class InicialViewModel {
             Double.random(in: 10...100)),
         Connection(friend: User(name: "Careca", profilePicture: UIImage(named: "Careca")!.jpegData(compressionQuality: 1)!), score:
             Double.random(in: 10...100)),
-        Connection(friend: User(name: "JarJarBinks", profilePicture: UIImage(named: "JarJarBinks")!.jpegData(compressionQuality: 1)!), score: Double.random(in: 10...100)),]
+        Connection(friend: User(name: "JarJarBinks", profilePicture: UIImage(named: "JarJarBinks")!.jpegData(compressionQuality: 1)!), score: Double.random(in: 10...100))]
     
     func fetchData() {
         do {
