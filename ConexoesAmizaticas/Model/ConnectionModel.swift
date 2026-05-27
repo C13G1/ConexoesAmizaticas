@@ -35,8 +35,16 @@ class Connection: Hashable {
         return timeConnected
     }
     var recordTimeNotMeeting: TimeInterval?
-    
-    init(friend: User, lastMet: Date? = nil, score: Double = 80.0) {
+
+    var inVacuo: Bool {
+        let threshold: TimeInterval = 30 * 24 * 3600
+        if let lastMet = lastMet {
+            return Date.now.timeIntervalSince(lastMet) > threshold
+        }
+        return Date.now.timeIntervalSince(firstConnection) > threshold
+    }
+
+    init(friend: User, lastMet: Date? = nil, score: Double = 15.0) {
         self.friend          = friend
         self.metaManager     = MetaManager(score: score)
         self.feedManager     = FeedManager()

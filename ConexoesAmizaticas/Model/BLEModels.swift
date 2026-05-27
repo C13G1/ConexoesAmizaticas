@@ -14,7 +14,7 @@ let BUFFER_SIZE = 1024
 
 class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegate, CBPeripheralDelegate, StreamDelegate {
 
-    // Callbacks — evita guardar referência a struct (value type)
+    // avisa quando encontra um amigo no ble
     var onFriendFound: ((User) -> Void)?
     var onConnectionOpened: (() -> Void)?
 
@@ -130,7 +130,8 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
             peripheral.respond(to: request, withResult: .attributeNotFound)
             return
         }
-        // CBL2CAPPSM é UInt16 (2 bytes) — usar MemoryLayout para evitar leitura fora dos limites
+        // CBL2CAPPSM é UInt16 (2 bytes)
+        // o MemoryLayout evita out of range
         var psmValue = self.psm!
         let data = Data(bytes: &psmValue, count: MemoryLayout<CBL2CAPPSM>.size)
         request.value = data
@@ -156,7 +157,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
         self.psm = PSM
     }
 
-    // Configura streams após abrir canal L2CAP (mesmo código para central e peripheral)
+    // configura as streams após abrir canal L2CAP deixando o mesmo código para central e peripheral
     private func setupStreams(for channel: CBL2CAPChannel) {
         guard let output = channel.outputStream,
               let input = channel.inputStream else {
@@ -217,7 +218,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
         case .hasBytesAvailable:
             receiveData()
         case .openCompleted:
-            // Envia o perfil assim que o outputStream estiver pronto, apenas uma vez
+            // envia o perfil quando o outputStream ta ok
             if aStream === outputStream && !didSendProfile {
                 didSendProfile = true
                 try? sendProfile()

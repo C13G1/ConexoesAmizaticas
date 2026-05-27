@@ -12,12 +12,19 @@ import SwiftData
 struct BLEView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Query private var existingConnections: [Connection]
 
     @State private var bleManager: BLEManager?
     @State private var friend: User?
     @State private var foundFriend: Bool = false
 
     let profile: User
+
+    private var existingConnection: Connection? {
+        guard let friend = friend else { return nil }
+        return existingConnections.first { $0.friend.id == friend.id }
+    }
+    private var isExistingFriend: Bool { existingConnection != nil }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -27,7 +34,6 @@ struct BLEView: View {
                 searchingView
             }
 
-            // Foto do usuário atual — pressionar e segurar confirma o encontro
             if foundFriend, let friend = friend {
                 confirmButton(friend: friend)
                     .padding(.top, 40)
@@ -37,12 +43,8 @@ struct BLEView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
             let manager = BLEManager(profile: profile)
-            manager.onConnectionOpened = {
-                self.foundFriend = true
-            }
-            manager.onFriendFound = { receivedFriend in
-                self.friend = receivedFriend
-            }
+            manager.onConnectionOpened = { self.foundFriend = true }
+            manager.onFriendFound = { self.friend = $0 }
             self.bleManager = manager
             manager.startBLE()
         }
@@ -53,13 +55,10 @@ struct BLEView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    // MARK: — Tela de busca
-
     private var searchingView: some View {
         VStack(spacing: 32) {
             Spacer()
-            ProgressView()
-                .scaleEffect(1.5)
+            ProgressView().scaleEffect(1.5)
             Text("Buscando contatos por perto...")
                 .font(.custom("Sora-ExtraBold", size: 28))
                 .multilineTextAlignment(.center)
@@ -67,22 +66,29 @@ struct BLEView: View {
             Spacer()
 
             #if DEBUG
-            Button("Simular encontro (teste)") {
-                let mock = User(
-                    name: "Amigo Teste",
+            Button("Simular novo amigo (teste)") {
+                self.friend = User(
+                    name: "Amigo Novo",
                     profilePicture: UIImage(named: "defaultPicture")?.jpegData(compressionQuality: 0.8) ?? Data()
                 )
-                self.friend = mock
                 self.foundFriend = true
             }
             .font(.custom("Sora-Regular", size: 14))
             .foregroundStyle(.secondary)
-            .padding(.bottom, 40)
+
+            // simula encontrar um amigo
+            if let first = existingConnections.first {
+                Button("Simular encontro com \(first.friend.name) (teste)") {
+                    self.friend = first.friend
+                    self.foundFriend = true
+                }
+                .font(.custom("Sora-Regular", size: 14))
+                .foregroundStyle(.secondary)
+            }
+            Spacer().frame(height: 40)
             #endif
         }
     }
-
-    // MARK: — Tela de amigo encontrado
 
     private func foundFriendView(friend: User) -> some View {
         VStack(spacing: 24) {
@@ -99,16 +105,27 @@ struct BLEView: View {
                 }
             }
 
-            Text("Parece que você e \(friend.name) se encontraram!")
-                .font(.custom("Sora-ExtraBold", size: 28))
-                .frame(width: 280)
-                .multilineTextAlignment(.center)
-
-            Text("Pressione e segure sua foto para confirmar o encontro.")
-                .font(.custom("Sora-Regular", size: 16))
-                .multilineTextAlignment(.center)
-                .frame(width: 280)
-                .foregroundStyle(.secondary)
+            if isExistingFriend {
+                Text("Você e \(friend.name) se encontraram!")
+                    .font(.custom("Sora-ExtraBold", size: 28))
+                    .frame(width: 280)
+                    .multilineTextAlignment(.center)
+                Text("Pressione e segure sua foto para registrar o encontro.")
+                    .font(.custom("Sora-Regular", size: 16))
+                    .multilineTextAlignment(.center)
+                    .frame(width: 280)
+                    .foregroundStyle(.secondary)
+            } else {
+                Text("Parece que você e \(friend.name) se encontraram!")
+                    .font(.custom("Sora-ExtraBold", size: 28))
+                    .frame(width: 280)
+                    .multilineTextAlignment(.center)
+                Text("Pressione e segure sua foto para adicionar como amigo.")
+                    .font(.custom("Sora-Regular", size: 16))
+                    .multilineTextAlignment(.center)
+                    .frame(width: 280)
+                    .foregroundStyle(.secondary)
+            }
 
             Button("Procurar por outra pessoa") {
                 self.foundFriend = false
@@ -121,8 +138,6 @@ struct BLEView: View {
             Spacer()
         }
     }
-
-    // MARK: — Botão de confirmação (pressionar e segurar)
 
     @State private var isHolding = false
     @State private var holdProgress: CGFloat = 0
@@ -170,13 +185,8 @@ struct BLEView: View {
         let steps = 20
         let stepDuration = 1.5 / Double(steps)
         var current = 0
-
         Timer.scheduledTimer(withTimeInterval: stepDuration, repeats: true) { timer in
-            guard isHolding else {
-                timer.invalidate()
-                holdProgress = 0
-                return
-            }
+            guard isHolding else { timer.invalidate(); holdProgress = 0; return }
             current += 1
             holdProgress = CGFloat(current) / CGFloat(steps)
             if current >= steps {
@@ -187,9 +197,16 @@ struct BLEView: View {
     }
 
     private func confirmFriend(_ friend: User) {
-        modelContext.insert(friend)
-        let connection = Connection(friend: friend)
-        modelContext.insert(connection)
+        if let existing = existingConnections.first(where: { $0.friend.id == friend.id }) {
+            // registra encontro e aumenta 10 pontos de proximidade
+            existing.lastMet = Date.now
+            existing.metaManager.addOrSubtractScore(10)
+        } else {
+            // cria User e Connection no SwiftData
+            modelContext.insert(friend)
+            let connection = Connection(friend: friend)
+            modelContext.insert(connection)
+        }
         dismiss()
     }
 }

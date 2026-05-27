@@ -14,55 +14,80 @@ struct FriendsView: View {
     @Query private var connections: [Connection]
     @Query private var users: [User]
 
+    @State private var searchText: String = ""
+    @State private var showSearchBar: Bool = false
+    @FocusState private var searchFocused: Bool
+
+    @State private var scene: FriendsScene = FriendsScene(
+        size: UIScreen.main.bounds.size,
+        connections: Set(),
+        sceneType: .initial
+    )
+
+    @State private var selectedConnection: Connection?
+    @State private var showFriendActions: Bool = false
+    @State private var showEditAlert: Bool = false
+    @State private var editingName: String = ""
+
+    @State private var showVacuoView: Bool = false
+
     #if DEBUG
     @State private var showDebugSheet = false
     #endif
 
-    var scene: FriendsScene {
-        let scene = FriendsScene(
-            size: UIScreen.main.bounds.size,
-            connections: Set(connections),
-            sceneType: .initial
-        )
-        scene.scaleMode = .aspectFill
-        return scene
-    }
-
-    var currentUser: User {
-        users.first ?? User()
-    }
+    var currentUser: User { users.first ?? User() }
 
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
-                // .id(connections.count) força o SpriteView a destruir e recriar
-                // a cena toda vez que o número de amigos muda
                 SpriteView(scene: scene, debugOptions: [])
-                    .id(connections.count)
                     .ignoresSafeArea()
 
+                if showSearchBar {
+                    VStack {
+                        HStack(spacing: 12) {
+                            Image(systemName: "magnifyingglass")
+                                .foregroundStyle(.secondary)
+                            TextField("Procurar amigo", text: $searchText)
+                                .focused($searchFocused)
+                                .submitLabel(.search)
+                            Button("Cancelar") {
+                                showSearchBar = false
+                                searchText = ""
+                                scene.filterByName("")
+                            }
+                            .font(.custom("Sora-Regular", size: 14))
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14))
+                        .padding(.horizontal, 16)
+                        .padding(.top, 56)
+                        Spacer()
+                    }
+                    .ignoresSafeArea(edges: .top)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+
                 HStack(alignment: .bottom) {
-                    #if DEBUG
-                    // Botão de deletar amigos — só aparece em builds de desenvolvimento
                     Button {
-                        showDebugSheet = true
+                        withAnimation(.easeInOut(duration: 0.2)) { showSearchBar = true }
+                        searchFocused = true
                     } label: {
                         ZStack {
                             Circle()
-                                .frame(width: 52, height: 52)
-                                .foregroundStyle(Color.red.opacity(0.85))
-                            Image(systemName: "trash")
-                                .font(.system(size: 20, weight: .semibold))
-                                .foregroundStyle(.white)
+                                .frame(width: 60, height: 60)
+                                .foregroundStyle(.white.opacity(0.9))
+                            Image(systemName: "magnifyingglass")
+                                .font(.system(size: 24, weight: .semibold))
+                                .foregroundStyle(.black)
                         }
                     }
                     .padding(.leading, 24)
                     .padding(.bottom, 40)
-                    #endif
 
                     Spacer()
 
-                    // Botão flutuante para adicionar amigo via BLE
                     NavigationLink(destination: BLEView(profile: currentUser)) {
                         ZStack {
                             Circle()
@@ -79,11 +104,68 @@ struct FriendsView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.themeBackground)
-            #if DEBUG
-            .sheet(isPresented: $showDebugSheet) {
-                debugSheet
+            .onChange(of: connections) { _, newConnections in
+                scene.updateConnections(receivedConnections: Set(newConnections.filter { !$0.inVacuo }))
+                scene.updateNodeVisuals()
+                scene.filterByName(searchText)
             }
-            #endif
+            .onChange(of: searchText) { _, newText in
+                scene.filterByName(newText)
+            }
+            .onChange(of: searchFocused) { _, focused in
+                if !focused {
+                    withAnimation(.easeInOut(duration: 0.2)) { showSearchBar = false }
+                }
+            }
+            .onAppear {
+                scene.updateConnections(receivedConnections: Set(connections.filter { !$0.inVacuo }))
+                scene.updateNodeVisuals()
+                scene.onFriendTapped = { connection in
+                    selectedConnection = connection
+                    editingName = connection.friend.name
+                    showFriendActions = true
+                }
+                scene.onSpiralTapped = {
+                    showVacuoView = true
+                }
+            }
+
+            //pra teste
+            .confirmationDialog(
+                selectedConnection.map { "O que fazer com \($0.friend.name)?" } ?? "",
+                isPresented: $showFriendActions,
+                titleVisibility: .visible,
+                presenting: selectedConnection
+            ) { connection in
+                Button("Editar nome") {
+                    editingName = connection.friend.name
+                    showEditAlert = true
+                }
+                Button("Excluir amigo", role: .destructive) {
+                    modelContext.delete(connection)
+                }
+                Button("Cancelar", role: .cancel) {}
+            }
+            .alert("Editar nome", isPresented: $showEditAlert, presenting: selectedConnection) { connection in
+                TextField("Nome", text: $editingName)
+                Button("Salvar") {
+                    connection.friend.editName(editingName)
+                }
+                Button("Cancelar", role: .cancel) {}
+            }
+            .navigationDestination(isPresented: $showVacuoView) {
+                VacuoView()
+            }
+//            .toolbar {
+//                ToolbarItem(placement: .navigationBarTrailing) {
+//                    Button { showDebugSheet = true } label: {
+//                        Image(systemName: "trash").foregroundStyle(.red)
+//                    }
+//                }
+//            }
+//            .sheet(isPresented: $showDebugSheet) {
+//                debugSheet
+//            }
         }
     }
 
@@ -106,31 +188,23 @@ struct FriendsView: View {
                         VStack(alignment: .leading) {
                             Text(connection.friend.name)
                                 .font(.custom("Sora-SemiBold", size: 15))
-                            Text("Score: \(Int(connection.metaManager.score))")
+                            Text("Score: \(Int(connection.metaManager.score)) — \(connection.metaManager.currentRelationshipState.rawValue)")
                                 .font(.custom("Sora-Regular", size: 12))
                                 .foregroundStyle(.secondary)
                         }
                     }
                 }
                 .onDelete { indexSet in
-                    for index in indexSet {
-                        modelContext.delete(connections[index])
-                    }
+                    for index in indexSet { modelContext.delete(connections[index]) }
                 }
-
                 if connections.isEmpty {
-                    Text("Nenhum amigo ainda")
-                        .foregroundStyle(.secondary)
+                    Text("Nenhum amigo ainda").foregroundStyle(.secondary)
                 }
             }
             .navigationTitle("Amigos (debug)")
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Fechar") { showDebugSheet = false }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
+                ToolbarItem(placement: .navigationBarLeading) { Button("Fechar") { showDebugSheet = false } }
+                ToolbarItem(placement: .navigationBarTrailing) { EditButton() }
             }
         }
     }

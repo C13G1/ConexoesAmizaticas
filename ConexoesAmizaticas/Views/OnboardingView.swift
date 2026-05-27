@@ -31,7 +31,6 @@ struct OnboardingView: View {
                     .font(.system(size: 36, weight: .bold))
                     .padding(.top, 42)
 
-                // Seletor de foto de perfil
                 PhotosPicker(selection: $selectedPhoto, matching: .images) {
                     ZStack {
                         Circle()
@@ -59,7 +58,6 @@ struct OnboardingView: View {
                     }
                 }
 
-                // Campo de nome
                 TextField("Seu nome", text: $name)
                     .font(.custom("Sora-Regular", size: 16))
                     .padding(.horizontal, 16)

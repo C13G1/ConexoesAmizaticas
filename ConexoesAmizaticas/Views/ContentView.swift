@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    // Verifica se o perfil do usuário já foi criado
+    // verifica se o perfil do usuário já foi criado
     @Query private var users: [User]
 
     var body: some View {
