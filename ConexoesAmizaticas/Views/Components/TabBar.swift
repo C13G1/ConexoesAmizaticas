@@ -27,7 +27,7 @@ struct TabBar: View {
                             .font(.largeTitle)
                             .bold()
                     }
-                    .frame(width: UIScreen.main.bounds.width * 0.18, height: UIScreen.main.bounds.width * 0.18)
+                    .frame(width: UIScreen.main.bounds.width * 0.19, height: UIScreen.main.bounds.width * 0.19)
                     .background(.black)
                     .cornerRadius(100)
                 }
@@ -50,7 +50,7 @@ struct TabBar: View {
                             .foregroundStyle(.black)
                             .font(.title2)
                     }
-                    .frame(width: UIScreen.main.bounds.width * 0.18, height: UIScreen.main.bounds.width * 0.18)
+                    .frame(width: UIScreen.main.bounds.width * 0.19, height: UIScreen.main.bounds.width * 0.19)
                     .background(.black)
                     .cornerRadius(100)
                 }

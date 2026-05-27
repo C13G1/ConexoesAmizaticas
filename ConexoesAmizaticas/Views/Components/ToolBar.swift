@@ -15,7 +15,7 @@ struct ToolBar: View {
                 .frame(width: UIScreen.main.bounds.width, height: 100)
                 .rotationEffect(.degrees(180))
             
-            ProfileCircleAndName()
+            ProfileCircleAndName(circleWidthMultiplier: 0.29, imageMultiplier: 0.25, fontSize: 20, isInitialView: true)
                 .padding(.top, UIScreen.main.bounds.height * 0.32)
         }
     }

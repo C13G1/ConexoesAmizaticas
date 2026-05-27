@@ -14,7 +14,7 @@ struct FriendsProfileView: View {
         viewModel.setRecordTimeNotMeeting()
     }
     var body: some View {
-        VStack{
+        VStack {
             Image(uiImage: viewModel.getFriendImage() ??
                   UIImage(named: "DefaultPicture")!)
             .resizable()
@@ -42,7 +42,7 @@ struct FriendsProfileView: View {
                                        text: "registrar encontro",
                                        textSize: .system(size: 24),
                                        textWeight: .black)
-                .clipShape(ConcaveShape())
+//                .clipShape(ConcaveShape())
             }
         }
         Spacer()
