@@ -17,10 +17,12 @@ class FriendProfileViewModel {
         self.setRecordTimeNotMeeting()
     }
     
-    func defineMeta(meta: RelationshipState){
+    func defineMeta(meta: Meta){
         connection.metaManager.setMeta(meta)
     }
-    
+    func getMeta() -> Meta {
+        return connection.metaManager.meta
+    }
     func getFriendImage() -> UIImage? {
         return UIImage(data: connection.friend.getProfileImageData())
     }
@@ -60,5 +62,17 @@ class FriendProfileViewModel {
         let now = Date()
         let days = Calendar.current.dateComponents([.day], from: connectionDate, to: now).day ?? 0
         return days
+    }
+    
+    func getProfileColor() -> Color{
+        return Color(connection.metaManager.currentRelationshipState.color)
+    }
+    
+    func getTimeUntilMeet() -> Int{
+        let connectionDate = Date(timeIntervalSinceNow: connection.timeSinceLastMet)
+        let now = Date()
+        let daysUntil = Calendar.current.dateComponents([.day], from: connectionDate, to: now).day ?? 0
+        let trueDays = daysUntil - connection.metaManager.meta.days
+        return trueDays
     }
 }

@@ -15,13 +15,13 @@ let SCORE_INSEPARAVEIS:  Double = 80
 
 @Model
 class MetaManager {
-    private(set) var meta: RelationshipState
+    private(set) var meta: Meta
     private(set) var currentRelationshipState: RelationshipState
     private(set) var score: Double
     
     init(score: Double = 1.0) {
         self.score = score
-        self.meta = .proximos
+        self.meta = .mensal
         self.currentRelationshipState = .afastados
         self.currentRelationshipState = calculateRelationshipState()
     }
@@ -45,7 +45,7 @@ class MetaManager {
         
     }
     
-    func setMeta(_ meta: RelationshipState) {
+    func setMeta(_ meta: Meta) {
         self.meta = meta
     }
     

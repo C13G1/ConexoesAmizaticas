@@ -10,13 +10,11 @@ import SwiftUI
 import SpriteKit
 
 struct SearchView: View {
-    
     @Binding var viewModel: InicialViewModel
     @State private var searchText: String = ""
     @FocusState private var isFocused: Bool
     @State var navPath: NavigationPath = NavigationPath()
     @State var reloadScreen: Bool = false
-    
     var scene: FriendsScene = {
         let scene = FriendsScene(size: UIScreen.main.bounds.size, connections: Set(), sceneType: .search)
         scene.scaleMode = .aspectFill
