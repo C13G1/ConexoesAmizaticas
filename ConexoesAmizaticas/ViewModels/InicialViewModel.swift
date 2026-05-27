@@ -13,7 +13,19 @@ import SwiftData
 class InicialViewModel {
     private(set) var modelContext           : ModelContext!
     private(set) var profile                : User?
-    private(set) var connectionsWithFriends : [Connection] = []
+    private(set) var connectionsWithFriends : [Connection] = [
+        Connection(friend: User(name: "BrotherdoDesertoAcho", profilePicture: UIImage(named: "BrotherdoDesertoAcho")!.jpegData(compressionQuality: 1)!), score: Double.random(in: 10...100)),
+        Connection(friend: User(name: "DarthVader", profilePicture: UIImage(named: "DarthVader")!.jpegData(compressionQuality: 1)!), score: Double.random(in: 10...100)),
+        Connection(friend: User(name: "YodaFantasma", profilePicture: UIImage(named: "YodaFantasma")!.jpegData(compressionQuality: 1)!), score: Double.random(in: 10...100)),
+        Connection(friend: User(name: "C3PO", profilePicture: UIImage(named: "C3PO")!.jpegData(compressionQuality: 1)!), score:
+            Double.random(in: 10...100)),
+        Connection(friend: User(name: "CaraAzul", profilePicture: UIImage(named: "CaraAzul")!.jpegData(compressionQuality: 1)!), score:
+            Double.random(in: 10...100)),
+        Connection(friend: User(name: "Slavei", profilePicture: UIImage(named: "Slavei")!.jpegData(compressionQuality: 1)!), score:
+            Double.random(in: 10...100)),
+        Connection(friend: User(name: "Careca", profilePicture: UIImage(named: "Careca")!.jpegData(compressionQuality: 1)!), score:
+            Double.random(in: 10...100)),
+        Connection(friend: User(name: "JarJarBinks", profilePicture: UIImage(named: "JarJarBinks")!.jpegData(compressionQuality: 1)!), score: Double.random(in: 10...100)),]
     
     func fetchData() {
         do {

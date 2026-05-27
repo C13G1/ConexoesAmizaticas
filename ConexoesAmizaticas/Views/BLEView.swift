@@ -61,17 +61,16 @@ struct BLEView: View {
             Button(action: {
                 
             }, label: {
-                
+                ZStack {
+                    Circle()
+                        .frame(width: 148, height: 148)
+                        .foregroundStyle(.themeYellow)
+                    Image(uiImage: UIImage(data: profile.profilePicture)!)
+                        .resizable()
+                        .clipShape(Circle())
+                        .frame(width: 132, height: 132)
+                }
             })
-            ZStack {
-                Circle()
-                    .frame(width: 148, height: 148)
-                    .foregroundStyle(.themeYellow)
-                Image(uiImage: UIImage(data: profile.profilePicture)!)
-                    .resizable()
-                    .clipShape(Circle())
-                    .frame(width: 132, height: 132)
-            }
         }
         .onAppear() {
             self.bleManager = BLEManager(view: self)

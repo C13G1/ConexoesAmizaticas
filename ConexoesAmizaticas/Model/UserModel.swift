@@ -43,6 +43,8 @@ class User: Codable {
     func getName() -> String { return name }
     
     func getID() -> UUID { return id }
+    
+    
 }
 
 struct userDTO: Codable {

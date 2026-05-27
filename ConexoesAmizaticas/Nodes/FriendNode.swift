@@ -28,6 +28,7 @@ class FriendNode: SKShapeNode {
         self.sprite.lineWidth = 20
         super.init()
         
+        self.name = connection.friend.id.uuidString
         self.physicsBody = SKPhysicsBody(circleOfRadius: 128)
         self.physicsBody?.isDynamic = true
         self.physicsBody?.affectedByGravity = false

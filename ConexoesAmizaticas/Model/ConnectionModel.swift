@@ -9,7 +9,7 @@ import SwiftData
 import Foundation
 
 @Model
-class Connection {
+class Connection: Hashable {
     private(set) var id: UUID = UUID()
     private(set) var friend: User
     var metaManager: MetaManager
@@ -31,7 +31,7 @@ class Connection {
     var recordNotMeet: TimeInterval? {
         let endDate = Date.now
         guard let lastMet = lastMet else { return nil }
-        let timeConnected = endDate.timeIntervalSince(lastMet)        
+        let timeConnected = endDate.timeIntervalSince(lastMet)
         return timeConnected
     }
     var recordTimeNotMeeting: TimeInterval?
