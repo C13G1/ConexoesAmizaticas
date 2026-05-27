@@ -17,13 +17,12 @@ struct FriendsProfileView: View {
     }
     
     var body: some View {
-        NavigationStack {
             ZStack{
                 ZStack{
                     Circle()
-                        .frame(width: 623)
+                        .frame(width: UIScreen.main.bounds.width * 1.6)
                         .foregroundStyle(.friendProfileBackGround)
-                        .padding(.top, (UIScreen.main.bounds.height * -0.44))
+                        .padding(.top, (UIScreen.main.bounds.height * -0.49))
                     VStack{
                         Image(uiImage: viewModel.getFriendImage() ??
                               UIImage(named: "DefaultPicture")!)
@@ -113,7 +112,6 @@ struct FriendsProfileView: View {
                             .ignoresSafeArea(.all)
                     }
                 }
-                .padding(.top, -(UIScreen.main.bounds.height * 0.05))
                 .background(Color.black)
                 .blur(radius: blurLevel)
                 .onAppear {
@@ -156,8 +154,6 @@ struct FriendsProfileView: View {
                 }
                 .sharedBackgroundVisibility(.hidden)
             }
-        }
-        .ignoresSafeArea()
     }
 }
 

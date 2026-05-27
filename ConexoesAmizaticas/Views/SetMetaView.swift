@@ -21,7 +21,6 @@ struct SetMetaView: View {
     }
     
     var body: some View {
-        NavigationStack{
             ZStack{
                 Rectangle()
                     .frame(width: .infinity,height: .infinity)
@@ -68,11 +67,10 @@ struct SetMetaView: View {
                     print("Erro ao salvar meta")
                 }
             }
+            .onAppear{
+                SetMetaOnboarding = false
+            }
         }
-        .onAppear{
-            SetMetaOnboarding = false
-        }
-    }
 }
 
 #Preview {
