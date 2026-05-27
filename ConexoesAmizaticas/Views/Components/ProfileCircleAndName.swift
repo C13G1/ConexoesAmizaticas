@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ProfileCircleAndName: View {
-    var user: User = User()
+    @Binding var vm: InicialViewModel
     var circleWidthMultiplier: Double
     var imageMultiplier: Double
     var fontSize: Int
@@ -16,18 +16,22 @@ struct ProfileCircleAndName: View {
     
     var body: some View {
         VStack {
-            if let uiImage = UIImage(data: user.profilePicture) {
-                ZStack {
-                    Circle()
-                        .frame(width: UIScreen.main.bounds.width * circleWidthMultiplier)
-                        .foregroundStyle(isInitialView ? .black : .lightBackground)
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: UIScreen.main.bounds.width
-                               * imageMultiplier, height: UIScreen.main.bounds.width
-                               * imageMultiplier)
-                        .clipShape(Circle())
+            if let uiImage = UIImage(data: vm.profile.profilePicture ) {
+                NavigationLink {
+                    UserProfile(vm: $vm)
+                } label: {
+                    ZStack {
+                        Circle()
+                            .frame(width: UIScreen.main.bounds.width * circleWidthMultiplier)
+                            .foregroundStyle(isInitialView ? .black : .lightBackground)
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: UIScreen.main.bounds.width
+                                   * imageMultiplier, height: UIScreen.main.bounds.width
+                                   * imageMultiplier)
+                            .clipShape(Circle())
+                    }
                 }
             } else {
                 ZStack {
@@ -42,7 +46,7 @@ struct ProfileCircleAndName: View {
                 }
             }
             
-            Text(user.name)
+            Text(vm.profile.name)
                 .font(.custom("Sora-ExtraBold", size: CGFloat(fontSize)))
                 .foregroundStyle(isInitialView ? .black : .lightBackground)
         }
@@ -50,5 +54,12 @@ struct ProfileCircleAndName: View {
 }
 
 #Preview {
-    ProfileCircleAndName(circleWidthMultiplier: 0.29, imageMultiplier: 0.25, fontSize: 20, isInitialView: true)
+    @Previewable @State var viewModel = InicialViewModel()
+    ProfileCircleAndName(
+        vm: $viewModel,
+        circleWidthMultiplier: 0.29,
+        imageMultiplier: 0.25,
+        fontSize: 20,
+        isInitialView: true
+    )
 }

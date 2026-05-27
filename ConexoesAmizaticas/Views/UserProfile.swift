@@ -10,14 +10,14 @@ import Charts
 import SwiftData
 
 struct UserProfile: View {
-    var connections: [Connection]
+    @Binding var vm: InicialViewModel
     
     private var friendsByState: [(state: RelationshipState, count: Int)] {
         let orderedStates: [RelationshipState] = [
             .afastados, .proximos, .distantes, .estaveis, .inseparaveis
         ]
         
-        let grouped = Dictionary(grouping: connections) {
+        let grouped = Dictionary(grouping: vm.connectionsWithFriends) {
             $0.metaManager.currentRelationshipState
         }
         
@@ -39,7 +39,7 @@ struct UserProfile: View {
     }
     
     private var lastMeetingText: String {
-        let mostRecent = connections.compactMap { $0.lastMet }.max()
+        let mostRecent = vm.connectionsWithFriends.compactMap { $0.lastMet }.max()
         guard let mostRecent else { return "NUNCA" }
         
         let days = Calendar.current.dateComponents([.day], from: mostRecent, to: .now).day ?? 0
@@ -72,12 +72,13 @@ struct UserProfile: View {
                     .background(.black)
                     .cornerRadius(100)
                 }
-                .padding(.bottom, UIScreen.main.bounds.height * 0.8)
+                .padding(.bottom, UIScreen.main.bounds.height * 0.78)
                 .padding(.leading, UIScreen.main.bounds.width * 0.75)
                 
                 VStack (spacing: 60){
                     VStack (spacing: 20){
                         ProfileCircleAndName(
+                            vm: $vm,
                             circleWidthMultiplier: 0.52,
                             imageMultiplier: 0.48,
                             fontSize: 45,
@@ -89,7 +90,7 @@ struct UserProfile: View {
                                 Text("VOCÊ TEM")
                                     .font(.custom("Sora-Regular", size: 12))
                                 
-                                Text("\(connections.count) \(connections.count == 1 ? "amigo" : "amigos")")
+                                Text("\(vm.connectionsWithFriends.count) \(vm.connectionsWithFriends.count == 1 ? "amigo" : "amigos")")
                                     .font(.custom("Bolota", size: 24))
                             }
                             
@@ -131,40 +132,22 @@ struct UserProfile: View {
                     .frame(width: UIScreen.main.bounds.width * 0.5)
                     .padding(.top, UIScreen.main.bounds.height * 0.52)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .ignoresSafeArea()
-            .background(.lightBackground)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
+        .background(.lightBackground)
     }
 }
 
 
+
 #Preview {
-    UserProfile(connections: [
-        Connection(friend: User(name: "Ana"), score: 95.0),
-        Connection(friend: User(name: "Carlos"), score: 85.0),
-        Connection(friend: User(name: "Bia"), score: 100.0),
-        
-        Connection(friend: User(name: "Daniel"), score: 75.0),
-        Connection(friend: User(name: "Eduardo"), score: 65.0),
-        Connection(friend: User(name: "Fernanda"), score: 70.0),
-        Connection(friend: User(name: "Gabriel"), score: 62.0),
-        
-        Connection(friend: User(name: "Helena"), score: 55.0),
-        Connection(friend: User(name: "Igor"), score: 45.0),
-        Connection(friend: User(name: "João"), score: 50.0),
-        Connection(friend: User(name: "Karen"), score: 58.0),
-        Connection(friend: User(name: "Lucas"), score: 42.0),
-        
-        Connection(friend: User(name: "Mariana"), score: 35.0),
-        Connection(friend: User(name: "Nícolas"), score: 25.0),
-        
-        Connection(friend: User(name: "Olívia"), score: 10.0)
-    ])
-    .modelContainer(for: [
-        Connection.self,
-        User.self,
-        MetaManager.self,
-        FeedManager.self
-    ])
+    @Previewable @State var viewModel = InicialViewModel()
+    UserProfile(vm: $viewModel)
+        .modelContainer(for: [
+            Connection.self,
+            User.self,
+            MetaManager.self,
+            FeedManager.self
+        ])
 }
