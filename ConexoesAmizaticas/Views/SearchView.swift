@@ -7,55 +7,61 @@
 
 import SwiftData
 import SwiftUI
+import SpriteKit
 
 struct SearchView: View {
-    @Environment(\.modelContext) private var modelContext
     
-    @State private var viewModel: InicialViewModel?
-    @State private var friends: [User] = []
-    
+    @Binding var viewModel: InicialViewModel
     @State private var searchText: String = ""
     @FocusState private var isFocused: Bool
+    @State var navPath: NavigationPath = NavigationPath()
+    @State var reloadScreen: Bool = false
     
-    var searchResults: [User] {
+    var scene: FriendsScene = {
+        let scene = FriendsScene(size: UIScreen.main.bounds.size, connections: Set(), sceneType: .search)
+        scene.scaleMode = .aspectFill
+        return scene
+    }()
+    
+    var searchResults: [Connection] {
+        print("returning results")
         if searchText.isEmpty {
             return []
         } else {
-            let results = friends.filter { friend in
-                friend.name.localizedStandardContains(searchText)
+            let results = viewModel.connectionsWithFriends.filter { c in
+                c.friend.name.localizedStandardContains(searchText)
             }
-            
             return results
         }
     }
     
     var body: some View {
         NavigationStack {
-            VStack {
-                List {
-                    ForEach(searchResults) { friend in
-                        //                        NavigationLink(destination: PerfumeView(perfume: perfume)) {
-                        //                            Text(perfume.name)
-                        //                        }
-                    }
-                }
+            ZStack {
+                SpriteView(scene: scene, debugOptions: [.showsPhysics, .showsNodeCount, .showsDrawCount])
+                    .ignoresSafeArea()
+                    .tag("searchView")
             }
-            .scrollContentBackground(.hidden)
             .searchable(
                 text: $searchText,
                 placement: .navigationBarDrawer(displayMode: .always)
             )
-            .onAppear {
-                viewModel = InicialViewModel(modelContext: modelContext)
-                viewModel?.fetchData()
-                friends = viewModel!.getFriends()
+            .onChange(of: searchText, {
+                let updatedFriends: Set<Connection> = Set(searchResults)
+                print("passing friends to func:\n\(updatedFriends)")
+                self.scene.updateConnections(receivedConnections: updatedFriends)
+            })
+            .navigationDestination(for: Connection.self) { value in
+                FriendsProfileView()
             }
         }
     }
 }
 
+
 #Preview {
-    SearchView()
+    @Previewable @State var viewModel = InicialViewModel()
+    SearchView(viewModel: $viewModel)
         .modelContainer(for: [
             User.self,
             Post.self,

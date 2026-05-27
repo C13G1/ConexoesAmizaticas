@@ -57,7 +57,11 @@ enum RelationshipState: String, Codable {
             return UIColor.themeInseparaveis
         }
     }
-    
+}
+
+enum SceneType {
+    case initial
+    case search
 }
 
 enum OrbitRadius: Double {
