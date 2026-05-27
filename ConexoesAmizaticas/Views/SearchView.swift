@@ -30,11 +30,11 @@ struct SearchView: View {
         NavigationStack {
             VStack {
                 List {
-                    ForEach(searchResults) { friend in
-                        NavigationLink(destination: FriendsProfileView()) {
-                            Text(friend.name)
-                        }
-                    }
+//                    ForEach(searchResults) { friend in
+//                        NavigationLink(destination: FriendsProfileView()) {
+//                            Text(friend.name)
+//                        }
+//                    }
                 }
             }
             .scrollContentBackground(.hidden)

@@ -14,21 +14,21 @@ struct TextedRoundedRectangle: View {
     let backGoundColor : Color
 
     let text           : String
-    let textSize       : Font
+    let textSize       : CGFloat
     let textWeight     : Font.Weight
     let textColor      : Color
 
     let subText        : String?
-    let subTextSize    : Font?
+    let subTextSize    : CGFloat?
     let subTextWeight  : Font.Weight?
     let subTextColor   : Color
 
-    init(width: CGFloat = 165, height: CGFloat = 66,
+    init(width: CGFloat = 107, height: CGFloat = 56,
          cornerRadius: CGFloat = 13, text: String,
-         textSize: Font = Font.system(size: 15),textWeight: Font.Weight = Font.Weight.light, textColor: Color = Color.black,
-         subText: String? = nil, subTextSize: Font? = Font.system(size: 24),
+         textSize: CGFloat = 12,textWeight: Font.Weight = Font.Weight.light, textColor: Color = Color.black,
+         subText: String? = nil, subTextSize: CGFloat? = 20,
          subTextWeight: Font.Weight? = Font.Weight.black, subTextColor: Color = Color.black,
-         backGoundColor: Color = Color.backgoundGreen) {
+         backGoundColor: Color = Color.clear) {
         
         self.width          = width
         self.height         = height
@@ -51,15 +51,14 @@ struct TextedRoundedRectangle: View {
                 .foregroundStyle(backGoundColor)
             VStack{
                 Text(text)
-                    .font(textSize)
+//                    .font(.custom("Bolota", size: textSize))
+                    .font(.custom("Bolota", size: textSize))
                     .fontWeight(textWeight)
-                    .foregroundStyle(.black)
                     .foregroundStyle(textColor)
                 if subText != nil {
                     Text(subText!)
-                        .font(subTextSize)
+                        .font(.custom("Bolota", size: subTextSize ?? 20))
                         .fontWeight(subTextWeight)
-                        .foregroundStyle(.black)
                         .foregroundStyle(subTextColor)
                 }
             }

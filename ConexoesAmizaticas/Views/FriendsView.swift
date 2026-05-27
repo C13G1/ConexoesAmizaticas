@@ -40,7 +40,7 @@ struct FriendsView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.themeBackground)
         .onAppear() {
-            self.vm = InicialViewModel(modelContext: self.modelContext)
+            self.vm = InicialViewModel()
             self.friends = vm.connectionsWithFriends
         }
     }
