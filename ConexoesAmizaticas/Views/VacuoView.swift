@@ -7,17 +7,14 @@
 
 import SwiftUI
 
+// TODO: IMPLEMENTAR BOLHAS NO VÁCUO
 struct VacuoView: View {
     @Environment(\.dismiss) var dismiss
-    @State private var showInfo = false
     @State var focusedConnection: Connection!
     
     var body: some View {
-        
         ZStack {
             ZStack {
-                Color.vacuoBackground
-                    .ignoresSafeArea()
                 VStack(spacing: 0) {
                     HStack {
                         Button(action: { dismiss() }) {
@@ -28,72 +25,46 @@ struct VacuoView: View {
                         
                         Spacer()
                         
-                        Button(action: { showInfo = true }) {
+                        NavigationLink {
+                            
+                        } label: {
                             Image(systemName: "info.circle")
                                 .font(.system(size: 24))
                                 .foregroundColor(.white)
                         }
                     }
                     .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
+                    .padding(.vertical, -0.9)
                     
-                    Spacer()
-                        .frame(height: 97)
-                    
-                    Text("VÁCUO")
-                        .font(.custom("Sora-ExtraBold", size: 40))
-                        .foregroundColor(.white)
-                    
-                    Spacer()
-                    
-                    Image("vacuo")
-                        .frame(width: 280, height: 280)
+                    Image("void")
+                        .resizable()
+                        .frame(width: UIScreen.main.bounds.width * 0.3, height: UIScreen.main.bounds.height * 0.04)
+                        .padding(.top, 30)
                     
                     Spacer()
                     
                     Text("Você não tem nenhum\namigo no vácuo")
-                        .font(.system(size: 24, weight: .medium))
+                        .font(.custom("Sora-Regular", size: 24))
                         .multilineTextAlignment(.center)
                         .foregroundColor(.white)
                         .frame(maxWidth: 300)
                         .padding(.bottom, 40)
                 }
             }
-            .background(.vacuoBackground)
-            .blur(radius: focusedConnection != nil ? 10 : 0)
-            ZStack {
-                if showInfo {
-                    ZStack {
-                        Color.black.opacity(0.5)
-                            .ignoresSafeArea()
-                            .onTapGesture { showInfo = false }
-                        
-                        VStack {
-                            HStack {
-                                Text("Informações")
-                                    .font(.custom("Sora-SemiBold", size: 18))
-                                    .foregroundColor(.white)
-                                
-                                Spacer()
-                                
-                                Button(action: { showInfo = false }) {
-                                    Image(systemName: "xmark")
-                                        .foregroundColor(.white)
-                                }
-                            }
-                            .padding(20)
-                            
-                            Text("Esta é a tela de vácuo. Aqui você pode adicionar mais informações sobre o conceito.")
-                                .foregroundColor(.white)
-                                .padding(20)
-                            
-                            Spacer()
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color.black)
-                    }
+            .background(
+                ZStack {
+                    Color.vacuoBackground
+                    Image("vacuo")
+                        .resizable()
+                        .frame(width: UIScreen.main.bounds.width * 1.7, height: UIScreen.main.bounds.height * 0.65)
+                        .padding(.trailing, UIScreen.main.bounds.width * 0.15)
+                        .padding(.bottom, UIScreen.main.bounds.height * 0.025)
                 }
-            }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .ignoresSafeArea()
+            )
+            .blur(radius: focusedConnection != nil ? 10 : 0)
+                        
             ZStack {
                 if let focusedConnection = focusedConnection {
                     Rectangle()

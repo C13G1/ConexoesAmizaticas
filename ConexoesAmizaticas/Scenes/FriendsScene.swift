@@ -25,7 +25,7 @@ class FriendsScene: SKScene {
         self.sceneType = sceneType
         super.init(size: size)
         self.connections = connections
-        self.backgroundColor = .white
+        self.backgroundColor = .lightBackground
         self.addChild(rootNode)
         if sceneType == .initial {
             initBackground()
