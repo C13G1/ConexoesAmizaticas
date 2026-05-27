@@ -42,6 +42,13 @@ class InicialViewModel {
         }
     }
     
+    func addFriend(friend: User) {
+        let connection = Connection(friend: friend)
+        self.modelContext.insert(friend)
+        self.modelContext.insert(connection)
+        self.connectionsWithFriends.append(connection)
+    }
+    
     func getFriends() -> [User] {
         var friends: [User] = []
         

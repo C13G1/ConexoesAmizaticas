@@ -11,6 +11,7 @@ import SwiftData
 
 struct FriendsView: View {
     @Environment(\.modelContext) private var modelContext
+    @Binding var vm: InicialViewModel
     @Query private var connections: [Connection]
     @Query private var users: [User]
 
@@ -88,7 +89,7 @@ struct FriendsView: View {
 
                     Spacer()
 
-                    NavigationLink(destination: BLEView(profile: currentUser)) {
+                    NavigationLink(destination: BLEView(vm: $vm, profile: currentUser)) {
                         ZStack {
                             Circle()
                                 .frame(width: 60, height: 60)
@@ -208,6 +209,7 @@ struct FriendsView: View {
 }
 
 #Preview {
-    FriendsView()
+    @Previewable @State var viewModel = InicialViewModel()
+    FriendsView(vm: $viewModel)
         .modelContainer(for: [User.self, Connection.self], inMemory: true)
 }

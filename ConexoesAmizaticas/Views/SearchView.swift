@@ -42,7 +42,7 @@ struct SearchView: View {
     var body: some View {
         NavigationStack(path: $navPath) {
             ZStack {
-                SpriteView(scene: scene, debugOptions: [.showsPhysics, .showsNodeCount, .showsDrawCount])
+                SpriteView(scene: scene, debugOptions: [])
                     .ignoresSafeArea()
                     .tag("searchView")
             }
@@ -51,7 +51,7 @@ struct SearchView: View {
                 placement: .navigationBarDrawer(displayMode: .always)
             )
             .navigationDestination(for: Connection.self) { value in
-                FriendsProfileView(connection: value)
+                FriendsProfileView(connection: value, inicialViewModel: viewModel)
             }
         }
         .onAppear {

@@ -13,6 +13,7 @@ struct BLEView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Query private var existingConnections: [Connection]
+    @Binding var vm: InicialViewModel
 
     @State private var bleManager: BLEManager?
     @State private var friend: User?
@@ -203,17 +204,16 @@ struct BLEView: View {
             existing.metaManager.addOrSubtractScore(10)
         } else {
             // cria User e Connection no SwiftData
-            modelContext.insert(friend)
-            let connection = Connection(friend: friend)
-            modelContext.insert(connection)
+            vm.addFriend(friend: friend)
         }
         dismiss()
     }
 }
 
 #Preview {
+    @Previewable @State var viewModel = InicialViewModel()
     NavigationStack {
-        BLEView(profile: User())
+        BLEView(vm: $viewModel, profile: User())
     }
     .modelContainer(for: [User.self, Connection.self], inMemory: true)
 }

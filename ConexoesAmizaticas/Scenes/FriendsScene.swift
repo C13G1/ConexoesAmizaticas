@@ -17,8 +17,7 @@ class FriendsScene: SKScene {
     var pinchDistance: Double!
     var touchAngle: CGFloat = 0
     var rootNode: SKNode = SKNode()
-    var lastTouchLocation: CGPoint!
-    var deltaAngle: Double = 0
+    var angleOffset: Double = 0
     let sceneType: SceneType!
 
     // identifica o toque na BOLHA
@@ -146,22 +145,19 @@ class FriendsScene: SKScene {
         firstTouch = touch
         let sceneLocation = touch.location(in: self)
         touchStartLocation = sceneLocation
-        lastTouchLocation = touch.location(in: self.rootNode)
-        touchAngle = self.rootNode.zRotation
-        deltaAngle = 0
-
+        let location = touch.location(in: self.rootNode)
+        let tan = (location.x) / (location.y)
+        angleOffset = atan(tan)
         touchStartedOnSpiral = nodes(at: sceneLocation).contains { $0.name == "spiral" }
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
-        lastTouchLocation = touch.location(in: self.rootNode)
         let location = touch.location(in: self.rootNode)
         let tan = (location.x) / (location.y)
         let newAngle = atan(tan)
-        let deltaAngle = (newAngle - touchAngle)
-        self.rootNode.zRotation -= newAngle
-        self.deltaAngle = deltaAngle
+        let deltaAngle = (newAngle - angleOffset)
+        self.rootNode.zRotation -= deltaAngle
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {

@@ -42,7 +42,7 @@ struct TabBar: View {
                 
                 Spacer()
                 
-                NavigationLink (destination: BLEView(profile: user)) {
+                NavigationLink (destination: BLEView(vm: $viewModel, profile: user)) {
                     ZStack {
                         Circle()
                             .frame(width: UIScreen.main.bounds.width * 0.15)

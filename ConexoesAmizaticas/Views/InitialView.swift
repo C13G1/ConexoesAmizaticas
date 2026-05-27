@@ -28,6 +28,11 @@ struct InitialView: View {
         return scene
     }()
     
+    init() {
+        
+            vm.setModelContext(modelContext: self.modelContext)
+    }
+    
     var body: some View {
         NavigationStack(path: $navigation) {
             ZStack {

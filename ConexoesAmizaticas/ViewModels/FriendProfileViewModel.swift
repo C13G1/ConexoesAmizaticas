@@ -75,4 +75,5 @@ class FriendProfileViewModel {
         let trueDays = daysUntil - connection.metaManager.meta.days
         return trueDays
     }
+    
 }
