@@ -77,3 +77,29 @@ enum CodingKeys: String, CodingKey {
     case profilePicture
     case id
 }
+
+enum Meta: String, Codable{
+    case semanal = "semanalmente"
+    case quinzenal = "quizenal"
+    case mensal = "mensal"
+    case bimestral = "bimestral"
+    case semestral = "semestral"
+    case anual = "anual"
+    
+    var days: Int {
+        switch self {
+        case .semanal:
+            return 7
+        case .quinzenal:
+            return 15
+        case .mensal:
+            return 30
+        case .bimestral:
+            return 60
+        case .semestral:
+            return 182
+        case .anual:
+            return 360
+        }
+    }
+}

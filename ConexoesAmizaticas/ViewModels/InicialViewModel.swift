@@ -29,8 +29,8 @@ class InicialViewModel {
     
     func fetchData() {
         do {
-            let userDescriptor        = FetchDescriptor<User>(sortBy: [SortDescriptor(\.id)])
-            let connectionsDescriptor = FetchDescriptor<Connection>(sortBy: [SortDescriptor(\.id)])
+            let userDescriptor        = FetchDescriptor<User>(/*sortBy: [SortDescriptor(\.id)]*/)
+            let connectionsDescriptor = FetchDescriptor<Connection>(/*sortBy: [SortDescriptor(\.id)]*/)
             
             var users                 = try modelContext.fetch(userDescriptor)
             let connections           = try modelContext.fetch(connectionsDescriptor)
