@@ -13,100 +13,87 @@ import SwiftData
 ///
 /// `EditProfileView` binds to the application's global `InicialViewModel` to apply changes directly to the
 /// primary `User` model. It features a Save button that commits changes to the database via `modelContext.save()`.
+
 struct EditProfileView: View {
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.dismiss) private var dismiss
     @Binding var vm: InicialViewModel
-
-    @State private var name: String
+    
     @State private var selectedPhoto: PhotosPickerItem?
-    @State private var profileImageData: Data?
-
-    init(vm: Binding<InicialViewModel>) {
-        self._vm = vm
-        self._name = State(initialValue: vm.wrappedValue.profile.name)
-        self._profileImageData = State(initialValue: vm.wrappedValue.profile.profilePicture)
-    }
-
-    private var canSave: Bool {
-        !name.trimmingCharacters(in: .whitespaces).isEmpty
-    }
-
+    @State private var editableName: String = ""
+    @FocusState private var isNameFocused: Bool
+    
+    var width = UIScreen.main.bounds.width
+    var height = UIScreen.main.bounds.height
+    
     var body: some View {
-        VStack(spacing: 32) {
-            PhotosPicker(selection: $selectedPhoto, matching: .images) {
-                ZStack {
-                    Circle()
-                        .frame(width: UIScreen.main.bounds.width * 0.3, height: UIScreen.main.bounds.height * 0.3)
-                        .foregroundStyle(.gray.opacity(0.15))
-                    
-                    if let data = profileImageData, let uiImage = UIImage(data: data) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFill()
-                            .clipShape(Circle())
-                            .frame(width: UIScreen.main.bounds.width * 0.3, height: UIScreen.main.bounds.height * 0.3)
-                    } else {
-                        Image(systemName: "person.crop.circle.badge.plus")
-                            .font(.system(size: 44))
-                            .foregroundStyle(.gray)
-                    }
-                    // camera badge
-                    Image(systemName: "pencil")
-                        .font(.title)
-                        .foregroundStyle(.white)
-                        .padding(10)
-                        .background(Color.gray)
+        VStack(spacing: 40) {
+            ZStack {
+                if let uiImage = UIImage(data: vm.profile.profilePicture) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: width * 0.75, height: width * 0.75)
                         .clipShape(Circle())
-                        .offset(x: 80, y: 100)
                 }
+                
+                PhotosPicker(selection: $selectedPhoto, matching: .images, photoLibrary: .shared()) {
+                    Image(systemName: "pencil")
+                        .foregroundStyle(.lightBackground)
+                        .font(.title)
+                        .padding(8)
+                        .background(Color.green)
+                        .cornerRadius(100)
+                }
+                .padding(.leading, width * 0.45)
+                .padding(.top, height * 0.28)
             }
-            .onChange(of: selectedPhoto) { _, item in
-                Task {
-                    if let data = try? await item?.loadTransferable(type: Data.self) {
-                        profileImageData = data
+            .onChange(of: selectedPhoto) { _, newValue in
+                if let newValue {
+                    Task {
+                        if let data = try? await newValue.loadTransferable(type: Data.self) {
+                            vm.profile.editProfileImageData(data)
+                            try? modelContext.save()
+                        }
                     }
                 }
             }
-
-            TextField("Seu nome", text: $name)
-                .font(.custom("Bolota", size: 24))
-                .padding()
-                .background(.gray.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding(.horizontal, 40)
-
+            
+            VStack(spacing: 2) {
+                let characterLimit = 10
+                
+                TextField("Seu nome", text: $editableName)
+                    .font(.custom("Bolota", size: 48))
+                    .multilineTextAlignment(.center)
+                    .focused($isNameFocused)
+                    .onAppear {
+                        editableName = vm.profile.name
+                    }
+                    .onChange(of: editableName) { oldValue, newValue in
+                        if newValue.count > characterLimit {
+                            editableName = String(newValue.prefix(characterLimit))
+                        } else {
+                            vm.profile.editName(newValue)
+                            try? modelContext.save()
+                        }
+                    }
+                    .onSubmit {
+                        isNameFocused = false
+                    }
+                
+                Capsule()
+                    .frame(width: width * 0.75, height: 5)
+            }
+            
             Spacer()
         }
-        .padding(.top, 40)
-        .background(.lightBackground)
-        .navigationTitle("Editar Perfil")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .confirmationAction) {
-                Button("Salvar") {
-                    saveChanges()
-                }
-                .disabled(!canSave)
-            }
+        .foregroundStyle(.black)
+        .onTapGesture {
+            isNameFocused = false
         }
-    }
-
-    private func saveChanges() {
-        let trimmed = name.trimmingCharacters(in: .whitespaces)
-        vm.profile.editName(trimmed)
-        if let data = profileImageData {
-            vm.profile.editProfileImageData(data)
-        }
-        try? modelContext.save()
-        dismiss()
     }
 }
 
 #Preview {
     @Previewable @State var viewModel = InicialViewModel()
-    NavigationStack {
-        EditProfileView(vm: $viewModel)
-    }
-    .modelContainer(for: [User.self, Connection.self], inMemory: true)
+    EditProfileView(vm: $viewModel)
 }
