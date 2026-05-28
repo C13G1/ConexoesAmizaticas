@@ -7,9 +7,17 @@
 
 import SwiftUI
 import SwiftData
+import Aptabase
 
 @main
 struct ConexoesAmizaticasApp: App {
+    
+    init() {
+        Aptabase.shared.initialize(appKey: "A-US-8865447669")
+        NotificationManager.requestPermission()
+        ProximityNotifier.shared.start()
+    }
+    
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             User.self,
@@ -26,11 +34,6 @@ struct ConexoesAmizaticasApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
-
-    init() {
-        NotificationManager.requestPermission()
-        ProximityNotifier.shared.start()
-    }
 
     var body: some Scene {
         WindowGroup {
