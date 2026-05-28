@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import SpriteKit
+import Aptabase
 import UserNotifications
 
 
@@ -219,6 +220,7 @@ struct VacuoView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
+            Aptabase.shared.trackEvent("screen_view", with: ["name": "vacuo"])
             voidScene.updateConnections(receivedConnections: Set(vacuumConnections))
             voidScene.onFriendTapped = { connection in
                 focusedConnection = connection
@@ -233,6 +235,7 @@ struct VacuoView: View {
     private func resgatarContato(_ connection: Connection) {
         connection.lastMet = Date.now
         connection.metaManager.addOrSubtractScore(5)
+        Aptabase.shared.trackEvent("friend_rescued")
         try? modelContext.save()
         NotificationManager.scheduleMetaReminder(for: connection)
         NotificationCenter.default.post(name: .meetingConfirmed, object: nil)
