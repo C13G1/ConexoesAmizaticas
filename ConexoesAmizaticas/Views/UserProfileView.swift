@@ -63,20 +63,24 @@ struct UserProfileView: View {
     }
 
     private var chartCenterLabel: some View {
-        VStack(spacing: 2) {
+        VStack(spacing: 4) {
             if let selected = selectedItem {
+                let percentage = Int(round(Double(selected.count) / Double(connections.count) * 100))
+                Text("\(percentage)%")
+                    .font(.custom("Bolota", size: 36))
+                    .foregroundStyle(Color(uiColor: selected.state.color))
                 Text(selected.state.displayName.uppercased())
-                    .font(.custom("Sora-SemiBold", size: 12))
-                Text("\(selected.count) \(selected.count == 1 ? "amigo" : "amigos")")
-                    .font(.custom("Bolota", size: 20))
+                    .font(.custom("Sora-SemiBold", size: 13))
+                    .foregroundStyle(Color(uiColor: selected.state.color))
             } else {
                 Text("RODA DA")
-                    .font(.custom("Bolota", size: 18))
+                    .font(.custom("Bolota", size: 16))
+                    .foregroundStyle(.lightBackground)
                 Text("AMIZADE")
-                    .font(.custom("Bolota", size: 18))
+                    .font(.custom("Bolota", size: 16))
+                    .foregroundStyle(.lightBackground)
             }
         }
-        .foregroundStyle(.lightBackground)
         .multilineTextAlignment(.center)
     }
 
@@ -121,7 +125,7 @@ struct UserProfileView: View {
                         ForEach(friendsByState, id: \.state) { item in
                             SectorMark(
                                 angle: .value("Quantidade", item.count),
-                                innerRadius: .ratio(0.62),
+                                innerRadius: .inset(24),
                                 angularInset: 2
                             )
                             .cornerRadius(4)
