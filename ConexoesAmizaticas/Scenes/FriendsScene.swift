@@ -21,10 +21,8 @@ class FriendsScene: SKScene {
     var firstTouch: UITouch!
     var secondTouch: UITouch!
     var pinchDistance: Double!
-    var touchAngle: CGFloat = 0
+    var touchOffset: CGFloat = 0
     var rootNode: SKNode = SKNode()
-    var lastTouchLocation: CGPoint!
-    var deltaAngle: Double = 0
     let sceneType: SceneType!
 
     /// Triggered when an individual friend node is tapped, routing the user to the profile view.
@@ -45,7 +43,7 @@ class FriendsScene: SKScene {
         self.addChild(rootNode)
         
         if sceneType == .initial {
-            initBackground()
+            initSpiral()
             initFriends()
         }
         initCamera()
@@ -61,7 +59,7 @@ class FriendsScene: SKScene {
         addChild(camera)
     }
 
-    func initBackground() {
+    func initSpiral() {
         let spiral = SKSpriteNode(texture: SKTexture(imageNamed: "Spiral"), size: CGSize(width: 122, height: 122))
         spiral.name = "spiral"
         spiral.physicsBody = SKPhysicsBody(circleOfRadius: (spiral.size.width - 10) / 2)
@@ -167,9 +165,9 @@ class FriendsScene: SKScene {
         firstTouch = touch
         let sceneLocation = touch.location(in: self)
         touchStartLocation = sceneLocation
-        lastTouchLocation = touch.location(in: self.rootNode)
-        touchAngle = self.rootNode.zRotation
-        deltaAngle = 0
+        let location = touch.location(in: self.rootNode)
+        let tan = (location.x) / (location.y)
+        touchOffset = atan(tan)
 
         let touchedNodes = nodes(at: sceneLocation)
         // Só conta como toque na espiral se nenhum FriendNode (nomeado com UUID) estiver sobreposto
@@ -182,16 +180,13 @@ class FriendsScene: SKScene {
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
-        lastTouchLocation = touch.location(in: self.rootNode)
         
         // Translates linear finger movement into rotational movement for the entire social graph
         let location = touch.location(in: self.rootNode)
         let tan = (location.x) / (location.y)
         let newAngle = atan(tan)
-        let deltaAngle = (newAngle - touchAngle)
-        
-        self.rootNode.zRotation -= newAngle
-        self.deltaAngle = deltaAngle
+        let deltaAngle = (newAngle - touchOffset)
+        self.rootNode.zRotation -= deltaAngle
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -210,7 +205,7 @@ class FriendsScene: SKScene {
         if touch == firstTouch {
             firstTouch = nil
             self.pinchDistance = 0
-            self.touchAngle = 0
+            self.touchOffset = 0
         } else if touch == secondTouch {
             secondTouch = nil
             self.pinchDistance = 0
