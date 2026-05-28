@@ -56,6 +56,7 @@ struct FriendsProfileView: View {
             ZStack {
                 PictureScroll(viewModel: feedViewModel)
                     .padding(.top, height * 0.55)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 Circle()
                     .frame(width: width * 1.6)
@@ -76,7 +77,7 @@ struct FriendsProfileView: View {
                         NavigationLink(destination: EditFriendProfileView(connection: viewModel.connection)) {
                             Image(systemName: "pencil.circle.fill")
                                 .font(.system(size: 28))
-                                .foregroundStyle(.white, .gray)
+                                .foregroundStyle(.white, viewModel.getProfileColor())
                         }
                     }
                     .padding(.top, 10)

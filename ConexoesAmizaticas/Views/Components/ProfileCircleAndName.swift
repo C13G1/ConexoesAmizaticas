@@ -22,21 +22,22 @@ struct ProfileCircleAndName: View {
                     UserProfileView(vm: $vm)
                 } label: {
                     ZStack {
-                        Circle()
-                            .frame(width: width * 0.29)
-                            .foregroundStyle(.black)
                         Image(uiImage: uiImage)
                             .resizable()
                             .scaledToFill()
                             .frame(width: width * 0.25, height: width * 0.25)
                             .clipShape(Circle())
+                            .overlay(
+                                Circle()
+                                    .stroke(.themeBackground, lineWidth: 8)
+                            )
                     }
                 }
             } else {
                 // Fallback avatar if the user profile image is missing.
                 ZStack {
                     Circle()
-                        .frame(width: width * 0.29)
+                        .frame(width: width * 0.3)
                         .foregroundStyle(.black)
                     Circle()
                         .frame(width: width * 0.25, height: width * 0.25)

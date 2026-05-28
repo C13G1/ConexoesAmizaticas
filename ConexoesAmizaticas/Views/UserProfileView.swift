@@ -97,11 +97,13 @@ struct UserProfileView: View {
             }
             .padding(.top, height * 0.05)
 
-            Text("RODA DA AMIZADE")
-                .font(.custom("Bolota", size: 36))
-                .foregroundStyle(.lightBackground)
-                .frame(width: width * 0.5)
-                .padding(.top, height * 0.52)
+            if !friendsByState.isEmpty {
+                Text("RODA DA AMIZADE")
+                    .font(.custom("Bolota", size: 36))
+                    .foregroundStyle(.lightBackground)
+                    .frame(width: width * 0.5)
+                    .padding(.top, height * 0.52)
+            }
         }
         .background(.lightBackground)
         .toolbar {

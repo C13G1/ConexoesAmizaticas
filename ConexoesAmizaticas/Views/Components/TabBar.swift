@@ -20,7 +20,7 @@ struct TabBar: View {
     var body: some View {
         ZStack {
             SemiCircle()
-                .fill(Color.black)
+                .fill(Color.themeBackground)
                 .frame(width: width, height: 100)
             
             HStack {
@@ -37,7 +37,7 @@ struct TabBar: View {
                             .bold()
                     }
                     .frame(width: width * 0.19, height: width * 0.19)
-                    .background(.black)
+                    .background(.themeBackground)
                     .cornerRadius(100)
                 }
                 
@@ -59,12 +59,12 @@ struct TabBar: View {
                             .font(.title2)
                     }
                     .frame(width: width * 0.19, height: width * 0.19)
-                    .background(.black)
+                    .background(.themeBackground)
                     .cornerRadius(100)
                 }
             }
             .padding(.horizontal, 20)
-            .padding(.bottom, width * 0.38) // Pushes the icons upwards to align with the curve of the SemiCircle
+            .padding(.bottom, width * 0.38) 
         }
     }
 }
