@@ -8,12 +8,21 @@
 import SwiftUI
 import SwiftData
 
+/// A comprehensive dashboard detailing a specific friendship.
+///
+/// `FriendsProfileView` aggregates the shared memory feed (via `PictureScroll`) and the analytical relationship metrics.
+/// It operates as the central hub for interacting with a specific `Connection`, allowing the user to view goals,
+/// register new memories, or navigate to settings (`SetMetaView`).
 struct FriendsProfileView: View {
     @Environment(\.modelContext) private var modelContext
+    
+    /// Controls the initial "New Friend" tutorial overlay to establish goals right after pairing.
     @AppStorage("SetMetaOnboarding") var SetMetaOnboarding: Bool = false
     @State var blurLevel: CGFloat = 0.0
     
     var viewModel : FriendProfileViewModel
+    
+    /// The localized view model handling the complex swipe gestures and deletion states for the photo carousel.
     @State private var feedViewModel: FriendFeedViewModel
     
     var width = UIScreen.main.bounds.width

@@ -9,6 +9,11 @@ import SwiftData
 import SwiftUI
 import SpriteKit
 
+/// A specialized exploratory view utilizing a text-based filter over the physical simulation.
+///
+/// `SearchView` repurposes the `FriendsScene` as a dynamic background that reacts in real-time to the
+/// SwiftUI `.searchable` modifier. It filters the visible connections in the scene, effectively blending
+/// traditional list-searching paradigms with spatial node interaction.
 struct SearchView: View {
     @Binding var viewModel: InicialViewModel
     @State private var searchText: String = ""
@@ -27,6 +32,7 @@ struct SearchView: View {
         return scene
     }()
     
+    /// Computes the subset of connections matching the active search query.
     var searchResults: [Connection] {
         print("returning results")
         if searchText.isEmpty {

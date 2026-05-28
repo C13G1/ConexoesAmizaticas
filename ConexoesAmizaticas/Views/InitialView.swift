@@ -2,7 +2,7 @@
 //  InitialView.swift
 //  ConexoesAmizaticas
 //
-//  Created by Jonas Fernando Nascimento Melo on 25/05/26.
+//  Created by Dayô Araújo on 25/05/26.
 //
 
 import SwiftUI
@@ -10,6 +10,11 @@ import UIKit
 import _SpriteKit_SwiftUI
 import _SwiftData_SwiftUI
 
+/// The primary interactive workspace of the application.
+///
+/// `InitialView` is a hybrid component that overlays standard SwiftUI navigation and toolbars onto
+/// the custom SpriteKit simulation (`FriendsScene`). It is responsible for bridging touches from the
+/// 2D physics world into standard SwiftUI navigation paths.
 struct InitialView: View {
     @Environment(\.modelContext) private var modelContext
     @State var vm: InicialViewModel = InicialViewModel()
@@ -76,6 +81,9 @@ struct InitialView: View {
         }
         .onAppear {
             scene.updateConnections(receivedConnections: Set(vm.connectionsWithFriends))
+            
+            // Translates SpriteKit node taps into SwiftUI Navigation operations.
+            // Using DispatchQueue.main to ensure thread safety across framework boundaries.
             scene.onFriendTapped = { connection in
                 selectedConnection = connection
                 navigation.append(connection)

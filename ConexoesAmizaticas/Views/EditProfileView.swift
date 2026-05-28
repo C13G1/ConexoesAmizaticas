@@ -9,6 +9,11 @@ import SwiftUI
 import SwiftData
 import PhotosUI
 
+/// An interface for modifying the current user's core identity data.
+///
+/// `EditProfileView` binds to the application's global `InicialViewModel` to apply changes directly to the
+/// primary `User` model. It features immediate autosaving to the database via `modelContext.save()` upon
+/// any modification to the photo or name.
 struct EditProfileView: View {
     @Environment(\.modelContext) private var modelContext
     @Binding var vm: InicialViewModel

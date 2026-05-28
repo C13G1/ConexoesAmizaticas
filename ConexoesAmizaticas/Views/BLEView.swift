@@ -9,6 +9,11 @@ import SwiftUI
 import CoreBluetooth
 import SwiftData
 
+/// The proximity-based discovery and pairing screen.
+///
+/// `BLEView` serves as the UI layer for the `BLEManager`. It handles the transition between the "searching" state
+/// and the "found" state when another user is nearby. It is responsible for resolving the interaction by either
+/// creating a brand new `Connection` in the database or registering a new meeting for an existing friendship.
 struct BLEView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -18,8 +23,10 @@ struct BLEView: View {
     @State private var friend: User?
     @State private var foundFriend: Bool = false
 
+    /// The profile of the device owner, broadcasted to nearby peers.
     let profile: User
 
+    /// Evaluates if the discovered peer is already a saved connection to determine the subsequent action (create vs. update).
     private var existingConnection: Connection? {
         guard let friend = friend else { return nil }
         return existingConnections.first { $0.friend.id == friend.id }
@@ -142,6 +149,8 @@ struct BLEView: View {
     @State private var isHolding = false
     @State private var holdProgress: CGFloat = 0
 
+    /// A long-press confirmation button designed to prevent accidental pairings.
+    /// It requires the user to hold the button until the circular progress bar completes.
     private func confirmButton(friend: User) -> some View {
         ZStack {
             Circle()
@@ -196,6 +205,10 @@ struct BLEView: View {
         }
     }
 
+    /// Resolves the pairing process by updating the persistent store.
+    ///
+    /// If the connection already exists, it updates the `lastMet` timestamp and boosts the relationship score.
+    /// If it is a new contact, it bootstraps the `User` and `Connection` models into SwiftData.
     private func confirmFriend(_ friend: User) {
         if let existing = existingConnections.first(where: { $0.friend.id == friend.id }) {
             // registra encontro e aumenta 10 pontos de proximidade
