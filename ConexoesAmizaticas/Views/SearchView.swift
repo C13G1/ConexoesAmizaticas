@@ -23,10 +23,10 @@ struct SearchView: View {
     
     @Query private var connections: [Connection]
     @Query private var users: [User]
-    
+
     @FocusState private var isFocused: Bool
-    
-    var scene: FriendsScene = {
+
+    @State private var scene: FriendsScene = {
         let scene = FriendsScene(size: UIScreen.main.bounds.size, connections: Set(), sceneType: .search)
         scene.scaleMode = .aspectFill
         return scene
@@ -34,21 +34,19 @@ struct SearchView: View {
     
     /// Computes the subset of connections matching the active search query.
     var searchResults: [Connection] {
-        print("returning results")
         if searchText.isEmpty {
             return []
         } else {
-            let results = viewModel.connectionsWithFriends.filter { c in
+            return connections.filter { c in
                 c.friend.name.localizedStandardContains(searchText)
             }
-            return results
         }
     }
     
     var body: some View {
         NavigationStack(path: $navPath) {
             ZStack {
-                SpriteView(scene: scene, debugOptions: [.showsPhysics, .showsNodeCount, .showsDrawCount])
+                SpriteView(scene: scene)
                     .ignoresSafeArea()
                     .tag("searchView")
                 
@@ -69,7 +67,7 @@ struct SearchView: View {
             }
         }
         .onAppear {
-            scene.updateConnections(receivedConnections: Set(viewModel.connectionsWithFriends))
+            scene.updateConnections(receivedConnections: Set(connections.filter { !$0.inVacuo }))
             scene.onFriendTapped = { connection in
                 selectedConnection = connection
                 navPath.append(connection)
@@ -79,11 +77,9 @@ struct SearchView: View {
             scene.updateConnections(receivedConnections: Set(newConnections.filter { !$0.inVacuo }))
             scene.updateNodeVisuals()
         }
-        .onChange(of: searchText, {
-            let updatedFriends: Set<Connection> = Set(searchResults)
-            print("passing friends to func:\n\(updatedFriends)")
-            self.scene.updateConnections(receivedConnections: updatedFriends)
-        })
+        .onChange(of: searchText) {
+            scene.filterByName(searchText)
+        }
     }
 }
 

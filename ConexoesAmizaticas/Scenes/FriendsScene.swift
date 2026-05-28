@@ -171,7 +171,13 @@ class FriendsScene: SKScene {
         touchAngle = self.rootNode.zRotation
         deltaAngle = 0
 
-        touchStartedOnSpiral = nodes(at: sceneLocation).contains { $0.name == "spiral" }
+        let touchedNodes = nodes(at: sceneLocation)
+        // Só conta como toque na espiral se nenhum FriendNode (nomeado com UUID) estiver sobreposto
+        let isFriendNodeTouched = touchedNodes.contains { node in
+            guard let name = node.name else { return false }
+            return UUID(uuidString: name) != nil
+        }
+        touchStartedOnSpiral = touchedNodes.contains { $0.name == "spiral" } && !isFriendNodeTouched
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {

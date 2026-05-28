@@ -39,6 +39,7 @@ class FriendNode: SKShapeNode {
     
     var lastTouchLocation: CGPoint!
     private var touchStartLocation: CGPoint?
+    private var lastTapTime: TimeInterval = 0
 
     /// A closure triggered when the node is tapped.
     /// Used by the parent scene to route the user to the `FriendsProfileView`.
@@ -100,7 +101,9 @@ class FriendNode: SKShapeNode {
             let end = touch.location(in: parent)
             let dx = end.x - start.x
             let dy = end.y - start.y
-            if sqrt(dx * dx + dy * dy) < 10 {
+            let now = CACurrentMediaTime()
+            if sqrt(dx * dx + dy * dy) < 10, now - lastTapTime > 0.4 {
+                lastTapTime = now
                 onTapped?()
                 return
             }

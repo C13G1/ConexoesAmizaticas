@@ -83,8 +83,10 @@ struct InitialView: View {
             vm.fetchData()
             NotificationManager.rescheduleAll(connections: connections)
             scene.onFriendTapped = { connection in
-                selectedConnection = connection
-                navigation.append(connection)
+                DispatchQueue.main.async {
+                    guard navigation.count == 0 else { return }
+                    navigation.append(connection)
+                }
             }
             scene.onSpiralTapped = {
                 showVacuoView = true
@@ -95,6 +97,7 @@ struct InitialView: View {
             scene.updateNodeVisuals()
         }
         .onReceive(NotificationCenter.default.publisher(for: .meetingConfirmed)) { _ in
+            scene.updateConnections(receivedConnections: Set(connections.filter { !$0.inVacuo }))
             scene.updateNodeVisuals()
         }
         .onReceive(NotificationCenter.default.publisher(for: .friendProfileUpdated)) { _ in
