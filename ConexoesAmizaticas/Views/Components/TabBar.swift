@@ -32,7 +32,7 @@ struct TabBar: View {
                             .font(.largeTitle)
                             .bold()
                     }
-                    .frame(width: width * 0.19, height: height * 0.19)
+                    .frame(width: width * 0.19, height: width * 0.19)
                     .background(.black)
                     .cornerRadius(100)
                 }
@@ -47,7 +47,7 @@ struct TabBar: View {
                 NavigationLink (destination: BLEView(profile: user)) {
                     ZStack {
                         Circle()
-                            .frame(width: height * 0.15)
+                            .frame(width: width * 0.15)
                             .foregroundStyle(.lightBackground)
                         Image(systemName: "person.2.badge.plus.fill")
                             .foregroundStyle(.black)
