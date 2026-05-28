@@ -37,27 +37,28 @@ struct EditProfileView: View {
             PhotosPicker(selection: $selectedPhoto, matching: .images) {
                 ZStack {
                     Circle()
-                        .frame(width: 120, height: 120)
+                        .frame(width: UIScreen.main.bounds.width * 0.3, height: UIScreen.main.bounds.height * 0.3)
                         .foregroundStyle(.gray.opacity(0.15))
+                    
                     if let data = profileImageData, let uiImage = UIImage(data: data) {
                         Image(uiImage: uiImage)
                             .resizable()
                             .scaledToFill()
                             .clipShape(Circle())
-                            .frame(width: 120, height: 120)
+                            .frame(width: UIScreen.main.bounds.width * 0.3, height: UIScreen.main.bounds.height * 0.3)
                     } else {
                         Image(systemName: "person.crop.circle.badge.plus")
                             .font(.system(size: 44))
                             .foregroundStyle(.gray)
                     }
                     // camera badge
-                    Image(systemName: "camera.fill")
-                        .font(.system(size: 16))
+                    Image(systemName: "pencil")
+                        .font(.title)
                         .foregroundStyle(.white)
-                        .padding(6)
+                        .padding(10)
                         .background(Color.gray)
                         .clipShape(Circle())
-                        .offset(x: 40, y: 40)
+                        .offset(x: 80, y: 100)
                 }
             }
             .onChange(of: selectedPhoto) { _, item in
@@ -69,15 +70,16 @@ struct EditProfileView: View {
             }
 
             TextField("Seu nome", text: $name)
-                .font(.custom("Sora-Regular", size: 16))
+                .font(.custom("Bolota", size: 24))
                 .padding()
                 .background(.gray.opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding(.horizontal, 32)
+                .padding(.horizontal, 40)
 
             Spacer()
         }
         .padding(.top, 40)
+        .background(.lightBackground)
         .navigationTitle("Editar Perfil")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

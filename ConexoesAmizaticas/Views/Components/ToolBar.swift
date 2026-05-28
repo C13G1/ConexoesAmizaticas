@@ -18,7 +18,7 @@ struct ToolBar: View {
         ZStack {
             // An inverted semi-circle hanging from the top edge
             SemiCircle()
-                .fill(Color.black)
+                .fill(Color.themeBackground)
                 .frame(width: UIScreen.main.bounds.width, height: 100)
                 .rotationEffect(.degrees(180))
             
