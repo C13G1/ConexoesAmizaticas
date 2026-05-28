@@ -61,6 +61,16 @@ enum RelationshipState: String, Codable {
         case .inseparaveis: return 126
         }
     }
+
+    var displayName: String {
+        switch self {
+        case .afastados:    return "Afastados"
+        case .distantes:    return "Distantes"
+        case .estaveis:     return "Estáveis"
+        case .proximos:     return "Próximos"
+        case .inseparaveis: return "Inseparáveis"
+        }
+    }
 }
 
 enum SceneType {
