@@ -51,7 +51,7 @@ class FriendProfileViewModel {
         let connectionDate = Date(timeIntervalSinceNow: connection.timeSinceLastMet)
         let now = Date()
         let days = Calendar.current.dateComponents([.day], from: connectionDate, to: now).day ?? 0
-        return days
+        return days * -1
     }
     
     func getLastMeet() -> Date? {
@@ -71,7 +71,7 @@ class FriendProfileViewModel {
         let connectionDate = Date(timeIntervalSinceNow: connection.recordTimeNotMeeting ?? 0)
         let now = Date()
         let days = Calendar.current.dateComponents([.day], from: connectionDate, to: now).day ?? 0
-        return days
+        return days * -1 
     }
     
     /// Derives the visual UI theme color based on the current health score of the relationship.

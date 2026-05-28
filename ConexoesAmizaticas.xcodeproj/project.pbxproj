@@ -53,11 +53,6 @@
 			path = ConexoesAmizaticasTests;
 			sourceTree = "<group>";
 		};
-		C6ED03372FB661D8001FCAFC /* ConexoesAmizaticasUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ConexoesAmizaticasUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,7 +85,6 @@
 			children = (
 				C6ED031B2FB661D7001FCAFC /* ConexoesAmizaticas */,
 				C6ED032D2FB661D8001FCAFC /* ConexoesAmizaticasTests */,
-				C6ED03372FB661D8001FCAFC /* ConexoesAmizaticasUITests */,
 				C6ED031A2FB661D7001FCAFC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -165,9 +159,6 @@
 			);
 			dependencies = (
 				C6ED03362FB661D8001FCAFC /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				C6ED03372FB661D8001FCAFC /* ConexoesAmizaticasUITests */,
 			);
 			name = ConexoesAmizaticasUITests;
 			packageProductDependencies = (
@@ -491,7 +482,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = JC55C9UADF;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AppleDeveloperAcademyMackenzie.ConexoesAmizaticasTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -513,7 +504,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = JC55C9UADF;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AppleDeveloperAcademyMackenzie.ConexoesAmizaticasTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -534,6 +525,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = JC55C9UADF;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AppleDeveloperAcademyMackenzie.ConexoesAmizaticasUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -554,6 +546,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = JC55C9UADF;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AppleDeveloperAcademyMackenzie.ConexoesAmizaticasUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
