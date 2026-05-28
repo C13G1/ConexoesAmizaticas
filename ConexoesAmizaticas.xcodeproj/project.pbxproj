@@ -53,11 +53,6 @@
 			path = ConexoesAmizaticasTests;
 			sourceTree = "<group>";
 		};
-		C6ED03372FB661D8001FCAFC /* ConexoesAmizaticasUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ConexoesAmizaticasUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,7 +85,6 @@
 			children = (
 				C6ED031B2FB661D7001FCAFC /* ConexoesAmizaticas */,
 				C6ED032D2FB661D8001FCAFC /* ConexoesAmizaticasTests */,
-				C6ED03372FB661D8001FCAFC /* ConexoesAmizaticasUITests */,
 				C6ED031A2FB661D7001FCAFC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -165,9 +159,6 @@
 			);
 			dependencies = (
 				C6ED03362FB661D8001FCAFC /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				C6ED03372FB661D8001FCAFC /* ConexoesAmizaticasUITests */,
 			);
 			name = ConexoesAmizaticasUITests;
 			packageProductDependencies = (
