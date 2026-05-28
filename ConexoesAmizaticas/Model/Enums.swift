@@ -85,7 +85,7 @@ enum CodingKeys: String, CodingKey {
 /// Represents the commitment goal set by the user to meet a specific friend.
 enum Meta: String, Codable {
     case nenhuma   = "nenhuma"
-    case semanal   = "semanalmente"
+    case semanal   = "semanal"
     case quinzenal = "quizenal"
     case mensal    = "mensal"
     case bimestral = "bimestral"
