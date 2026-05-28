@@ -11,6 +11,8 @@ import SwiftData
 
 struct UserProfile: View {
     @Binding var vm: InicialViewModel
+    var width = UIScreen.main.bounds.width
+    var height = UIScreen.main.bounds.height
     
     private var friendsByState: [(state: RelationshipState, count: Int)] {
         let orderedStates: [RelationshipState] = [
@@ -53,27 +55,27 @@ struct UserProfile: View {
             ZStack {
                 Circle()
                     .foregroundStyle(.themeBackground)
-                    .frame(width: UIScreen.main.bounds.width * 2.17)
-                    .padding(.bottom, UIScreen.main.bounds.height * -0.18)
+                    .frame(width: width * 2.17)
+                    .padding(.bottom, height * -0.18)
                 
                 NavigationLink {
                     
                 } label: {
                     ZStack {
                         Circle()
-                            .frame(width: UIScreen.main.bounds.width * 0.15)
+                            .frame(width: width * 0.15)
                             .foregroundStyle(.lightBackground)
                         Image(systemName: "pencil")
                             .foregroundStyle(.themeBackground)
                             .font(.largeTitle)
                             .bold()
                     }
-                    .frame(width: UIScreen.main.bounds.width * 0.19, height: UIScreen.main.bounds.width * 0.19)
+                    .frame(width: width * 0.19, height: width * 0.19)
                     .background(.themeBackground)
                     .cornerRadius(100)
                 }
-                .padding(.bottom, UIScreen.main.bounds.height * 0.78)
-                .padding(.leading, UIScreen.main.bounds.width * 0.75)
+                .padding(.bottom, height * 0.78)
+                .padding(.leading, width * 0.75)
                 
                 VStack (spacing: 60){
                     VStack (spacing: 20){
@@ -103,7 +105,7 @@ struct UserProfile: View {
                         Text("Sem amigos ainda")
                             .font(.custom("Bolota", size: 32))
                             .foregroundStyle(.lightBackground)
-                            .frame(height: UIScreen.main.bounds.height * 0.35)
+                            .frame(height: height * 0.35)
                     } else {
                         Chart {
                             ForEach(friendsByState, id: \.state) { item in
@@ -115,16 +117,16 @@ struct UserProfile: View {
                                 .foregroundStyle(Color(item.state.color))
                             }
                         }
-                        .frame(width: UIScreen.main.bounds.width * 0.8, height: UIScreen.main.bounds.height * 0.35)
+                        .frame(width: width * 0.8, height: height * 0.35)
                     }
                 }
-                .padding(.top, UIScreen.main.bounds.height * 0.05)
+                .padding(.top, height * 0.05)
                 
                 Text("RODA DA AMIZADE")
                     .font(.custom("Bolota", size: 36))
                     .foregroundStyle(.lightBackground)
-                    .frame(width: UIScreen.main.bounds.width * 0.5)
-                    .padding(.top, UIScreen.main.bounds.height * 0.52)
+                    .frame(width: width * 0.5)
+                    .padding(.top, height * 0.52)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

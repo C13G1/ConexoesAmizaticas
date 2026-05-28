@@ -8,8 +8,21 @@
 import SwiftUI
 import SwiftData
 
+//
+//  AddPictureButton.swift
+//  ConexoesAmizaticas
+//
+//  Created by Dayô Araújo on 23/05/26.
+//
+
+import SwiftUI
+import SwiftData
+import PhotosUI
+
 struct AddPictureButton: View {
-    let viewModel: FriendFeedViewModel
+    @Environment(\.modelContext) private var modelContext
+    @Bindable var viewModel: FriendFeedViewModel
+    let color: Color
     
     var body: some View {
         Button {
@@ -17,7 +30,7 @@ struct AddPictureButton: View {
         } label: {
             ZStack {
                 CurvedRectangle(depth: 0.58)
-                    .stroke(Color.green,
+                    .stroke(color,
                             style: StrokeStyle(
                                 lineWidth: 30,
                                 lineCap: .round
@@ -31,12 +44,25 @@ struct AddPictureButton: View {
                     .padding(.bottom, UIScreen.main.bounds.height * 0.05)
             }
         }
+        .photosPicker(
+            isPresented: $viewModel.isPickerPresented,
+            selection: $viewModel.selectedItems,
+            matching: .images,
+            photoLibrary: .shared()
+        )
+        .onChange(of: viewModel.selectedItems) { oldValue, newValue in
+            if !newValue.isEmpty {
+                Task {
+                    await viewModel.addPostFromSelection(modelContext: modelContext)
+                }
+            }
+        }
     }
 }
 
 #Preview {
     let friend = User(name: "nome")
     let conn = Connection(friend: friend)
-    return AddPictureButton(viewModel: FriendFeedViewModel(connection: conn))
+    AddPictureButton(viewModel: FriendFeedViewModel(connection: conn), color: .blue)
         .preferredColorScheme(.dark)
 }

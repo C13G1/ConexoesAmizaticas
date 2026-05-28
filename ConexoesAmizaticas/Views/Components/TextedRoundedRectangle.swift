@@ -22,13 +22,14 @@ struct TextedRoundedRectangle: View {
     let subTextSize    : CGFloat?
     let subTextWeight  : Font.Weight?
     let subTextColor   : Color
+    let isTwelve       : Bool
 
     init(width: CGFloat = 107, height: CGFloat = 56,
          cornerRadius: CGFloat = 13, text: String,
          textSize: CGFloat = 12,textWeight: Font.Weight = Font.Weight.light, textColor: Color = Color.black,
          subText: String? = nil, subTextSize: CGFloat? = 20,
          subTextWeight: Font.Weight? = Font.Weight.black, subTextColor: Color = Color.black,
-         backGoundColor: Color = Color.clear) {
+         backGoundColor: Color = Color.clear, isTwelve: Bool) {
         
         self.width          = width
         self.height         = height
@@ -42,6 +43,7 @@ struct TextedRoundedRectangle: View {
         self.cornerRadius   = cornerRadius
         self.subTextColor   = subTextColor
         self.textColor      = textColor
+        self.isTwelve       = isTwelve
     }
     
     var body: some View {
@@ -51,7 +53,7 @@ struct TextedRoundedRectangle: View {
                 .foregroundStyle(backGoundColor)
             VStack{
                 Text(text)
-//                    .font(.custom("Bolota", size: textSize))
+                    .font(.customVariable(name: "Bolota", size: isTwelve ? 12 : 15, weight: .thin))
                     .font(.custom("Bolota", size: textSize))
                     .fontWeight(textWeight)
                     .foregroundStyle(textColor)
@@ -68,5 +70,5 @@ struct TextedRoundedRectangle: View {
 }
 
 #Preview {
-    TextedRoundedRectangle(text: "Text", subText: "Text")
+    TextedRoundedRectangle(text: "Text", subText: "Text", isTwelve: false)
 }

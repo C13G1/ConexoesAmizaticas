@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ProfileCircleAndName: View {
     @Binding var vm: InicialViewModel
+    var width = UIScreen.main.bounds.width
     
     var body: some View {
         VStack {
@@ -18,13 +19,13 @@ struct ProfileCircleAndName: View {
                 } label: {
                     ZStack {
                         Circle()
-                            .frame(width: UIScreen.main.bounds.width * 0.29)
+                            .frame(width: width * 0.29)
                             .foregroundStyle(.black)
                         Image(uiImage: uiImage)
                             .resizable()
                             .scaledToFill()
-                            .frame(width: UIScreen.main.bounds.width
-                                   * 0.25, height: UIScreen.main.bounds.width
+                            .frame(width: width
+                                   * 0.25, height: width
                                    * 0.25)
                             .clipShape(Circle())
                     }
@@ -32,11 +33,11 @@ struct ProfileCircleAndName: View {
             } else {
                 ZStack {
                     Circle()
-                        .frame(width: UIScreen.main.bounds.width * 0.29)
+                        .frame(width: width * 0.29)
                         .foregroundStyle(.black)
                     Circle()
-                        .frame(width: UIScreen.main.bounds.width
-                               * 0.25, height: UIScreen.main.bounds.width
+                        .frame(width: width
+                               * 0.25, height: width
                                * 0.25)
                         .foregroundStyle(.gray)
                 }

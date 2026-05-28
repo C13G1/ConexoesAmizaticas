@@ -49,7 +49,6 @@ class User: Codable {
     
     func getID() -> UUID { return id }
     
-    
 }
 
 struct userDTO: Codable {

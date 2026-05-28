@@ -11,6 +11,8 @@ struct FriendsProfileView: View {
     @AppStorage("SetMetaOnboarding") var SetMetaOnboarding: Bool = false
     @State var blurLevel: CGFloat = 0.0
     var viewModel : FriendProfileViewModel
+    var width = UIScreen.main.bounds.width
+    var height = UIScreen.main.bounds.height
     
     init(connection: Connection){
         self.viewModel = FriendProfileViewModel(connection: connection)
@@ -19,54 +21,81 @@ struct FriendsProfileView: View {
     var body: some View {
             ZStack{
                 ZStack{
-                    Circle()
-                        .frame(width: UIScreen.main.bounds.width * 1.6)
-                        .foregroundStyle(.friendProfileBackGround)
-                        .padding(.top, (UIScreen.main.bounds.height * -0.49))
+                    PictureScroll(viewModel: FriendFeedViewModel(connection: viewModel.connection))
+                        .padding(.top, height * 0.55)
                     
-                    VStack{
+                    Circle()
+                        .frame(width: width * 1.6)
+                        .foregroundStyle(.friendProfileBackGround)
+                        .padding(.top, (height * -0.6))
+                    
+                    VStack(spacing: 4){
                         Image(uiImage: viewModel.getFriendImage() ??
                               UIImage(named: "DefaultPicture")!)
                         .resizable()
                         .scaledToFill()
                         .frame(width: 108, height: 108)
                         .clipShape(Circle())
-                        .padding(.top,10)
+                        .padding(.top)
                         
                         Text(viewModel.getFriendName().uppercased())
                             .font(.custom("Bolota", size: 48))
                             .padding(.top, 8)
+                            .frame(width: width * 0.8)
                             .fontWeight(.semibold)
                         
                         HStack(spacing: 20.5){
-                            TextedRoundedRectangle(text: "conectados há",
-                                                   subText: "\(viewModel.getConnectionTime()) Dias",
-                                                   subTextColor: viewModel.getProfileColor())
-                            TextedRoundedRectangle(text: "ultimo encontro",
-                                                   subText: "há \(String(describing: viewModel.getLastMeet())) Dias",
-                                                   subTextColor: viewModel.getProfileColor())
-                            TextedRoundedRectangle(text: "promeça",
-                                                   subText: viewModel.getMeta().rawValue,
-                                                   subTextColor: viewModel.getProfileColor())
+                            TextedRoundedRectangle(
+                                text: "conectados há",
+                                textSize: 12,
+                                textWeight: .thin,
+                                subText: "\(viewModel.getConnectionTime()) Dias",
+                                subTextWeight: .black,
+                                subTextColor: viewModel.getProfileColor(),
+                                isTwelve: true)
+                            
+                            TextedRoundedRectangle(
+                                text: "último encontro",
+                                textSize: 12,
+                                textWeight: .thin,
+                                subText: "há \(String(describing: viewModel.getLastMeet())) Dias",
+                                subTextSize: 20,
+                                subTextWeight: .black,
+                                subTextColor: viewModel.getProfileColor(),
+                                isTwelve: true)
+                            
+                            TextedRoundedRectangle(
+                                text: "promessa",
+                                textSize: 12,
+                                textWeight: .thin,
+                                subText: viewModel.getMeta().rawValue,
+                                subTextSize: 20,
+                                subTextWeight: .black,
+                                subTextColor: viewModel.getProfileColor(),
+                                isTwelve: true)
                         }
                         
                         if viewModel.getTimeUntilMeet() < 0 {
-                            TextedRoundedRectangle(width: 351,height: 77,
-                                                   text: "vocês prometeram se encontrar dentro de",
-                                                   textSize: 15,subText: "\(viewModel.getTimeUntilMeet() * -1) dias atrasados",
-                                                   subTextSize: 36,
-                                                   subTextColor: viewModel.getProfileColor())
+                            TextedRoundedRectangle(
+                                width: 351,
+                                height: 77,
+                                text: "vocês prometeram se encontrar dentro de",
+                                textSize: 12, textWeight: .thin,
+                                subText: "\(viewModel.getTimeUntilMeet() * -1) dias",
+                                subTextSize: 36,
+                                subTextColor: viewModel.getProfileColor(),
+                                isTwelve: false)
                         }
                         else {
-                            TextedRoundedRectangle(width: 351,height: 77,text: "vocês prometeram se encontrar dentro de", textSize: 15,
-                                                   subText: "\(viewModel.getTimeUntilMeet()) dias",
+                            TextedRoundedRectangle(width: 351,height: 77,text: "vocês prometeram se encontrar dentro de",
+                                                   textSize: 15, subText: "\(viewModel.getTimeUntilMeet()) dias",
                                                    subTextSize: 36,
-                                                   subTextColor: viewModel.getProfileColor())
+                                                   subTextColor: viewModel.getProfileColor(), isTwelve: false)
                         }
                         
                         NavigationLink(destination: BLEView(profile: viewModel.connection.friend)) {
                             ZStack{
-                                HStack(spacing: -40){
+                                HStack(spacing: -45){
                                     CurvedRectangle(depth: 2)
                                         .stroke(viewModel.getProfileColor(),
                                                 style: StrokeStyle(
@@ -74,13 +103,13 @@ struct FriendsProfileView: View {
                                                     lineCap: .round
                                                 )
                                         )
-                                        .frame(width: UIScreen.main.bounds.height * 0.0957,
-                                               height: UIScreen.main.bounds.width * 0.0741)
+                                        .frame(width: height * 0.0957,
+                                               height: width * 0.0741)
                                         .rotationEffect(Angle(degrees: 90))
                                     
                                     Ellipse()
-                                        .frame(width: UIScreen.main.bounds.width * 0.623,
-                                               height: UIScreen.main.bounds.height * 0.123)
+                                        .frame(width: width * 0.623,
+                                               height: height * 0.123)
                                         .foregroundStyle(viewModel.getProfileColor())
                                     
                                     CurvedRectangle(depth: 2)
@@ -90,25 +119,22 @@ struct FriendsProfileView: View {
                                                     lineCap: .round
                                                 )
                                         )
-                                        .frame(width: UIScreen.main.bounds.height * 0.0957,
-                                               height: UIScreen.main.bounds.width * 0.0741)
+                                        .frame(width: height * 0.0957,
+                                               height: width * 0.0741)
                                         .rotationEffect(Angle(degrees: -90))
                                 }
+                                
                                 Text("registrar\num momento")
                                     .font(.custom("Bolota", size: 24))
                                     .foregroundStyle(.white)
-                                
                             }
                         }
                         
-                        
-                        AddPictureButton(viewModel: FriendFeedViewModel(connection: viewModel.connection))
+                        AddPictureButton(viewModel: FriendFeedViewModel(connection: viewModel.connection), color: viewModel.getProfileColor())
                             .padding(.top, 35)
-                        
-                        Spacer()
-                        
-                        PictureScroll(viewModel: FriendFeedViewModel(connection: viewModel.connection))
                     }
+                    .padding(.bottom, height * 0.3)
+                    
                     if SetMetaOnboarding {
                         Rectangle()
                             .frame(width: .infinity,
@@ -127,6 +153,7 @@ struct FriendsProfileView: View {
                         blurLevel = 0
                     }
                 }
+                
                 if SetMetaOnboarding {
                     VStack{
                         Text("novo amigo\nadicionado!")
@@ -139,7 +166,7 @@ struct FriendsProfileView: View {
                             .multilineTextAlignment(.center)
                             .padding(.top, 12)
                     }
-                    .padding(.bottom, UIScreen.main.bounds.height * 0.0985)
+                    .padding(.bottom, height * 0.0985)
                 }
             }
             .toolbar {
@@ -148,7 +175,7 @@ struct FriendsProfileView: View {
                         ZStack{
                             if SetMetaOnboarding{
                                 Circle()
-                                    .frame(height: UIScreen.main.bounds.height * 0.063)
+                                    .frame(height: height * 0.063)
                                     .foregroundStyle(.white)
                             }
                             Image(systemName: "gear")
@@ -163,6 +190,18 @@ struct FriendsProfileView: View {
 }
 
 #Preview {
-    let c = Connection(friend: User(name: "Juliana"))
-    FriendsProfileView(connection: c)
+    let mockConnection: Connection = {
+        let mockImage = UIImage(named: "gallery") ?? UIImage()
+        let mockData = mockImage.pngData() ?? Data()
+        let c = Connection(friend: User(name: "Juliana"))
+        
+        for _ in 0..<5 {
+            let post = Post(images: [mockData])
+            c.feedManager.addPost(post)
+        }
+        
+        return c
+    }()
+
+    return FriendsProfileView(connection: mockConnection)
 }

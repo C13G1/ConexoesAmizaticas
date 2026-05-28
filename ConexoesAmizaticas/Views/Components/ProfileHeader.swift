@@ -9,30 +9,31 @@ import SwiftUI
 
 struct ProfileHeader: View {
     @Binding var vm: InicialViewModel
+    var width = UIScreen.main.bounds.width
     
     var body: some View {
         VStack {
             if let uiImage = UIImage(data: vm.profile.profilePicture ) {
                 ZStack {
                     Circle()
-                        .frame(width: UIScreen.main.bounds.width * 0.52)
+                        .frame(width: width * 0.52)
                         .foregroundStyle(.lightBackground)
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFill()
-                        .frame(width: UIScreen.main.bounds.width
-                               * 0.48, height: UIScreen.main.bounds.width
+                        .frame(width: width
+                               * 0.48, height: width
                                * 0.48)
                         .clipShape(Circle())
                 }
             } else {
                 ZStack {
                     Circle()
-                        .frame(width: UIScreen.main.bounds.width * 0.52)
+                        .frame(width: width * 0.52)
                         .foregroundStyle(.lightBackground)
                     Circle()
-                        .frame(width: UIScreen.main.bounds.width
-                               * 0.48, height: UIScreen.main.bounds.width
+                        .frame(width: width
+                               * 0.48, height: width
                                * 0.48)
                         .foregroundStyle(.gray)
                 }
