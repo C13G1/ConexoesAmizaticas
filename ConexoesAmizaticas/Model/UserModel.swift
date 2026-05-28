@@ -7,6 +7,10 @@
 import SwiftData
 import SwiftUI
  
+/// Represents a user profile within the application context.
+///
+/// This model conforms to `Codable` to facilitate serialization, primarily for transferring
+/// profile information to nearby peers over Bluetooth via the `BLEManager`.
 @Model
 class User: Codable {
     private(set) var name:           String
@@ -21,17 +25,17 @@ class User: Codable {
     
     required init(from decoder: any Decoder) throws {
         let container       = try decoder.container(keyedBy: CodingKeys.self)
-        
         self.name           = try container.decode(String.self, forKey: .name)
         self.profilePicture = try container.decode(Data.self, forKey: .profilePicture)
         self.id             = try container.decode(UUID.self, forKey: .id)
-
     }
     
+    /// Updates the user's display name.
     func editName(_ name: String) {
         self.name = name
     }
     
+    /// Updates the user's avatar image.
     func editProfileImageData(_ image: Data) {
         self.profilePicture = image
     }
@@ -44,13 +48,12 @@ class User: Codable {
     }
 
     func getProfileImageData() -> Data { return profilePicture }
-    
     func getName() -> String { return name }
-    
     func getID() -> UUID { return id }
-    
 }
 
+/// A lightweight Data Transfer Object (DTO) used exclusively for decoding BLE payloads
+/// before converting them into full `User` SwiftData models.
 struct userDTO: Codable {
     var name: String
     var profilePicture: Data
