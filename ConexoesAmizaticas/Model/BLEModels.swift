@@ -207,9 +207,19 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
     }
 
     func decodeData() throws {
-        let friendDTO = try JSONDecoder().decode(userDTO.self, from: self.dataStream)
+        guard dataStream.count >= 4 else { return }
+        let expectedLength = dataStream.withUnsafeBytes {
+            Int(UInt32(bigEndian: $0.load(as: UInt32.self)))
+        }
+        guard dataStream.count >= expectedLength + 4 else {
+            print("aguardando dados: \(dataStream.count)/\(expectedLength + 4) bytes")
+            return
+        }
+        let jsonData = dataStream.subdata(in: 4..<expectedLength + 4)
+        let friendDTO = try JSONDecoder().decode(userDTO.self, from: jsonData)
         let friend = User(name: friendDTO.name, profilePicture: friendDTO.profilePicture, id: friendDTO.id)
         print("data decoded: \(friend.name)")
+        dataStream = Data()
         DispatchQueue.main.async { self.onFriendFound?(friend) }
     }
 
@@ -238,14 +248,27 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
             print("no space available")
             return
         }
-        let profileDTO = userDTO(name: profile.name, profilePicture: profile.profilePicture, id: profile.id)
-        let data = try JSONEncoder().encode(profileDTO)
-        data.withUnsafeBytes { buffer in
+        let pictureToSend: Data
+        if let image = UIImage(data: profile.profilePicture),
+           let thumb = image.preparingThumbnail(of: CGSize(width: 64, height: 64)),
+           let compressed = thumb.jpegData(compressionQuality: 0.5) {
+            pictureToSend = compressed
+        } else {
+            pictureToSend = profile.profilePicture
+        }
+        let profileDTO = userDTO(name: profile.name, profilePicture: pictureToSend, id: profile.id)
+        let jsonData = try JSONEncoder().encode(profileDTO)
+
+        var length = UInt32(jsonData.count).bigEndian
+        var payload = Data(bytes: &length, count: 4)
+        payload.append(jsonData)
+
+        payload.withUnsafeBytes { buffer in
             guard let pointer = buffer.bindMemory(to: UInt8.self).baseAddress else {
                 print("erro ao criar ponteiro")
                 return
             }
-            let bytesWritten = self.outputStream.write(pointer, maxLength: data.count)
+            let bytesWritten = self.outputStream.write(pointer, maxLength: payload.count)
             print(bytesWritten >= 0 ? "dados enviados (\(bytesWritten) bytes)" : "erro ao enviar dados")
         }
     }

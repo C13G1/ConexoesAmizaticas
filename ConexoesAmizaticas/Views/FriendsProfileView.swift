@@ -6,14 +6,20 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct FriendsProfileView: View {
     @AppStorage("SetMetaOnboarding") var SetMetaOnboarding: Bool = false
+    @Environment(\.dismiss) private var dismiss
     @State var blurLevel: CGFloat = 0.0
-    var viewModel : FriendProfileViewModel
-    
-    init(connection: Connection){
+    var viewModel: FriendProfileViewModel
+    private let connectionID: UUID
+
+    @Query private var connections: [Connection]
+
+    init(connection: Connection) {
         self.viewModel = FriendProfileViewModel(connection: connection)
+        self.connectionID = connection.id
     }
     
     var body: some View {
@@ -46,7 +52,7 @@ struct FriendsProfileView: View {
                                                    subText: "há \(String(describing: viewModel.getLastMeet())) Dias",
                                                    subTextColor: viewModel.getProfileColor())
                             TextedRoundedRectangle(text: "promeça",
-                                                   subText: viewModel.getMeta().rawValue,
+                                                   subText: viewModel.getMeta().displayText,
                                                    subTextColor: viewModel.getProfileColor())
                         }
                         
@@ -140,6 +146,12 @@ struct FriendsProfileView: View {
                             .padding(.top, 12)
                     }
                     .padding(.bottom, UIScreen.main.bounds.height * 0.0985)
+                }
+            }
+            .environment(\.colorScheme, .light)
+            .onChange(of: connections) { _, newConnections in
+                if !newConnections.contains(where: { $0.id == connectionID }) {
+                    dismiss()
                 }
             }
             .toolbar {
