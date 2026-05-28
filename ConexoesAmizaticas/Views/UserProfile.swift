@@ -49,8 +49,7 @@ struct UserProfile: View {
     }
     
     var body: some View {
-        NavigationStack {
-            ZStack {
+        ZStack {
                 Circle()
                     .foregroundStyle(.themeBackground)
                     .frame(width: UIScreen.main.bounds.width * 2.17)
@@ -125,7 +124,6 @@ struct UserProfile: View {
                     .foregroundStyle(.lightBackground)
                     .frame(width: UIScreen.main.bounds.width * 0.5)
                     .padding(.top, UIScreen.main.bounds.height * 0.52)
-            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()

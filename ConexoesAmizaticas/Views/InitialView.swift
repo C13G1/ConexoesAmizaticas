@@ -22,10 +22,10 @@ struct InitialView: View {
     var currentUser: User { users.first ?? User() }
     @State var navigation: NavigationPath = NavigationPath()
     
-    var scene: FriendsScene = {
-        let scene = FriendsScene(size: UIScreen.main.bounds.size, connections: Set(), sceneType: .initial)
-        scene.scaleMode = .aspectFill
-        return scene
+    @State private var scene: FriendsScene = {
+        let s = FriendsScene(size: UIScreen.main.bounds.size, connections: Set(), sceneType: .initial)
+        s.scaleMode = .aspectFill
+        return s
     }()
     
     var body: some View {
