@@ -58,25 +58,6 @@ struct UserProfileView: View {
                     .frame(width: width * 2.17)
                     .padding(.bottom, height * -0.18)
                 
-                NavigationLink {
-                    
-                } label: {
-                    ZStack {
-                        Circle()
-                            .frame(width: width * 0.15)
-                            .foregroundStyle(.lightBackground)
-                        Image(systemName: "pencil")
-                            .foregroundStyle(.themeBackground)
-                            .font(.largeTitle)
-                            .bold()
-                    }
-                    .frame(width: width * 0.19, height: width * 0.19)
-                    .background(.themeBackground)
-                    .cornerRadius(100)
-                }
-                .padding(.bottom, height * 0.78)
-                .padding(.leading, width * 0.75)
-                
                 VStack (spacing: 60){
                     VStack (spacing: 20){
                         ProfileHeader(vm: $vm)
@@ -129,6 +110,18 @@ struct UserProfileView: View {
                     .padding(.top, height * 0.52)
             }
             .background(.lightBackground)
+        }
+        .toolbar {
+            ToolbarItem {
+                NavigationLink {
+                    EditProfileView(vm: $vm)
+                } label: {
+                    Image(systemName: "gear")
+                        .font(.system(size: 24))
+                        .foregroundColor(.black)
+                }
+            }
+            .sharedBackgroundVisibility(.hidden)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
