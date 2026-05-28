@@ -202,17 +202,20 @@ struct BLEView: View {
     }
 
     private func confirmFriend(_ friend: User) {
-        // Prevent adding own profile as a friend (happens when wrong profile is sent via BLE)
         guard friend.id != profile.id else { dismiss(); return }
+        let connection: Connection
         if let existing = existingConnections.first(where: { $0.friend.id == friend.id }) {
             existing.lastMet = Date.now
             existing.metaManager.addOrSubtractScore(10)
+            connection = existing
         } else {
             modelContext.insert(friend)
-            let connection = Connection(friend: friend)
-            modelContext.insert(connection)
+            let newConnection = Connection(friend: friend)
+            modelContext.insert(newConnection)
+            connection = newConnection
         }
         try? modelContext.save()
+        NotificationManager.scheduleMetaReminder(for: connection)
         NotificationCenter.default.post(name: .meetingConfirmed, object: nil)
         dismiss()
     }

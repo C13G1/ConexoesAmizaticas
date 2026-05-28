@@ -78,6 +78,7 @@ struct SetMetaView: View {
             do {
                 viewModel.defineMeta(meta: meta)
                 try modelContext.save()
+                NotificationManager.scheduleMetaReminder(for: viewModel.connection)
             } catch {
                 print("Erro ao salvar meta")
             }
@@ -96,6 +97,7 @@ struct SetMetaView: View {
     }
 
     private func deleteConnection() {
+        NotificationManager.cancelMetaReminder(for: viewModel.connection)
         modelContext.delete(viewModel.connection.metaManager)
         modelContext.delete(viewModel.connection.feedManager)
         modelContext.delete(viewModel.connection.friend)

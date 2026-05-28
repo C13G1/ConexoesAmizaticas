@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import SpriteKit
+import UserNotifications
 
 private let VACUO_THRESHOLD: TimeInterval = 30 * 24 * 3600
 
@@ -85,6 +86,30 @@ struct VacuoView: View {
                         let connection = Connection(friend: mockUser, lastMet: oldDate)
                         modelContext.insert(mockUser)
                         modelContext.insert(connection)
+                    }
+                    .font(.custom("Sora-Regular", size: 13))
+                    .foregroundStyle(.white.opacity(0.6))
+
+                    Button("Testar notificação de meta (5s)") {
+                        let content = UNMutableNotificationContent()
+                        content.title = "Tá na hora de marcar um rolê!"
+                        content.body = "Você prometeu se encontrar com Amigo Teste mensalmente. O prazo está chegando!"
+                        content.sound = .default
+                        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+                        let request = UNNotificationRequest(identifier: "debug_meta_test", content: content, trigger: trigger)
+                        UNUserNotificationCenter.current().add(request)
+                    }
+                    .font(.custom("Sora-Regular", size: 13))
+                    .foregroundStyle(.white.opacity(0.6))
+
+                    Button("Testar notificação de proximidade (5s)") {
+                        let content = UNMutableNotificationContent()
+                        content.title = "Alguém com Zelu está por perto!"
+                        content.body = "Abra o app para registrar um encontro com seu amigo."
+                        content.sound = .default
+                        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+                        let request = UNNotificationRequest(identifier: "debug_proximity_test", content: content, trigger: trigger)
+                        UNUserNotificationCenter.current().add(request)
                     }
                     .font(.custom("Sora-Regular", size: 13))
                     .foregroundStyle(.white.opacity(0.6))
@@ -200,6 +225,9 @@ struct VacuoView: View {
     private func resgatarContato(_ connection: Connection) {
         connection.lastMet = Date.now
         connection.metaManager.addOrSubtractScore(5)
+        try? modelContext.save()
+        NotificationManager.scheduleMetaReminder(for: connection)
+        NotificationCenter.default.post(name: .meetingConfirmed, object: nil)
         focusedConnection = nil
         voidScene.updateConnections(receivedConnections: Set(vacuumConnections))
     }

@@ -75,6 +75,7 @@ struct InitialView: View {
         .onAppear {
             vm.setModelContext(modelContext: modelContext)
             vm.fetchData()
+            NotificationManager.rescheduleAll(connections: connections)
             scene.onFriendTapped = { connection in
                 selectedConnection = connection
                 navigation.append(connection)

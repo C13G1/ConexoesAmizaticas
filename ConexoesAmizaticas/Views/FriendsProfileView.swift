@@ -19,7 +19,6 @@ struct FriendsProfileView: View {
     @Query private var allUsers: [User]
     @State private var refreshToken = 0
 
-    // Own user = the only User not referenced as anyone's friend
     private var ownUser: User? {
         let friendIDs = Set(connections.map { $0.friend.id })
         return allUsers.first { !friendIDs.contains($0.id) }

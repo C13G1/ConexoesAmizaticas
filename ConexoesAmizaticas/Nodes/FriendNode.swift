@@ -8,7 +8,6 @@
 import SpriteKit
 import UIKit
 
-// SKTexture ignores UIImage.imageOrientation — normalize before creating textures
 extension UIImage {
     var normalized: UIImage {
         guard imageOrientation != .up else { return self }

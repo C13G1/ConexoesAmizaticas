@@ -51,7 +51,6 @@ struct TextedRoundedRectangle: View {
                 .foregroundStyle(backGoundColor)
             VStack{
                 Text(text)
-//                    .font(.custom("Bolota", size: textSize))
                     .font(.custom("Bolota", size: textSize))
                     .fontWeight(textWeight)
                     .foregroundStyle(textColor)

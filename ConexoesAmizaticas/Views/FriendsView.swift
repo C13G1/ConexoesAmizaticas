@@ -129,39 +129,6 @@ struct FriendsView: View {
                     showVacuoView = true
                 }
             }
-
-            //pra teste
-            .confirmationDialog(
-                selectedConnection.map { "O que fazer com \($0.friend.name)?" } ?? "",
-                isPresented: $showFriendActions,
-                titleVisibility: .visible,
-                presenting: selectedConnection
-            ) { connection in
-                Button("Excluir amigo", role: .destructive) {
-                    modelContext.delete(connection)
-                }
-                Button("Cancelar", role: .cancel) {}
-            }
-            .alert("Editar nome", isPresented: $showEditAlert, presenting: selectedConnection) { connection in
-                TextField("Nome", text: $editingName)
-                Button("Salvar") {
-                    connection.friend.editName(editingName)
-                }
-                Button("Cancelar", role: .cancel) {}
-            }
-            .navigationDestination(isPresented: $showVacuoView) {
-                VacuoView()
-            }
-//            .toolbar {
-//                ToolbarItem(placement: .navigationBarTrailing) {
-//                    Button { showDebugSheet = true } label: {
-//                        Image(systemName: "trash").foregroundStyle(.red)
-//                    }
-//                }
-//            }
-//            .sheet(isPresented: $showDebugSheet) {
-//                debugSheet
-//            }
         }
     }
 
