@@ -45,7 +45,15 @@ struct SearchView: View {
                 SpriteView(scene: scene, debugOptions: [.showsPhysics, .showsNodeCount, .showsDrawCount])
                     .ignoresSafeArea()
                     .tag("searchView")
+                
+                if !searchText.isEmpty && searchResults.isEmpty {
+                    Text("Você não tem nenhum contato com esse nome")
+                        .font(.custom("Sora-Regular", size: 24))
+                        .frame(width: UIScreen.main.bounds.width * 0.8)
+                        .multilineTextAlignment(.center)
+                }
             }
+            .background(Color.lightBackground)
             .searchable(
                 text: $searchText,
                 placement: .navigationBarDrawer(displayMode: .always)

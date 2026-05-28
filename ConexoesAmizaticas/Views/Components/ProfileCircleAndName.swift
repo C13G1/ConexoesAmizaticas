@@ -15,7 +15,7 @@ struct ProfileCircleAndName: View {
         VStack {
             if let uiImage = UIImage(data: vm.profile.profilePicture ) {
                 NavigationLink {
-                    UserProfile(vm: $vm)
+                    UserProfileView(vm: $vm)
                 } label: {
                     ZStack {
                         Circle()

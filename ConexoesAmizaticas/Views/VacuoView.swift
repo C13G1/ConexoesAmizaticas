@@ -11,7 +11,6 @@ import SpriteKit
 
 private let VACUO_THRESHOLD: TimeInterval = 30 * 24 * 3600
 
-// TODO: IMPLEMENTAR BOLHAS NO VÁCUO
 struct VacuoView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var modelContext
@@ -35,7 +34,10 @@ struct VacuoView: View {
             ZStack {
                 Color.vacuoBackground.ignoresSafeArea()
 
-                Image("vacuo").frame(width: 280, height: 280)
+                Image("vacuo")
+                    .frame(width: 280, height: 280)
+                    .padding(.trailing, 80)
+                    .padding(.bottom, 40)
 
                 SpriteView(scene: voidScene, options: [.allowsTransparency])
                     .ignoresSafeArea()
@@ -58,11 +60,12 @@ struct VacuoView: View {
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
 
-                    Spacer().frame(height: 40)
+                    Spacer().frame(height: 10)
 
-                    Text("VÁCUO")
-                        .font(.custom("Sora-ExtraBold", size: 40))
-                        .foregroundColor(.white)
+                    Image("void")
+                        .resizable()
+                        .frame(width: UIScreen.main.bounds.width * 0.3, height: UIScreen.main.bounds.height * 0.04)
+                        .padding(.bottom)
 
                     Spacer()
 
@@ -72,7 +75,7 @@ struct VacuoView: View {
                             .multilineTextAlignment(.center)
                             .foregroundColor(.white)
                             .frame(maxWidth: 300)
-                            .padding(.bottom, 40)
+                            .padding(.bottom, 20)
                     }
 
                     #if DEBUG

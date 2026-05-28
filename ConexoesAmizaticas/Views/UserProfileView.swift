@@ -9,7 +9,7 @@ import SwiftUI
 import Charts
 import SwiftData
 
-struct UserProfile: View {
+struct UserProfileView: View {
     @Binding var vm: InicialViewModel
     var width = UIScreen.main.bounds.width
     var height = UIScreen.main.bounds.height
@@ -139,7 +139,7 @@ struct UserProfile: View {
 
 #Preview {
     @Previewable @State var viewModel = InicialViewModel()
-    UserProfile(vm: $viewModel)
+    UserProfileView(vm: $viewModel)
         .modelContainer(for: [
             Connection.self,
             User.self,
