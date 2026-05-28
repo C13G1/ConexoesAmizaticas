@@ -6,6 +6,19 @@
 //
 
 import SpriteKit
+import UIKit
+
+// SKTexture ignores UIImage.imageOrientation — normalize before creating textures
+extension UIImage {
+    var normalized: UIImage {
+        guard imageOrientation != .up else { return self }
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        return UIGraphicsImageRenderer(size: size, format: format).image { _ in
+            draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
+}
 
 class FriendNode: SKShapeNode {
     var scale: CGFloat = 0.05
@@ -25,7 +38,7 @@ class FriendNode: SKShapeNode {
         let imageData = connection.friend.profilePicture
         let path = UIBezierPath(roundedRect: CGRect(x: -128, y: -128, width: 256, height: 256), cornerRadius: 128).cgPath
         self.sprite = SKShapeNode(path: path)
-        let image = UIImage(data: imageData) ?? UIImage()
+        let image = (UIImage(data: imageData) ?? UIImage()).normalized
         self.sprite.fillTexture = SKTexture(image: image)
         self.sprite.fillColor = .white
         self.sprite.strokeColor = state.color

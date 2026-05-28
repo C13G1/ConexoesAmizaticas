@@ -120,6 +120,9 @@ class FriendsScene: SKScene {
             friendNode.setScale(state.nodeSize / 256.0)
             friendNode.sprite.strokeColor = state.color
             friendNode.orbitRadius = state.orbitRadius
+            if let image = UIImage(data: connection.friend.profilePicture) {
+                friendNode.sprite.fillTexture = SKTexture(image: image.normalized)
+            }
         }
     }
 

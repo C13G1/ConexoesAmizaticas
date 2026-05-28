@@ -16,6 +16,14 @@ struct FriendsProfileView: View {
     private let connectionID: UUID
 
     @Query private var connections: [Connection]
+    @Query private var allUsers: [User]
+    @State private var refreshToken = 0
+
+    // Own user = the only User not referenced as anyone's friend
+    private var ownUser: User? {
+        let friendIDs = Set(connections.map { $0.friend.id })
+        return allUsers.first { !friendIDs.contains($0.id) }
+    }
 
     private var lastMeetDaysText: String {
         guard let lastMet = viewModel.getLastMeet() else { return "nunca" }
@@ -45,6 +53,7 @@ struct FriendsProfileView: View {
                                 .scaledToFill()
                                 .frame(width: 108, height: 108)
                                 .clipShape(Circle())
+                                .id(refreshToken)
 
                             NavigationLink(destination: EditFriendProfileView(connection: viewModel.connection)) {
                                 Image(systemName: "pencil.circle.fill")
@@ -85,7 +94,7 @@ struct FriendsProfileView: View {
                                                    subTextColor: viewModel.getProfileColor())
                         }
                         
-                        NavigationLink(destination: BLEView(profile: viewModel.connection.friend)) {
+                        NavigationLink(destination: BLEView(profile: ownUser ?? User())) {
                             ZStack{
                                 HStack(spacing: -40){
                                     CurvedRectangle(depth: 2)
@@ -164,6 +173,9 @@ struct FriendsProfileView: View {
                 }
             }
             .environment(\.colorScheme, .light)
+            .onReceive(NotificationCenter.default.publisher(for: .friendProfileUpdated)) { _ in
+                refreshToken += 1
+            }
             .onChange(of: connections) { _, newConnections in
                 if !newConnections.contains(where: { $0.id == connectionID }) {
                     dismiss()

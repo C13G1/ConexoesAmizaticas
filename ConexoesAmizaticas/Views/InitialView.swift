@@ -90,6 +90,9 @@ struct InitialView: View {
         .onReceive(NotificationCenter.default.publisher(for: .meetingConfirmed)) { _ in
             scene.updateNodeVisuals()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .friendProfileUpdated)) { _ in
+            scene.updateNodeVisuals()
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
         .background(.lightBackground)

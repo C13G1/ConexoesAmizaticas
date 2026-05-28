@@ -90,6 +90,7 @@ struct EditFriendProfileView: View {
             connection.friend.editProfileImageData(data)
         }
         try? modelContext.save()
+        NotificationCenter.default.post(name: .friendProfileUpdated, object: nil)
         dismiss()
     }
 }

@@ -11,6 +11,7 @@ import SwiftData
 
 extension Notification.Name {
     static let meetingConfirmed = Notification.Name("meetingConfirmed")
+    static let friendProfileUpdated = Notification.Name("friendProfileUpdated")
 }
 
 struct BLEView: View {
@@ -201,6 +202,8 @@ struct BLEView: View {
     }
 
     private func confirmFriend(_ friend: User) {
+        // Prevent adding own profile as a friend (happens when wrong profile is sent via BLE)
+        guard friend.id != profile.id else { dismiss(); return }
         if let existing = existingConnections.first(where: { $0.friend.id == friend.id }) {
             existing.lastMet = Date.now
             existing.metaManager.addOrSubtractScore(10)
