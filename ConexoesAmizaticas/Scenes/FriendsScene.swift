@@ -115,15 +115,11 @@ class FriendsScene: SKScene {
         for child in rootNode.children {
             guard let friendNode = child as? FriendNode else { continue }
             guard let connection = connections.first(where: { $0.friend.id.uuidString == (friendNode.name ?? "") }) else { continue }
-            let score = connection.metaManager.score
-            friendNode.score = score
-            friendNode.setScale(0.05 * CGFloat(score) / 10)
-            friendNode.sprite.strokeColor = connection.metaManager.currentRelationshipState.color
-            if score < 20 { friendNode.orbitRadius = RelationshipState.afastados.orbitRadius }
-            else if score < 40 { friendNode.orbitRadius = RelationshipState.distantes.orbitRadius }
-            else if score < 60 { friendNode.orbitRadius = RelationshipState.estaveis.orbitRadius }
-            else if score < 80 { friendNode.orbitRadius = RelationshipState.proximos.orbitRadius }
-            else { friendNode.orbitRadius = RelationshipState.inseparaveis.orbitRadius }
+            let state = connection.metaManager.currentRelationshipState
+            friendNode.score = connection.metaManager.score
+            friendNode.setScale(state.nodeSize / 256.0)
+            friendNode.sprite.strokeColor = state.color
+            friendNode.orbitRadius = state.orbitRadius
         }
     }
 

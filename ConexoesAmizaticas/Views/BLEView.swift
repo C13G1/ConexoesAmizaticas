@@ -9,6 +9,10 @@ import SwiftUI
 import CoreBluetooth
 import SwiftData
 
+extension Notification.Name {
+    static let meetingConfirmed = Notification.Name("meetingConfirmed")
+}
+
 struct BLEView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -198,15 +202,15 @@ struct BLEView: View {
 
     private func confirmFriend(_ friend: User) {
         if let existing = existingConnections.first(where: { $0.friend.id == friend.id }) {
-            // registra encontro e aumenta 10 pontos de proximidade
             existing.lastMet = Date.now
             existing.metaManager.addOrSubtractScore(10)
         } else {
-            // cria User e Connection no SwiftData
             modelContext.insert(friend)
             let connection = Connection(friend: friend)
             modelContext.insert(connection)
         }
+        try? modelContext.save()
+        NotificationCenter.default.post(name: .meetingConfirmed, object: nil)
         dismiss()
     }
 }

@@ -21,13 +21,14 @@ class FriendNode: SKShapeNode {
 
     init(connection: Connection) {
         self.score = connection.metaManager.score
+        let state = connection.metaManager.currentRelationshipState
         let imageData = connection.friend.profilePicture
         let path = UIBezierPath(roundedRect: CGRect(x: -128, y: -128, width: 256, height: 256), cornerRadius: 128).cgPath
         self.sprite = SKShapeNode(path: path)
         let image = UIImage(data: imageData) ?? UIImage()
         self.sprite.fillTexture = SKTexture(image: image)
         self.sprite.fillColor = .white
-        self.sprite.strokeColor = connection.metaManager.currentRelationshipState.color
+        self.sprite.strokeColor = state.color
         self.sprite.lineWidth = 20
         super.init()
 
@@ -36,23 +37,13 @@ class FriendNode: SKShapeNode {
         self.physicsBody?.isDynamic = true
         self.physicsBody?.affectedByGravity = false
         self.isUserInteractionEnabled = false
-        self.scale = scale * score / 10
-        self.setScale(self.scale)
+        let nodeScale = state.nodeSize / 256.0
+        self.scale = nodeScale
+        self.setScale(nodeScale)
         self.isUserInteractionEnabled = true
+        self.orbitRadius = state.orbitRadius
 
         self.addChild(sprite)
-
-        if self.score < 20 {
-            self.orbitRadius = RelationshipState.afastados.orbitRadius
-        } else if self.score < 40 {
-            self.orbitRadius = RelationshipState.distantes.orbitRadius
-        } else if self.score < 60 {
-            self.orbitRadius = RelationshipState.estaveis.orbitRadius
-        } else if self.score < 80 {
-            self.orbitRadius = RelationshipState.proximos.orbitRadius
-        } else {
-            self.orbitRadius = RelationshipState.inseparaveis.orbitRadius
-        }
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {

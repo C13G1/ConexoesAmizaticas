@@ -87,6 +87,9 @@ struct InitialView: View {
             scene.updateConnections(receivedConnections: Set(newConnections.filter { !$0.inVacuo }))
             scene.updateNodeVisuals()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .meetingConfirmed)) { _ in
+            scene.updateNodeVisuals()
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
         .background(.lightBackground)

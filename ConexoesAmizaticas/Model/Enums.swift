@@ -57,6 +57,16 @@ enum RelationshipState: String, Codable {
             return UIColor.themeInseparaveis
         }
     }
+
+    var nodeSize: CGFloat {
+        switch self {
+        case .afastados:    return 64
+        case .distantes:    return 80
+        case .estaveis:     return 96
+        case .proximos:     return 112
+        case .inseparaveis: return 126
+        }
+    }
 }
 
 enum SceneType {

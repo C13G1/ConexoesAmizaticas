@@ -39,6 +39,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
 
     func startBLE() {
         print("start ble")
+        stopBLE()
         didSendProfile = false
         dataStream = Data()
         self.centralManager = CBCentralManager(delegate: self, queue: nil)
@@ -48,7 +49,22 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
     func stopBLE() {
         print("stop ble")
         centralManager?.stopScan()
+        if let peripheral = connectedPeripheral {
+            peripheral.delegate = nil
+            centralManager?.cancelPeripheralConnection(peripheral)
+        }
+        centralManager?.delegate = nil
         peripheralManager?.stopAdvertising()
+        peripheralManager?.delegate = nil
+        inputStream?.close()
+        outputStream?.close()
+        inputStream?.remove(from: .main, forMode: .default)
+        outputStream?.remove(from: .main, forMode: .default)
+        inputStream = nil
+        outputStream = nil
+        channelL2CAP = nil
+        connectedPeripheral = nil
+        psm = nil
     }
 
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
@@ -70,6 +86,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
             peripheralManager.publishL2CAPChannel(withEncryption: false)
         } else {
             print("virou central")
+            centralManager.stopScan()
             self.connectedPeripheral = peripheral
             centralManager.connect(connectedPeripheral)
         }
@@ -179,6 +196,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
     func peripheral(_ peripheral: CBPeripheral, didOpen channel: CBL2CAPChannel?, error: (any Error)?) {
         if let error = error { print(error); return }
         guard let channel = channel else { print("channel is nil"); return }
+        guard channelL2CAP == nil else { print("channel already open, ignoring"); return }
         print("opened L2CAP channel (central)")
         setupStreams(for: channel)
     }
@@ -186,6 +204,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
     func peripheralManager(_ peripheral: CBPeripheralManager, didOpen channel: CBL2CAPChannel?, error: (any Error)?) {
         if let error = error { print(error); return }
         guard let channel = channel else { print("channel is nil"); return }
+        guard channelL2CAP == nil else { print("channel already open, ignoring"); return }
         print("opened L2CAP channel (peripheral)")
         setupStreams(for: channel)
     }
@@ -228,7 +247,11 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
         case .hasBytesAvailable:
             receiveData()
         case .openCompleted:
-            // envia o perfil quando o outputStream ta ok
+            if aStream === outputStream && !didSendProfile && outputStream.hasSpaceAvailable {
+                didSendProfile = true
+                try? sendProfile()
+            }
+        case .hasSpaceAvailable:
             if aStream === outputStream && !didSendProfile {
                 didSendProfile = true
                 try? sendProfile()
