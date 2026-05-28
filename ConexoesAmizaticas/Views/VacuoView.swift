@@ -84,44 +84,44 @@ struct VacuoView: View {
                             .padding(.bottom, 20)
                     }
 
-                    #if DEBUG
-                    Button("Simular amigo no vácuo (teste)") {
-                        let mockUser = User(
-                            name: "Amigo Vácuo",
-                            profilePicture: UIImage(named: "defaultPicture")?.jpegData(compressionQuality: 0.8) ?? Data()
-                        )
-                        let connection = Connection(friend: mockUser, score: 0)
-                        modelContext.insert(mockUser)
-                        modelContext.insert(connection)
-                    }
-                    .font(.custom("Sora-Regular", size: 13))
-                    .foregroundStyle(.white.opacity(0.6))
-
-                    Button("Testar notificação de meta (5s)") {
-                        let content = UNMutableNotificationContent()
-                        content.title = "Tá na hora de marcar um rolê!"
-                        content.body = "Você prometeu se encontrar com Amigo Teste mensalmente. O prazo está chegando!"
-                        content.sound = .default
-                        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
-                        let request = UNNotificationRequest(identifier: "debug_meta_test", content: content, trigger: trigger)
-                        UNUserNotificationCenter.current().add(request)
-                    }
-                    .font(.custom("Sora-Regular", size: 13))
-                    .foregroundStyle(.white.opacity(0.6))
-
-                    Button("Testar notificação de proximidade (5s)") {
-                        let content = UNMutableNotificationContent()
-                        content.title = "Alguém com Zelu está por perto!"
-                        content.body = "Abra o app para registrar um encontro com seu amigo."
-                        content.sound = .default
-                        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
-                        let request = UNNotificationRequest(identifier: "debug_proximity_test", content: content, trigger: trigger)
-                        UNUserNotificationCenter.current().add(request)
-                    }
-                    .font(.custom("Sora-Regular", size: 13))
-                    .foregroundStyle(.white.opacity(0.6))
-                    .padding(.bottom, 20)
-                    #endif
+//                    #if DEBUG
+//                    Button("Simular amigo no vácuo (teste)") {
+//                        let mockUser = User(
+//                            name: "Amigo Vácuo",
+//                            profilePicture: UIImage(named: "defaultPicture")?.jpegData(compressionQuality: 0.8) ?? Data()
+//                        )
+//                        let connection = Connection(friend: mockUser, score: 0)
+//                        modelContext.insert(mockUser)
+//                        modelContext.insert(connection)
+//                    }
+//                    .font(.custom("Sora-Regular", size: 13))
+//                    .foregroundStyle(.white.opacity(0.6))
+//
+//                    Button("Testar notificação de meta (5s)") {
+//                        let content = UNMutableNotificationContent()
+//                        content.title = "Tá na hora de marcar um rolê!"
+//                        content.body = "Você prometeu se encontrar com Amigo Teste mensalmente. O prazo está chegando!"
+//                        content.sound = .default
+//                        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+//                        let request = UNNotificationRequest(identifier: "debug_meta_test", content: content, trigger: trigger)
+//                        UNUserNotificationCenter.current().add(request)
+//                    }
+//                    .font(.custom("Sora-Regular", size: 13))
+//                    .foregroundStyle(.white.opacity(0.6))
+//
+//                    Button("Testar notificação de proximidade (5s)") {
+//                        let content = UNMutableNotificationContent()
+//                        content.title = "Alguém com Zelu está por perto!"
+//                        content.body = "Abra o app para registrar um encontro com seu amigo."
+//                        content.sound = .default
+//                        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+//                        let request = UNNotificationRequest(identifier: "debug_proximity_test", content: content, trigger: trigger)
+//                        UNUserNotificationCenter.current().add(request)
+//                    }
+//                    .font(.custom("Sora-Regular", size: 13))
+//                    .foregroundStyle(.white.opacity(0.6))
+//                    .padding(.bottom, 20)
+//                    #endif
                 }
             }
             .blur(radius: focusedConnection != nil ? 10 : 0)

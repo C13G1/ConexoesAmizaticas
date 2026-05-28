@@ -77,28 +77,28 @@ struct BLEView: View {
                 .frame(width: 270)
             Spacer()
 
-            #if DEBUG
-            Button("Simular novo amigo (teste)") {
-                self.friend = User(
-                    name: "Amigo Novo",
-                    profilePicture: UIImage(named: "defaultPicture")?.jpegData(compressionQuality: 0.8) ?? Data()
-                )
-                self.foundFriend = true
-            }
-            .font(.custom("Sora-Regular", size: 14))
-            .foregroundStyle(.secondary)
-
-            // simula encontrar um amigo
-            if let first = existingConnections.first {
-                Button("Simular encontro com \(first.friend.name) (teste)") {
-                    self.friend = first.friend
-                    self.foundFriend = true
-                }
-                .font(.custom("Sora-Regular", size: 14))
-                .foregroundStyle(.secondary)
-            }
-            Spacer().frame(height: 40)
-            #endif
+//            #if DEBUG
+//            Button("Simular novo amigo (teste)") {
+//                self.friend = User(
+//                    name: "Amigo Novo",
+//                    profilePicture: UIImage(named: "defaultPicture")?.jpegData(compressionQuality: 0.8) ?? Data()
+//                )
+//                self.foundFriend = true
+//            }
+//            .font(.custom("Sora-Regular", size: 14))
+//            .foregroundStyle(.secondary)
+//
+//            // simula encontrar um amigo
+//            if let first = existingConnections.first {
+//                Button("Simular encontro com \(first.friend.name) (teste)") {
+//                    self.friend = first.friend
+//                    self.foundFriend = true
+//                }
+//                .font(.custom("Sora-Regular", size: 14))
+//                .foregroundStyle(.secondary)
+//            }
+//            Spacer().frame(height: 40)
+//            #endif
         }
     }
 
