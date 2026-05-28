@@ -29,7 +29,7 @@ struct TabBar: View {
                             .foregroundStyle(.lightBackground)
                         Image(systemName: "magnifyingglass")
                             .foregroundStyle(.black)
-                            .font(.largeTitle)
+                            .font(.title2)
                             .bold()
                     }
                     .frame(width: width * 0.19, height: width * 0.19)
