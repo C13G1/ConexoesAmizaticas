@@ -10,7 +10,6 @@ import SwiftData
 import SpriteKit
 import UserNotifications
 
-private let VACUO_THRESHOLD: TimeInterval = 30 * 24 * 3600
 
 /// A dedicated recovery environment for deeply decayed friendships.
 ///
@@ -91,8 +90,7 @@ struct VacuoView: View {
                             name: "Amigo Vácuo",
                             profilePicture: UIImage(named: "defaultPicture")?.jpegData(compressionQuality: 0.8) ?? Data()
                         )
-                        let oldDate = Date(timeIntervalSinceNow: -(VACUO_THRESHOLD + 3600))
-                        let connection = Connection(friend: mockUser, lastMet: oldDate)
+                        let connection = Connection(friend: mockUser, score: 0)
                         modelContext.insert(mockUser)
                         modelContext.insert(connection)
                     }

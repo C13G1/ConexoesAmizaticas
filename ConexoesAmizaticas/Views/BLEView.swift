@@ -199,13 +199,25 @@ struct BLEView: View {
         let steps = 20
         let stepDuration = 1.5 / Double(steps)
         var current = 0
+
+        let impact = UIImpactFeedbackGenerator(style: .medium)
+        let notification = UINotificationFeedbackGenerator()
+        impact.prepare()
+        notification.prepare()
+
         Timer.scheduledTimer(withTimeInterval: stepDuration, repeats: true) { timer in
             guard isHolding else { timer.invalidate(); holdProgress = 0; return }
             current += 1
             holdProgress = CGFloat(current) / CGFloat(steps)
+
             if current >= steps {
                 timer.invalidate()
+                notification.notificationOccurred(.success)
                 confirmFriend(friend)
+            } else {
+                // Intensity ramps linearly from 0.1 to 1.0, matching the circle fill
+                let intensity = 0.1 + 0.9 * (CGFloat(current) / CGFloat(steps))
+                impact.impactOccurred(intensity: intensity)
             }
         }
     }

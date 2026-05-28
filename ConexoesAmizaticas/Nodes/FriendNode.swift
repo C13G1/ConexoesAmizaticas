@@ -96,13 +96,13 @@ class FriendNode: SKShapeNode {
             touchStartLocation = nil
         }
         
-        // Differentiate a tap from a drag by measuring the total distance moved
+        // Differentiate a tap from a drag — 22pt matches iOS's own tap tolerance (~half a finger width)
         if let touch = touches.first, let parent = self.parent, let start = touchStartLocation {
             let end = touch.location(in: parent)
             let dx = end.x - start.x
             let dy = end.y - start.y
             let now = CACurrentMediaTime()
-            if sqrt(dx * dx + dy * dy) < 10, now - lastTapTime > 0.4 {
+            if sqrt(dx * dx + dy * dy) < 22, now - lastTapTime > 0.4 {
                 lastTapTime = now
                 onTapped?()
                 return

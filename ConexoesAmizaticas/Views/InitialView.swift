@@ -81,6 +81,10 @@ struct InitialView: View {
         .onAppear {
             vm.setModelContext(modelContext: modelContext)
             vm.fetchData()
+            for connection in connections {
+                connection.metaManager.applyDecayIfNeeded(lastMet: connection.lastMet)
+            }
+            try? modelContext.save()
             NotificationManager.rescheduleAll(connections: connections)
             scene.onFriendTapped = { connection in
                 DispatchQueue.main.async {
