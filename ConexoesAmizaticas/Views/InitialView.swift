@@ -42,7 +42,7 @@ struct InitialView: View {
                         .padding(.top, UIScreen.main.bounds.width * 2.15)
                 }
                 
-                if vm.connectionsWithFriends.count == 0 {
+                if connections.isEmpty {
                     ZStack {
                         VStack (spacing: 20){
                             Text("Bem Vindo Ao Zelu")
@@ -73,7 +73,8 @@ struct InitialView: View {
             }
         }
         .onAppear {
-            scene.updateConnections(receivedConnections: Set(vm.connectionsWithFriends))
+            vm.setModelContext(modelContext: modelContext)
+            vm.fetchData()
             scene.onFriendTapped = { connection in
                 selectedConnection = connection
                 navigation.append(connection)
@@ -82,7 +83,7 @@ struct InitialView: View {
                 showVacuoView = true
             }
         }
-        .onChange(of: connections) { _, newConnections in
+        .onChange(of: connections, initial: true) { _, newConnections in
             scene.updateConnections(receivedConnections: Set(newConnections.filter { !$0.inVacuo }))
             scene.updateNodeVisuals()
         }
