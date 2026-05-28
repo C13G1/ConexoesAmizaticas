@@ -1,31 +1,25 @@
 //
-//  EditProfileView.swift
+//  EditFriendProfileView.swift
 //  ConexoesAmizaticas
-//
-//  Created by Dayô Araújo on 27/05/26.
 //
 
 import SwiftUI
 import PhotosUI
 import SwiftData
 
-/// An interface for modifying the current user's core identity data.
-///
-/// `EditProfileView` binds to the application's global `InicialViewModel` to apply changes directly to the
-/// primary `User` model. It features a Save button that commits changes to the database via `modelContext.save()`.
-struct EditProfileView: View {
+struct EditFriendProfileView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    @Binding var vm: InicialViewModel
+    let connection: Connection
 
     @State private var name: String
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var profileImageData: Data?
 
-    init(vm: Binding<InicialViewModel>) {
-        self._vm = vm
-        self._name = State(initialValue: vm.wrappedValue.profile.name)
-        self._profileImageData = State(initialValue: vm.wrappedValue.profile.profilePicture)
+    init(connection: Connection) {
+        self.connection = connection
+        self._name = State(initialValue: connection.friend.name)
+        self._profileImageData = State(initialValue: connection.friend.profilePicture)
     }
 
     private var canSave: Bool {
@@ -50,7 +44,6 @@ struct EditProfileView: View {
                             .font(.system(size: 44))
                             .foregroundStyle(.gray)
                     }
-                    // camera badge
                     Image(systemName: "camera.fill")
                         .font(.system(size: 16))
                         .foregroundStyle(.white)
@@ -68,7 +61,7 @@ struct EditProfileView: View {
                 }
             }
 
-            TextField("Seu nome", text: $name)
+            TextField("Nome do amigo", text: $name)
                 .font(.custom("Sora-Regular", size: 16))
                 .padding()
                 .background(.gray.opacity(0.1))
@@ -78,7 +71,7 @@ struct EditProfileView: View {
             Spacer()
         }
         .padding(.top, 40)
-        .navigationTitle("Editar Perfil")
+        .navigationTitle("Editar Amigo")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
@@ -92,19 +85,19 @@ struct EditProfileView: View {
 
     private func saveChanges() {
         let trimmed = name.trimmingCharacters(in: .whitespaces)
-        vm.profile.editName(trimmed)
+        connection.friend.editName(trimmed)
         if let data = profileImageData {
-            vm.profile.editProfileImageData(data)
+            connection.friend.editProfileImageData(data)
         }
         try? modelContext.save()
+        NotificationCenter.default.post(name: .friendProfileUpdated, object: nil)
         dismiss()
     }
 }
 
 #Preview {
-    @Previewable @State var viewModel = InicialViewModel()
     NavigationStack {
-        EditProfileView(vm: $viewModel)
+        EditFriendProfileView(connection: Connection(friend: User(name: "Juliana")))
     }
     .modelContainer(for: [User.self, Connection.self], inMemory: true)
 }

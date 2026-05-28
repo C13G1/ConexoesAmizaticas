@@ -6,6 +6,18 @@
 //
 
 import SpriteKit
+import UIKit
+
+extension UIImage {
+    var normalized: UIImage {
+        guard imageOrientation != .up else { return self }
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        return UIGraphicsImageRenderer(size: size, format: format).image { _ in
+            draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
+}
 
 /// The interactive visual representation of a connection in the physics simulation.
 ///
@@ -27,6 +39,7 @@ class FriendNode: SKShapeNode {
     
     var lastTouchLocation: CGPoint!
     private var touchStartLocation: CGPoint?
+    private var lastTapTime: TimeInterval = 0
 
     /// A closure triggered when the node is tapped.
     /// Used by the parent scene to route the user to the `FriendsProfileView`.
@@ -36,14 +49,15 @@ class FriendNode: SKShapeNode {
     /// - Parameter connection: The `Connection` model containing the user data and relationship score.
     init(connection: Connection) {
         self.score = connection.metaManager.score
+        let state = connection.metaManager.currentRelationshipState
         let imageData = connection.friend.profilePicture
         let path = UIBezierPath(roundedRect: CGRect(x: -128, y: -128, width: 256, height: 256), cornerRadius: 128).cgPath
         
         self.sprite = SKShapeNode(path: path)
-        let image = UIImage(data: imageData) ?? UIImage()
+        let image = (UIImage(data: imageData) ?? UIImage()).normalized
         self.sprite.fillTexture = SKTexture(image: image)
         self.sprite.fillColor = .white
-        self.sprite.strokeColor = connection.metaManager.currentRelationshipState.color
+        self.sprite.strokeColor = state.color
         self.sprite.lineWidth = 20
         super.init()
 
@@ -53,24 +67,13 @@ class FriendNode: SKShapeNode {
         self.physicsBody?.affectedByGravity = false
         
         self.isUserInteractionEnabled = false
-        self.scale = scale * score / 10
-        self.setScale(self.scale)
+        let nodeScale = state.nodeSize / 256.0
+        self.scale = nodeScale
+        self.setScale(nodeScale)
         self.isUserInteractionEnabled = true
+        self.orbitRadius = state.orbitRadius
 
         self.addChild(sprite)
-
-        // Assigns the node to its designated track based on the current relationship health
-        if self.score < 20 {
-            self.orbitRadius = RelationshipState.afastados.orbitRadius
-        } else if self.score < 40 {
-            self.orbitRadius = RelationshipState.distantes.orbitRadius
-        } else if self.score < 60 {
-            self.orbitRadius = RelationshipState.estaveis.orbitRadius
-        } else if self.score < 80 {
-            self.orbitRadius = RelationshipState.proximos.orbitRadius
-        } else {
-            self.orbitRadius = RelationshipState.inseparaveis.orbitRadius
-        }
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -93,12 +96,14 @@ class FriendNode: SKShapeNode {
             touchStartLocation = nil
         }
         
-        // Differentiate a tap from a drag by measuring the total distance moved
+        // Differentiate a tap from a drag — 22pt matches iOS's own tap tolerance (~half a finger width)
         if let touch = touches.first, let parent = self.parent, let start = touchStartLocation {
             let end = touch.location(in: parent)
             let dx = end.x - start.x
             let dy = end.y - start.y
-            if sqrt(dx * dx + dy * dy) < 10 {
+            let now = CACurrentMediaTime()
+            if sqrt(dx * dx + dy * dy) < 22, now - lastTapTime > 0.4 {
+                lastTapTime = now
                 onTapped?()
                 return
             }

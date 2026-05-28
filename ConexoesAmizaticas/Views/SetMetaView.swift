@@ -17,57 +17,56 @@ struct SetMetaView: View {
     @AppStorage("SetMetaOnboarding") var SetMetaOnboarding: Bool = true
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    
+
     @State var meta: Meta
     @State private var showDeleteConfirmation: Bool = false
-    
+
     var viewModel: FriendProfileViewModel
-    let possibleMetas: [Meta] = [.semanal, .quinzenal, .mensal, .bimestral, .semestral, .anual]
-    
-    init(viewModel: FriendProfileViewModel){
+    let possibleMetas: [Meta] = [.nenhuma, .semanal, .quinzenal, .mensal, .bimestral, .semestral, .anual]
+
+    init(viewModel: FriendProfileViewModel) {
         self.viewModel = viewModel
         self.meta = viewModel.getMeta()
     }
-    
+
     var body: some View {
         ZStack {
             Rectangle()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .foregroundStyle(.friendProfileBackGround)
                 .ignoresSafeArea()
-            
+
             VStack(alignment: .center) {
-                Image(uiImage: viewModel.getFriendImage() ?? UIImage(named: "C3PO")!)
+                Image(uiImage: viewModel.getFriendImage() ?? UIImage(named: "defaultPicture") ?? UIImage())
                     .resizable()
                     .scaledToFill()
                     .frame(width: UIScreen.main.bounds.width * 0.274,
                            height: UIScreen.main.bounds.width * 0.274)
                     .clipShape(Circle())
-                    .padding(.top, 40) 
-                
-                Text(viewModel.getFriendName())
+                    .padding(.top, 40)
+
+                Text(viewModel.getFriendName().uppercased())
                     .font(.custom("Bolota", size: 48))
-                    .textFieldStyle(.plain)
                     .padding()
                     .multilineTextAlignment(.center)
-                    .padding(.bottom, 80)
-                
+                    .padding(.bottom, 60)
+
                 HStack {
-                    Text("Promessa")
+                    Text("PROMESSA")
                         .font(.custom("Bolota", size: 24))
                     Spacer()
                     Picker("Meta", selection: $meta) {
-                        ForEach(possibleMetas, id: \.self) { meta in
-                            Text(meta.rawValue)
+                        ForEach(possibleMetas, id: \.self) { m in
+                            Text(m.displayText).tag(m)
                         }
                     }
                     .pickerStyle(.menu)
+                    .tint(.gray)
                 }
                 .padding(.horizontal, 30)
-                .tint(.gray)
-                
+
                 Spacer()
-                
+
                 Button(action: {
                     withAnimation {
                         showDeleteConfirmation = true
@@ -80,7 +79,7 @@ struct SetMetaView: View {
                 .padding(.bottom, 30)
             }
             .blur(radius: showDeleteConfirmation ? 10 : 0)
-            
+
             if showDeleteConfirmation {
                 Rectangle()
                     .ignoresSafeArea()
@@ -90,7 +89,7 @@ struct SetMetaView: View {
                             showDeleteConfirmation = false
                         }
                     }
-                
+
                 VStack {
                     ZStack {
                         Circle()
@@ -103,13 +102,13 @@ struct SetMetaView: View {
                                 .frame(width: 132, height: 132)
                         }
                     }
-                    
+
                     Text("Você está prestes a excluir \(viewModel.getFriendName())")
                         .padding(.top, 16)
                         .font(.custom("Sora-Bold", size: 16))
                         .foregroundStyle(.white)
                         .multilineTextAlignment(.center)
-                    
+
                     Text("QUER MESMO DELETAR ESTE CONTATO?")
                         .foregroundStyle(.white)
                         .font(.custom("Bolota", size: 24))
@@ -117,14 +116,14 @@ struct SetMetaView: View {
                         .frame(width: 280)
                         .multilineTextAlignment(.center)
                         .padding(.top, 8)
-                    
+
                     Text("Esta ação é permanente e todo o histórico será perdido.")
                         .font(.custom("Sora-Light", size: 12))
                         .foregroundStyle(.white)
                         .frame(width: 206)
                         .multilineTextAlignment(.center)
                         .padding(.top, 8)
-                    
+
                     HStack(spacing: 50) {
                         Button {
                             withAnimation {
@@ -139,7 +138,7 @@ struct SetMetaView: View {
                             }
                         }
                         .frame(width: 72, height: 72)
-                        
+
                         Button {
                             deletarContato()
                         } label: {
@@ -156,10 +155,12 @@ struct SetMetaView: View {
                 }
             }
         }
+        .environment(\.colorScheme, .light)
         .onChange(of: meta) {
             do {
                 viewModel.defineMeta(meta: meta)
                 try modelContext.save()
+                NotificationManager.scheduleMetaReminder(for: viewModel.connection)
             } catch {
                 print("Erro ao salvar meta: \(error)")
             }
@@ -168,16 +169,15 @@ struct SetMetaView: View {
             SetMetaOnboarding = false
         }
     }
-    
-    /// Erases the connection entirely from the database and returns the user to the main flow.
+
     private func deletarContato() {
+        NotificationManager.cancelMetaReminder(for: viewModel.connection)
+        modelContext.delete(viewModel.connection.metaManager)
+        modelContext.delete(viewModel.connection.feedManager)
+        modelContext.delete(viewModel.connection.friend)
         modelContext.delete(viewModel.connection)
-        do {
-            try modelContext.save()
-            dismiss()
-        } catch {
-            print("Erro ao deletar contato: \(error)")
-        }
+        try? modelContext.save()
+        dismiss()
     }
 }
 

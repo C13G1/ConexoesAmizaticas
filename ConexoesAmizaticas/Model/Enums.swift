@@ -51,6 +51,16 @@ enum RelationshipState: String, Codable {
         case .inseparaveis: return UIColor.themeInseparaveis
         }
     }
+
+    var nodeSize: CGFloat {
+        switch self {
+        case .afastados:    return 64
+        case .distantes:    return 80
+        case .estaveis:     return 96
+        case .proximos:     return 112
+        case .inseparaveis: return 126
+        }
+    }
 }
 
 enum SceneType {
@@ -74,22 +84,36 @@ enum CodingKeys: String, CodingKey {
 
 /// Represents the commitment goal set by the user to meet a specific friend.
 enum Meta: String, Codable {
-    case semanal = "semanalmente"
+    case nenhuma   = "nenhuma"
+    case semanal   = "semanalmente"
     case quinzenal = "quizenal"
-    case mensal = "mensal"
+    case mensal    = "mensal"
     case bimestral = "bimestral"
     case semestral = "semestral"
-    case anual = "anual"
-    
+    case anual     = "anual"
+
+    var displayText: String {
+        switch self {
+        case .nenhuma:   return "Nenhuma"
+        case .semanal:   return "1 vez por semana"
+        case .quinzenal: return "a cada 15 dias"
+        case .mensal:    return "1 vez por mês"
+        case .bimestral: return "a cada 3 meses"
+        case .semestral: return "a cada 6 meses"
+        case .anual:     return "1 vez por ano"
+        }
+    }
+
     /// The numeric equivalent of the goal in days.
     var days: Int {
         switch self {
-        case .semanal: return 7
+        case .nenhuma:   return 0
+        case .semanal:   return 7
         case .quinzenal: return 15
-        case .mensal: return 30
+        case .mensal:    return 30
         case .bimestral: return 60
         case .semestral: return 182
-        case .anual: return 360
+        case .anual:     return 360
         }
     }
 }

@@ -21,48 +21,47 @@ struct InitialView: View {
     @State private var selectedConnection: Connection?
     @State private var showVacuoView: Bool = false
     @State var navigation: NavigationPath = NavigationPath()
-    
+
     @Query private var connections: [Connection]
     @Query private var users: [User]
-    
+
     var currentUser: User { users.first ?? User() }
     var width = UIScreen.main.bounds.width
     var height = UIScreen.main.bounds.height
-    
-    @State var scene: FriendsScene = {
-        let scene = FriendsScene(size: UIScreen.main.bounds.size, connections: Set(), sceneType: .initial)
-        scene.scaleMode = .aspectFill
-        return scene
+
+    @State private var scene: FriendsScene = {
+        let s = FriendsScene(size: UIScreen.main.bounds.size, connections: Set(), sceneType: .initial)
+        s.scaleMode = .aspectFill
+        return s
     }()
-    
+
     var body: some View {
         NavigationStack(path: $navigation) {
             ZStack {
                 SpriteView(scene: scene, debugOptions: [])
                     .frame(height: height)
-                
+
                 ZStack {
                     ToolBar(vm: $vm)
                         .padding(.bottom, width * 2.28)
-                    
+
                     TabBar(viewModel: $vm, user: currentUser)
                         .padding(.top, width * 2.15)
                 }
-                
-                if vm.connectionsWithFriends.count == 0 {
+
+                if connections.isEmpty {
                     ZStack {
-                        VStack (spacing: 20){
+                        VStack(spacing: 20) {
                             Text("Bem Vindo Ao Zelu")
                                 .font(.custom("Bolota", size: 32))
-                            
+
                             Text("adicione seus amigos para iniciar")
                                 .font(.custom("Sora-Regular", size: 20))
                                 .multilineTextAlignment(.center)
                                 .frame(width: width * 0.6)
-                            
                         }
                         .foregroundStyle(.addFriendsText)
-                        
+
                         Image("roundArrowAddFriends")
                             .resizable()
                             .frame(width: width * 0.22, height: height * 0.1)
@@ -80,20 +79,32 @@ struct InitialView: View {
             }
         }
         .onAppear {
-            scene.updateConnections(receivedConnections: Set(vm.connectionsWithFriends))
-            
-            // Translates SpriteKit node taps into SwiftUI Navigation operations.
-            // Using DispatchQueue.main to ensure thread safety across framework boundaries.
+            vm.setModelContext(modelContext: modelContext)
+            vm.fetchData()
+            for connection in connections {
+                connection.metaManager.applyDecayIfNeeded(lastMet: connection.lastMet)
+            }
+            try? modelContext.save()
+            NotificationManager.rescheduleAll(connections: connections)
             scene.onFriendTapped = { connection in
-                selectedConnection = connection
-                navigation.append(connection)
+                DispatchQueue.main.async {
+                    guard navigation.count == 0 else { return }
+                    navigation.append(connection)
+                }
             }
             scene.onSpiralTapped = {
                 showVacuoView = true
             }
         }
-        .onChange(of: connections) { _, newConnections in
+        .onChange(of: connections, initial: true) { _, newConnections in
             scene.updateConnections(receivedConnections: Set(newConnections.filter { !$0.inVacuo }))
+            scene.updateNodeVisuals()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .meetingConfirmed)) { _ in
+            scene.updateConnections(receivedConnections: Set(connections.filter { !$0.inVacuo }))
+            scene.updateNodeVisuals()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .friendProfileUpdated)) { _ in
             scene.updateNodeVisuals()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

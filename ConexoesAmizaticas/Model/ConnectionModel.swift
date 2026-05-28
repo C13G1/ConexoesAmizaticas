@@ -42,17 +42,13 @@ class Connection: Hashable {
     
     var recordTimeNotMeeting: TimeInterval?
 
-    /// A boolean indicating if the connection is at risk due to a lack of recent interactions.
-    /// Returns `true` if more than 30 days have passed since the `lastMet` date.
+    /// A boolean indicating if the connection has decayed into the vacuum state.
+    /// Returns `true` when the score reaches zero — caused by consecutive missed meeting periods.
     var inVacuo: Bool {
-        let threshold: TimeInterval = 30 * 24 * 3600
-        if let lastMet = lastMet {
-            return Date.now.timeIntervalSince(lastMet) > threshold
-        }
-        return Date.now.timeIntervalSince(firstConnection) > threshold
+        return metaManager.score <= 0
     }
 
-    init(friend: User, lastMet: Date? = nil, score: Double = 15.0) {
+    init(friend: User, lastMet: Date? = nil, score: Double = 10.0) {
         self.friend = friend
         self.metaManager = MetaManager(score: score)
         self.feedManager = FeedManager()

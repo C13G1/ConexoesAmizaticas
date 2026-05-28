@@ -27,6 +27,11 @@ struct ConexoesAmizaticasApp: App {
         }
     }()
 
+    init() {
+        NotificationManager.requestPermission()
+        ProximityNotifier.shared.start()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

@@ -9,6 +9,11 @@ import SwiftUI
 import CoreBluetooth
 import SwiftData
 
+extension Notification.Name {
+    static let meetingConfirmed = Notification.Name("meetingConfirmed")
+    static let friendProfileUpdated = Notification.Name("friendProfileUpdated")
+}
+
 /// The proximity-based discovery and pairing screen.
 ///
 /// `BLEView` serves as the UI layer for the `BLEManager`. It handles the transition between the "searching" state
@@ -194,13 +199,25 @@ struct BLEView: View {
         let steps = 20
         let stepDuration = 1.5 / Double(steps)
         var current = 0
+
+        let impact = UIImpactFeedbackGenerator(style: .medium)
+        let notification = UINotificationFeedbackGenerator()
+        impact.prepare()
+        notification.prepare()
+
         Timer.scheduledTimer(withTimeInterval: stepDuration, repeats: true) { timer in
             guard isHolding else { timer.invalidate(); holdProgress = 0; return }
             current += 1
             holdProgress = CGFloat(current) / CGFloat(steps)
+
             if current >= steps {
                 timer.invalidate()
+                notification.notificationOccurred(.success)
                 confirmFriend(friend)
+            } else {
+                // Intensity ramps linearly from 0.1 to 1.0, matching the circle fill
+                let intensity = 0.1 + 0.9 * (CGFloat(current) / CGFloat(steps))
+                impact.impactOccurred(intensity: intensity)
             }
         }
     }
@@ -210,16 +227,21 @@ struct BLEView: View {
     /// If the connection already exists, it updates the `lastMet` timestamp and boosts the relationship score.
     /// If it is a new contact, it bootstraps the `User` and `Connection` models into SwiftData.
     private func confirmFriend(_ friend: User) {
+        guard friend.id != profile.id else { dismiss(); return }
+        let connection: Connection
         if let existing = existingConnections.first(where: { $0.friend.id == friend.id }) {
-            // registra encontro e aumenta 10 pontos de proximidade
             existing.lastMet = Date.now
             existing.metaManager.addOrSubtractScore(10)
+            connection = existing
         } else {
-            // cria User e Connection no SwiftData
             modelContext.insert(friend)
-            let connection = Connection(friend: friend)
-            modelContext.insert(connection)
+            let newConnection = Connection(friend: friend)
+            modelContext.insert(newConnection)
+            connection = newConnection
         }
+        try? modelContext.save()
+        NotificationManager.scheduleMetaReminder(for: connection)
+        NotificationCenter.default.post(name: .meetingConfirmed, object: nil)
         dismiss()
     }
 }
