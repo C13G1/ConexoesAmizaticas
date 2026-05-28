@@ -1,12 +1,8 @@
 //
 //  InitialViewTests.swift
-//  ConexoesAmizaticasTests
+//  ConexoesAmizaticas
 //
-//  Testa a lógica da InitialView sem renderizar SpriteKit/SwiftUI:
-//  - currentUser (primeiro usuário do @Query)
-//  - empty state (connections vazias)
-//  - filtragem de connections passada para a scene (não inVacuo)
-//  - efeito do onAppear: decay em todas as connections
+//  Created by Thomas Pinheiro Grandin on 28/05/26.
 //
 
 import Testing

@@ -1,9 +1,8 @@
 //
 //  ContentViewTests.swift
-//  ConexoesAmizaticasTests
+//  ConexoesAmizaticas
 //
-//  ContentView é puramente um router baseado em @Query <User>.
-//  Testamos o comportamento esperado da escolha: vazio → Onboarding, populado → Initial.
+//  Created by Thomas Pinheiro Grandin on 28/05/26.
 //
 
 import Testing

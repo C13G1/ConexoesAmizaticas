@@ -1,9 +1,8 @@
 //
 //  EditProfileViewTests.swift
-//  ConexoesAmizaticasTests
+//  ConexoesAmizaticas
 //
-//  Testa a lógica de salvamento das views de edição sem inspecionar a UI.
-//  Foco: validação canSave + efeito de saveChanges no model.
+//  Created by Thomas Pinheiro Grandin on 28/05/26.
 //
 
 import Testing

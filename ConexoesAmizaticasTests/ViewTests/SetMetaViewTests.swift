@@ -1,11 +1,8 @@
 //
 //  SetMetaViewTests.swift
-//  ConexoesAmizaticasTests
+//  ConexoesAmizaticas
 //
-//  Testa a lógica da SetMetaView sem inspecionar UI:
-//  - possibleMetas cobre todos os casos do enum
-//  - mudar `meta` propaga para o MetaManager
-//  - "deletarContato" remove os objetos relacionados do ModelContext
+//  Created by Thomas Pinheiro Grandin on 28/05/26.
 //
 
 import Testing

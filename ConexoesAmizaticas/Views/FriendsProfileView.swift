@@ -93,11 +93,11 @@ struct FriendsProfileView: View {
                                                subText: "\(viewModel.getConnectionTime()) Dias",
                                                subTextColor: viewModel.getProfileColor(),
                                                isTwelve: false)
-                        TextedRoundedRectangle(text: "ultimo encontro",
+                        TextedRoundedRectangle(text: "último encontro",
                                                subText: lastMeetDaysText,
                                                subTextColor: viewModel.getProfileColor(),
                                                isTwelve: false)
-                        TextedRoundedRectangle(text: "promeça",
+                        TextedRoundedRectangle(text: "promessa",
                                                subText: viewModel.getMeta().rawValue,
                                                subTextColor: viewModel.getProfileColor(),
                                                isTwelve: false)

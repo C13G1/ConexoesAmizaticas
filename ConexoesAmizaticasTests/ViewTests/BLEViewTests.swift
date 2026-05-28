@@ -1,11 +1,8 @@
 //
 //  BLEViewTests.swift
-//  ConexoesAmizaticasTests
+//  ConexoesAmizaticas
 //
-//  Testa a lógica de pareamento da BLEView sem CoreBluetooth:
-//  - existingConnection: identifica se o amigo encontrado já existe
-//  - confirmFriend: cria nova ou atualiza connection existente
-//  - guard friend.id != profile.id (não permite parear consigo mesmo)
+//  Created by Thomas Pinheiro Grandin on 28/05/26.
 //
 
 import Testing

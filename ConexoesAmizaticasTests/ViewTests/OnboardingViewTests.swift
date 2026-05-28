@@ -1,9 +1,8 @@
 //
 //  OnboardingViewTests.swift
-//  ConexoesAmizaticasTests
+//  ConexoesAmizaticas
 //
-//  Testa a lógica da OnboardingView sem ViewInspector, replicando
-//  os algoritmos privados e validando efeitos no ModelContext.
+//  Created by Thomas Pinheiro Grandin on 28/05/26.
 //
 
 import Testing

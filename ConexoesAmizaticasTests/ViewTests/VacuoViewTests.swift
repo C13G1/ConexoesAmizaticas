@@ -1,6 +1,8 @@
 //
 //  VacuoViewTests.swift
-//  ConexoesAmizaticasTests
+//  ConexoesAmizaticas
+//
+//  Created by Thomas Pinheiro Grandin on 28/05/26.
 //
 
 import Testing
