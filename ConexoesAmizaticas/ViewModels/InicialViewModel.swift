@@ -1,5 +1,5 @@
 //
-//  er.swift
+//  InicialViewModel.swift
 //  ConexoesAmizaticas
 //
 //  Created by Jonas Fernando Nascimento Melo on 20/05/26.
@@ -9,10 +9,17 @@ import SwiftUI
 import Foundation
 import SwiftData
 
+/// The central source of truth for the application's root state.
+///
+/// `InicialViewModel` manages the active user profile and oversees the comprehensive list of their
+/// social connections. It serves as the primary data provider for the root navigational structures
+/// (like `InitialView` and `TabBar`) and handles initial data fetching from SwiftData on launch.
 @Observable
 class InicialViewModel {
     private(set) var modelContext           : ModelContext!
     private(set) var profile                : User = User()
+    
+    /// The master list of all connections. Currently pre-populated with mock data for demonstration purposes.
     private(set) var connectionsWithFriends : [Connection] = [
         Connection(friend: User(name: "BrotherdoDesertoAcho", profilePicture: UIImage(named: "BrotherdoDesertoAcho")!.jpegData(compressionQuality: 1)!), score: Double.random(in: 10...100)),
         Connection(friend: User(name: "DarthVader", profilePicture: UIImage(named: "DarthVader")!.jpegData(compressionQuality: 1)!), score: Double.random(in: 10...100)),
@@ -27,10 +34,11 @@ class InicialViewModel {
             Double.random(in: 10...100)),
         Connection(friend: User(name: "JarJarBinks", profilePicture: UIImage(named: "JarJarBinks")!.jpegData(compressionQuality: 1)!), score: Double.random(in: 10...100))]
     
+    /// Pulls the primary user and all active connections from local persistence.
     func fetchData() {
         do {
-            let userDescriptor        = FetchDescriptor<User>(/*sortBy: [SortDescriptor(\.id)]*/)
-            let connectionsDescriptor = FetchDescriptor<Connection>(/*sortBy: [SortDescriptor(\.id)]*/)
+            let userDescriptor        = FetchDescriptor<User>()
+            let connectionsDescriptor = FetchDescriptor<Connection>()
             
             var users                 = try modelContext.fetch(userDescriptor)
             let connections           = try modelContext.fetch(connectionsDescriptor)
@@ -42,6 +50,7 @@ class InicialViewModel {
         }
     }
     
+    /// Extracts a flat array of `User` profiles from the complex `Connection` models.
     func getFriends() -> [User] {
         var friends: [User] = []
         
@@ -59,9 +68,10 @@ class InicialViewModel {
         self.modelContext = modelContext
     }
     
-    func getConnectionByFriend(friend: User) -> Connection?{
-        for c in connectionsWithFriends{
-            if c.friend.id == friend.id{
+    /// Retrieves a specific persistent connection based on the friend's unique user identifier.
+    func getConnectionByFriend(friend: User) -> Connection? {
+        for c in connectionsWithFriends {
+            if c.friend.id == friend.id {
                 return c
             }
         }
