@@ -8,6 +8,11 @@
 import SwiftUI
 import SwiftData
 
+/// The configuration interface for an individual friendship.
+///
+/// `SetMetaView` provides the controls to calibrate the interaction expectations (`Meta`) for a given connection,
+/// which ultimately drives the decay rate of the relationship score. It also houses the critical, destructive
+/// operation of permanently deleting the relationship.
 struct SetMetaView: View {
     @AppStorage("SetMetaOnboarding") var SetMetaOnboarding: Bool = true
     @Environment(\.modelContext) private var modelContext
@@ -164,6 +169,7 @@ struct SetMetaView: View {
         }
     }
     
+    /// Erases the connection entirely from the database and returns the user to the main flow.
     private func deletarContato() {
         modelContext.delete(viewModel.connection)
         do {

@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+/// The custom bottom navigation bar for the main interface.
+///
+/// `TabBar` utilizes a `SemiCircle` shape to create a distinct, arched bottom edge. It holds the primary navigation
+/// routes branching out from the `InitialView`, specifically the `SearchView` and the `BLEView`.
 struct TabBar: View {
     @Binding var viewModel: InicialViewModel
     var user: User
@@ -39,6 +43,7 @@ struct TabBar: View {
                 
                 Spacer()
                 
+                // Central App Logo
                 Image("zELu")
                     .padding(.bottom, height * 0.07)
                 
@@ -59,7 +64,7 @@ struct TabBar: View {
                 }
             }
             .padding(.horizontal, 20)
-            .padding(.bottom, width * 0.38)
+            .padding(.bottom, width * 0.38) // Pushes the icons upwards to align with the curve of the SemiCircle
         }
     }
 }

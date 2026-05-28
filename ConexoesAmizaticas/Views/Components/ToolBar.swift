@@ -7,11 +7,16 @@
 
 import SwiftUI
 
+/// The custom top navigation header for the main interface.
+///
+/// By employing an inverted `SemiCircle`, `ToolBar` mirrors the design language of the bottom `TabBar`.
+/// It encapsulates the `ProfileCircleAndName` component, anchoring the user's identity to the top of the screen.
 struct ToolBar: View {
     @Binding var vm: InicialViewModel
     
     var body: some View {
         ZStack {
+            // An inverted semi-circle hanging from the top edge
             SemiCircle()
                 .fill(Color.black)
                 .frame(width: UIScreen.main.bounds.width, height: 100)

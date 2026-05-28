@@ -7,21 +7,20 @@
 
 import SwiftUI
 import SwiftData
-
-//
-//  AddPictureButton.swift
-//  ConexoesAmizaticas
-//
-//  Created by Dayô Araújo on 23/05/26.
-//
-
-import SwiftUI
-import SwiftData
 import PhotosUI
 
+/// A stylized button that invokes the native iOS photo picker.
+///
+/// `AddPictureButton` is heavily customized to fit the app's geometric design language, using a `CurvedRectangle`
+/// to create a distinct visual depth. It binds directly to a `FriendFeedViewModel` to seamlessly pass the selected
+/// image data into the friend's memory feed.
 struct AddPictureButton: View {
     @Environment(\.modelContext) private var modelContext
+    
+    /// The view model that coordinates the selection and processing of the chosen photos.
     @Bindable var viewModel: FriendFeedViewModel
+    
+    /// The thematic color applied to the button's stroke, usually matching the current relationship state.
     let color: Color
     
     var body: some View {
@@ -50,6 +49,7 @@ struct AddPictureButton: View {
             matching: .images,
             photoLibrary: .shared()
         )
+        // Automatically triggers the asynchronous upload to SwiftData once an image is chosen.
         .onChange(of: viewModel.selectedItems) { oldValue, newValue in
             if !newValue.isEmpty {
                 Task {

@@ -9,11 +9,17 @@ import SwiftUI
 import Charts
 import SwiftData
 
+/// A macroscopic overview of the user's entire social network.
+///
+/// `UserProfileView` aggregates data from all active connections to render an analytical breakdown using
+/// SwiftUI Charts. It categorizes friendships based on their `RelationshipState` (e.g., "Próximos", "Afastados"),
+/// offering a high-level perspective of social health.
 struct UserProfileView: View {
     @Binding var vm: InicialViewModel
     var width = UIScreen.main.bounds.width
     var height = UIScreen.main.bounds.height
     
+    /// Transforms the raw array of connections into grouped statistical data suitable for rendering a `SectorMark` chart.
     private var friendsByState: [(state: RelationshipState, count: Int)] {
         let orderedStates: [RelationshipState] = [
             .afastados, .proximos, .distantes, .estaveis, .inseparaveis

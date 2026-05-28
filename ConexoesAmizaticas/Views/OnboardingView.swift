@@ -9,6 +9,11 @@ import SwiftUI
 import PhotosUI
 import SwiftData
 
+/// The initial setup flow for new users.
+///
+/// `OnboardingView` collects the user's base identity (name and avatar) and inserts the primary `User`
+/// entity into the persistent store. This action acts as the catalyst to unlock the rest of the application
+/// through the `ContentView` router.
 struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
     
@@ -16,6 +21,7 @@ struct OnboardingView: View {
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var profileImageData: Data?
     
+    /// Validates input to ensure the user cannot proceed with an empty or whitespace-only name.
     private var canProceed: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty
     }
@@ -92,6 +98,7 @@ struct OnboardingView: View {
         }
     }
     
+    /// Finalizes the onboarding by packaging the collected data into a `User` model.
     private func createProfile() {
         let finalImageData = profileImageData
         ?? UIImage(named: "defaultPicture")?.jpegData(compressionQuality: 1)
