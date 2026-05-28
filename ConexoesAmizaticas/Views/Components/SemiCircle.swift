@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+/// A primitive geometric shape representing the top or bottom half of a circle.
+///
+/// This shape traces an arc from 180 degrees to 0 degrees. It is structurally necessary to build the
+/// custom `TabBar` and `ToolBar` components that frame the top and bottom edges of the main application screens.
 struct SemiCircle: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
@@ -26,7 +30,6 @@ struct SemiCircle: Shape {
         return path
     }
 }
-
 
 #Preview {
     SemiCircle()

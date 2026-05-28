@@ -7,6 +7,9 @@
 
 import SwiftUI
 
+/// A large-scale presentation of the user's avatar and name, utilized in the `UserProfileView`.
+///
+/// Similar to `ProfileCircleAndName` but scaled up for a dedicated profile screen, establishing visual hierarchy.
 struct ProfileHeader: View {
     @Binding var vm: InicialViewModel
     var width = UIScreen.main.bounds.width
@@ -21,9 +24,7 @@ struct ProfileHeader: View {
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFill()
-                        .frame(width: width
-                               * 0.48, height: width
-                               * 0.48)
+                        .frame(width: width * 0.48, height: width * 0.48)
                         .clipShape(Circle())
                 }
             } else {
@@ -32,9 +33,7 @@ struct ProfileHeader: View {
                         .frame(width: width * 0.52)
                         .foregroundStyle(.lightBackground)
                     Circle()
-                        .frame(width: width
-                               * 0.48, height: width
-                               * 0.48)
+                        .frame(width: width * 0.48, height: width * 0.48)
                         .foregroundStyle(.gray)
                 }
             }

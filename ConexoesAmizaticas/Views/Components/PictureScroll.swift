@@ -8,6 +8,11 @@
 import SwiftUI
 import SwiftData
 
+/// A 3D-styled, interactive carousel for browsing a connection's memory feed.
+///
+/// `PictureScroll` listens to horizontal drag gestures and uses trigonometric functions provided by `FriendFeedViewModel`
+/// to calculate depth (`zIndex`), scale, and opacity for each `GalleryFrame`. This creates the illusion of
+/// photos wrapped around a rotating virtual cylinder.
 struct PictureScroll: View {
     var viewModel: FriendFeedViewModel
     var arrowWidth = UIScreen.main.bounds.width * 0.09
@@ -20,6 +25,7 @@ struct PictureScroll: View {
             Color.clear.ignoresSafeArea()
             
             if viewModel.posts.isEmpty {
+                // Empty state indicating where photos will appear once uploaded.
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(style: StrokeStyle(lineWidth: 5, dash: [8]))
                     .foregroundStyle(.gray.opacity(0.5))
@@ -38,6 +44,7 @@ struct PictureScroll: View {
                         )
                         .opacity(viewModel.opacity(index))
                         .onTapGesture {
+                            // Triggers the deletion confirmation overlay located in the parent view.
                             withAnimation {
                                 viewModel.postToDelete = post
                             }
@@ -45,6 +52,7 @@ struct PictureScroll: View {
                 }
             }
             
+            // Visual indicators guiding the user to scroll horizontally.
             HStack {
                 Image("galleryArrow")
                     .resizable()
@@ -59,6 +67,7 @@ struct PictureScroll: View {
             }
             .frame(width: UIScreen.main.bounds.width * 0.78)
         }
+        // Attaches the physics-based drag tracking to the entire scroll area.
         .gesture(
             DragGesture()
                 .onChanged { value in
