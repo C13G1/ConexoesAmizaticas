@@ -8,6 +8,7 @@
 import SwiftUI
 import PhotosUI
 import SwiftData
+import Aptabase
 
 /// The initial setup flow for new users.
 ///
@@ -105,6 +106,7 @@ struct OnboardingView: View {
         ?? Data()
         let user = User(name: name.trimmingCharacters(in: .whitespaces), profilePicture: finalImageData)
         modelContext.insert(user)
+        Aptabase.shared.trackEvent("onboarding_completed")
     }
 }
 

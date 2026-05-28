@@ -14,6 +14,7 @@ struct ConexoesAmizaticasApp: App {
     
     init() {
         Aptabase.shared.initialize(appKey: "A-US-8865447669")
+        Aptabase.shared.trackEvent("app_started")
         NotificationManager.requestPermission()
         ProximityNotifier.shared.start()
     }

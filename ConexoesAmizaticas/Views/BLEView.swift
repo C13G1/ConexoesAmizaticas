@@ -8,6 +8,7 @@
 import SwiftUI
 import CoreBluetooth
 import SwiftData
+import Aptabase
 
 extension Notification.Name {
     static let meetingConfirmed = Notification.Name("meetingConfirmed")
@@ -54,6 +55,7 @@ struct BLEView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
+            Aptabase.shared.trackEvent("screen_view", with: ["name": "ble_search"])
             let manager = BLEManager(profile: profile)
             manager.onConnectionOpened = { self.foundFriend = true }
             manager.onFriendFound = { self.friend = $0 }
@@ -233,11 +235,16 @@ struct BLEView: View {
             existing.lastMet = Date.now
             existing.metaManager.addOrSubtractScore(10)
             connection = existing
+            Aptabase.shared.trackEvent("meeting_registered", with: [
+                "relationship_state": existing.metaManager.currentRelationshipState.rawValue,
+                "score": existing.metaManager.score
+            ])
         } else {
             modelContext.insert(friend)
             let newConnection = Connection(friend: friend)
             modelContext.insert(newConnection)
             connection = newConnection
+            Aptabase.shared.trackEvent("friend_added")
         }
         try? modelContext.save()
         NotificationManager.scheduleMetaReminder(for: connection)

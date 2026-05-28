@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import Aptabase
 
 /// A comprehensive dashboard detailing a specific friendship.
 ///
@@ -169,6 +170,12 @@ struct FriendsProfileView: View {
                 }
             }
             .environment(\.colorScheme, .light)
+            .onAppear {
+                Aptabase.shared.trackEvent("screen_view", with: [
+                    "name": "friend_profile",
+                    "relationship_state": viewModel.connection.metaManager.currentRelationshipState.rawValue
+                ])
+            }
             .onReceive(NotificationCenter.default.publisher(for: .friendProfileUpdated)) { _ in
                 refreshToken += 1
             }
