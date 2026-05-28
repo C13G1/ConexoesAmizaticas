@@ -43,7 +43,7 @@ class FriendProfileViewModel {
         let connectionDate = Date(timeIntervalSinceNow: connection.timeConnected)
         let now = Date()
         let days = Calendar.current.dateComponents([.day], from: connectionDate, to: now).day ?? 1
-        return days
+        return days * -1
     }
     
     /// Computes the elapsed days since the user and the friend last recorded a physical meeting.
@@ -85,7 +85,7 @@ class FriendProfileViewModel {
         let connectionDate = Date(timeIntervalSinceNow: connection.timeSinceLastMet)
         let now = Date()
         let daysUntil = Calendar.current.dateComponents([.day], from: connectionDate, to: now).day ?? 0
-        let trueDays = daysUntil - connection.metaManager.meta.days
+        let trueDays =  connection.metaManager.meta.days + daysUntil
         return trueDays
     }
 }

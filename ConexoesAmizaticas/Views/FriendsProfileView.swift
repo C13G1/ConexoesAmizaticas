@@ -98,7 +98,7 @@ struct FriendsProfileView: View {
                                                subTextColor: viewModel.getProfileColor(),
                                                isTwelve: false)
                         TextedRoundedRectangle(text: "promeça",
-                                               subText: viewModel.getMeta().displayText,
+                                               subText: viewModel.getMeta().rawValue,
                                                subTextColor: viewModel.getProfileColor(),
                                                isTwelve: false)
                     }

@@ -64,7 +64,7 @@ class FriendsScene: SKScene {
     func initBackground() {
         let spiral = SKSpriteNode(texture: SKTexture(imageNamed: "Spiral"), size: CGSize(width: 122, height: 122))
         spiral.name = "spiral"
-        spiral.physicsBody = SKPhysicsBody(circleOfRadius: (spiral.size.width - 35) / 2)
+        spiral.physicsBody = SKPhysicsBody(circleOfRadius: (spiral.size.width - 10) / 2)
         spiral.physicsBody?.affectedByGravity = false
         spiral.physicsBody?.isDynamic = false
         self.rootNode.addChild(spiral)

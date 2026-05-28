@@ -4,7 +4,7 @@
 //
 //  Created by Thomas Pinheiro Grandin on 20/05/26.
 //
-
+import SwiftUI
 import SpriteKit
 import UIKit
 
@@ -141,4 +141,8 @@ class FriendNode: SKShapeNode {
             self.position.y += lastTouchLocation.y - self.position.y
         }
     }
+}
+
+#Preview{
+    InitialView()
 }
