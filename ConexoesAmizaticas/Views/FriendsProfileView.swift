@@ -17,6 +17,13 @@ struct FriendsProfileView: View {
 
     @Query private var connections: [Connection]
 
+    private var lastMeetDaysText: String {
+        guard let lastMet = viewModel.getLastMeet() else { return "nunca" }
+        let days = Calendar.current.dateComponents([.day], from: lastMet, to: .now).day ?? 0
+        if days == 0 { return "hoje" }
+        return "há \(days) dias"
+    }
+
     init(connection: Connection) {
         self.viewModel = FriendProfileViewModel(connection: connection)
         self.connectionID = connection.id
@@ -31,13 +38,21 @@ struct FriendsProfileView: View {
                         .padding(.top, (UIScreen.main.bounds.height * -0.49))
                     
                     VStack{
-                        Image(uiImage: viewModel.getFriendImage() ??
-                              UIImage(named: "DefaultPicture")!)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 108, height: 108)
-                        .clipShape(Circle())
-                        .padding(.top,10)
+                        ZStack(alignment: .bottomTrailing) {
+                            Image(uiImage: viewModel.getFriendImage() ??
+                                  UIImage(named: "DefaultPicture")!)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 108, height: 108)
+                                .clipShape(Circle())
+
+                            NavigationLink(destination: EditFriendProfileView(connection: viewModel.connection)) {
+                                Image(systemName: "pencil.circle.fill")
+                                    .font(.system(size: 28))
+                                    .foregroundStyle(.white, .gray)
+                            }
+                        }
+                        .padding(.top, 10)
                         
                         Text(viewModel.getFriendName().uppercased())
                             .font(.custom("Bolota", size: 48))
@@ -49,7 +64,7 @@ struct FriendsProfileView: View {
                                                    subText: "\(viewModel.getConnectionTime()) Dias",
                                                    subTextColor: viewModel.getProfileColor())
                             TextedRoundedRectangle(text: "ultimo encontro",
-                                                   subText: "há \(String(describing: viewModel.getLastMeet())) Dias",
+                                                   subText: lastMeetDaysText,
                                                    subTextColor: viewModel.getProfileColor())
                             TextedRoundedRectangle(text: "promeça",
                                                    subText: viewModel.getMeta().displayText,
