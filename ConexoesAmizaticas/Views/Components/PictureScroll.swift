@@ -6,30 +6,43 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct PictureScroll: View {
     var viewModel: FriendFeedViewModel
     var arrowWidth = UIScreen.main.bounds.width * 0.09
     var arrowHeight = UIScreen.main.bounds.height * 0.03
+    var frameWidth = UIScreen.main.bounds.width * 0.45
+    var frameHeight = UIScreen.main.bounds.height * 0.25
     
     var body: some View {
         ZStack {
             Color.clear.ignoresSafeArea()
             
-            ForEach(viewModel.posts.indices, id: \.self) { index in
-                
-                let post = viewModel.posts[index]
-                let imageData = post.images.first ?? Data()
-                
-                GalleryFrame(imageData: imageData)
-                    .scaleEffect(viewModel.scaleEffect(index))
-                    .zIndex(viewModel.zIndex(index))
-                    .rotationEffect(.degrees(viewModel.rotationEffect(index)))
-                    .offset(
-                        x: viewModel.xOffset(index),
-                        y: viewModel.yOffset(index)
-                    )
-                    .opacity(viewModel.opacity(index))
+            if viewModel.posts.isEmpty {
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(style: StrokeStyle(lineWidth: 5, dash: [8]))
+                    .foregroundStyle(.gray.opacity(0.5))
+                    .frame(width: frameWidth, height: frameHeight)
+            } else {
+                ForEach(Array(viewModel.posts.enumerated()), id: \.element.id) { index, post in
+                    let imageData = post.images.first ?? Data()
+                    
+                    GalleryFrame(imageData: imageData)
+                        .scaleEffect(viewModel.scaleEffect(index))
+                        .zIndex(viewModel.zIndex(index))
+                        .rotationEffect(.degrees(viewModel.rotationEffect(index)))
+                        .offset(
+                            x: viewModel.xOffset(index),
+                            y: viewModel.yOffset(index)
+                        )
+                        .opacity(viewModel.opacity(index))
+                        .onTapGesture {
+                            withAnimation {
+                                viewModel.postToDelete = post
+                            }
+                        }
+                }
             }
             
             HStack {
@@ -56,20 +69,4 @@ struct PictureScroll: View {
                 }
         )
     }
-}
-
-#Preview {
-    let mockImage = UIImage(named: "gallery")!
-    let mockData = mockImage.pngData() ?? Data()
-    let friend = User(name: "nome")
-    let conn = Connection(friend: friend)
-    
-    for i in 0..<5 {
-        let post = Post(images: [mockData])
-        conn.feedManager.addPost(post)
-    }
-    
-    let viewModel = FriendFeedViewModel(connection: conn)
-    
-    return PictureScroll(viewModel: viewModel)
 }

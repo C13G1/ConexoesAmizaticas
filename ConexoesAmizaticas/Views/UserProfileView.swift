@@ -128,10 +128,10 @@ struct UserProfileView: View {
                     .frame(width: width * 0.5)
                     .padding(.top, height * 0.52)
             }
+            .background(.lightBackground)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
-        .background(.lightBackground)
     }
 }
 

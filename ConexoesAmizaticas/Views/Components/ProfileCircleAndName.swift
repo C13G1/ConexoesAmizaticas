@@ -13,7 +13,7 @@ struct ProfileCircleAndName: View {
     
     var body: some View {
         VStack {
-            if let uiImage = UIImage(data: vm.profile.profilePicture ) {
+            if let uiImage = UIImage(data: vm.profile.profilePicture) {
                 NavigationLink {
                     UserProfileView(vm: $vm)
                 } label: {

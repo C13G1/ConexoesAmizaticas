@@ -13,7 +13,7 @@ struct ProfileHeader: View {
     
     var body: some View {
         VStack {
-            if let uiImage = UIImage(data: vm.profile.profilePicture ) {
+            if let uiImage = UIImage(data: vm.profile.profilePicture) {
                 ZStack {
                     Circle()
                         .frame(width: width * 0.52)

@@ -17,6 +17,8 @@ class FriendFeedViewModel {
     var selectedItems: [PhotosPickerItem] = []
     var isPickerPresented: Bool = false
     
+    var postToDelete: Post? = nil
+    
     var snappedItem: Double = 0
     var draggingItem: Double = 0
     var activeIndex: Int = 0
@@ -32,23 +34,16 @@ class FriendFeedViewModel {
     
     func addPostFromSelection(modelContext: ModelContext) async {
         if !selectedItems.isEmpty {
-            var imagesData: [Data] = []
             for item in selectedItems {
                 if let data = try? await item.loadTransferable(type: Data.self) {
-                    imagesData.append(data)
+                    let newPost = Post(images: [data])
+                    connection.feedManager.addPost(newPost)
+                    modelContext.insert(newPost)
                 }
             }
-            
-            if !imagesData.isEmpty {
-                let newPost = Post(images: imagesData)
-                connection.feedManager.addPost(newPost)
-                modelContext.insert(newPost)
-                try? modelContext.save()
-                refreshPosts()
-            }
+            try? modelContext.save()
+            refreshPosts()
             selectedItems = []
-        } else {
-            return
         }
     }
     
@@ -57,6 +52,10 @@ class FriendFeedViewModel {
         posts.removeAll(where: { $0.id == id })
         try? modelContext.save()
         refreshPosts()
+        
+        snappedItem = 0
+        draggingItem = 0
+        activeIndex = 0
     }
     
     func distance(_ index: Int) -> Double {
@@ -67,24 +66,18 @@ class FriendFeedViewModel {
         }
     }
     
-    /// Function that determines the radius of the circle
-    /// increasing the multiplier will increase the distance
-    /// between cards
     func xOffset(_ index: Int) -> Double {
-        let angle = Double.pi * 2 / Double(max(posts.count, 1)) * distance(index)
+        let effectiveCount = Double(max(posts.count, 3))
+        let angle = Double.pi * 2 / effectiveCount * distance(index)
         return sin(angle) * 245
     }
     
-    /// Function that defines the arch of the carrousel
     func yOffset(_ index: Int) -> Double {
         let dist = abs(distance(index))
         if dist > 1.5 { return -1000 }
-        
         return -pow(dist * 30, 2) / 10
     }
     
-    /// Function that determines the angle of the lateral
-    /// cards on the carrousel
     func rotationEffect(_ index: Int) -> Double {
         let dist = distance(index)
         return -dist * 30
@@ -98,9 +91,6 @@ class FriendFeedViewModel {
         1.0 - abs(distance(index)) * 0.2
     }
     
-    /// Function that determines the opacity of the cards
-    /// making the cards that are not in the center or
-    /// sideways invisible
     func opacity(_ index: Int) -> Double {
         let dist = abs(distance(index))
         return dist > 1.5 ? 0.0 : 1.0
@@ -120,13 +110,9 @@ class FriendFeedViewModel {
             
             let count = posts.count
             activeIndex = count + Int(draggingItem)
-            if activeIndex > count || Int(draggingItem) >= 0 {
+            if activeIndex >= count || Int(draggingItem) >= 0 {
                 activeIndex = Int(draggingItem)
             }
         }
-    }
-    
-    func uiImage(from data: Data) -> UIImage? {
-        UIImage(data: data)
     }
 }

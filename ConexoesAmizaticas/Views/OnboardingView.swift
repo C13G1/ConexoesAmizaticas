@@ -11,26 +11,26 @@ import SwiftData
 
 struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
-
+    
     @State private var name: String = ""
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var profileImageData: Data?
-
+    
     private var canProceed: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty
     }
-
+    
     var body: some View {
         ZStack(alignment: .top) {
             RoundedRectangle(cornerRadius: 64)
                 .frame(width: 361, height: 580)
                 .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 64))
-
+            
             VStack(spacing: 0) {
                 Text("Seja bem vindo!")
                     .font(.system(size: 36, weight: .bold))
                     .padding(.top, 42)
-
+                
                 PhotosPicker(selection: $selectedPhoto, matching: .images) {
                     ZStack {
                         Circle()
@@ -57,7 +57,9 @@ struct OnboardingView: View {
                         }
                     }
                 }
-
+                
+                let characterLimit = 10
+                
                 TextField("Seu nome", text: $name)
                     .font(.custom("Sora-Regular", size: 16))
                     .padding(.horizontal, 16)
@@ -66,13 +68,18 @@ struct OnboardingView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .padding(.horizontal, 32)
                     .padding(.top, 20)
-
+                    .onChange(of: name) { oldValue, newValue in
+                        if newValue.count > characterLimit {
+                            name = String(newValue.prefix(characterLimit))
+                        }
+                    }
+                
                 Text("O Zelu é um aplicativo que vai revolucionar sua forma de cultivar seus relacionamentos.")
                     .font(.system(size: 15))
                     .frame(width: 297)
                     .padding(.top, 20)
                     .multilineTextAlignment(.center)
-
+                
                 Button(action: createProfile) {
                     Image(systemName: "arrow.right")
                         .resizable()
@@ -84,11 +91,11 @@ struct OnboardingView: View {
             }
         }
     }
-
+    
     private func createProfile() {
         let finalImageData = profileImageData
-            ?? UIImage(named: "defaultPicture")?.jpegData(compressionQuality: 1)
-            ?? Data()
+        ?? UIImage(named: "defaultPicture")?.jpegData(compressionQuality: 1)
+        ?? Data()
         let user = User(name: name.trimmingCharacters(in: .whitespaces), profilePicture: finalImageData)
         modelContext.insert(user)
     }
