@@ -7,9 +7,21 @@
 
 import SwiftUI
 import SwiftData
+import PhotosUI
 
+/// A stylized button that invokes the native iOS photo picker.
+///
+/// `AddPictureButton` is heavily customized to fit the app's geometric design language, using a `CurvedRectangle`
+/// to create a distinct visual depth. It binds directly to a `FriendFeedViewModel` to seamlessly pass the selected
+/// image data into the friend's memory feed.
 struct AddPictureButton: View {
-    let viewModel: FriendFeedViewModel
+    @Environment(\.modelContext) private var modelContext
+    
+    /// The view model that coordinates the selection and processing of the chosen photos.
+    @Bindable var viewModel: FriendFeedViewModel
+    
+    /// The thematic color applied to the button's stroke, usually matching the current relationship state.
+    let color: Color
     
     var body: some View {
         Button {
@@ -17,7 +29,7 @@ struct AddPictureButton: View {
         } label: {
             ZStack {
                 CurvedRectangle(depth: 0.58)
-                    .stroke(Color.green,
+                    .stroke(color,
                             style: StrokeStyle(
                                 lineWidth: 30,
                                 lineCap: .round
@@ -31,12 +43,26 @@ struct AddPictureButton: View {
                     .padding(.bottom, UIScreen.main.bounds.height * 0.05)
             }
         }
+        .photosPicker(
+            isPresented: $viewModel.isPickerPresented,
+            selection: $viewModel.selectedItems,
+            matching: .images,
+            photoLibrary: .shared()
+        )
+        // Automatically triggers the asynchronous upload to SwiftData once an image is chosen.
+        .onChange(of: viewModel.selectedItems) { oldValue, newValue in
+            if !newValue.isEmpty {
+                Task {
+                    await viewModel.addPostFromSelection(modelContext: modelContext)
+                }
+            }
+        }
     }
 }
 
 #Preview {
     let friend = User(name: "nome")
     let conn = Connection(friend: friend)
-    return AddPictureButton(viewModel: FriendFeedViewModel(connection: conn))
+    AddPictureButton(viewModel: FriendFeedViewModel(connection: conn), color: .blue)
         .preferredColorScheme(.dark)
 }

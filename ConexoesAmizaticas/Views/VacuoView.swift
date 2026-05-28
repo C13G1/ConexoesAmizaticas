@@ -12,7 +12,11 @@ import UserNotifications
 
 private let VACUO_THRESHOLD: TimeInterval = 30 * 24 * 3600
 
-// TODO: IMPLEMENTAR BOLHAS NO VÁCUO
+/// A dedicated recovery environment for deeply decayed friendships.
+///
+/// `VacuoView` isolates connections that have surpassed the critical inactivity threshold (the "vacuum").
+/// It utilizes a distinct SpriteKit scene (`VoidScene`) to emphasize distance and provides an explicit interface
+/// for the user to either rescue the connection by registering a new meeting or let the connection expire.
 struct VacuoView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var modelContext
@@ -27,6 +31,7 @@ struct VacuoView: View {
         return s
     }()
 
+    /// Filters the database to exclusively show connections exceeding the vacuum threshold limit.
     private var vacuumConnections: [Connection] {
         allConnections.filter { $0.inVacuo }
     }
@@ -36,7 +41,10 @@ struct VacuoView: View {
             ZStack {
                 Color.vacuoBackground.ignoresSafeArea()
 
-                Image("vacuo").frame(width: 280, height: 280)
+                Image("vacuo")
+                    .frame(width: 280, height: 280)
+                    .padding(.trailing, 80)
+                    .padding(.bottom, 40)
 
                 SpriteView(scene: voidScene, options: [.allowsTransparency])
                     .ignoresSafeArea()
@@ -59,11 +67,12 @@ struct VacuoView: View {
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
 
-                    Spacer().frame(height: 40)
+                    Spacer().frame(height: 10)
 
-                    Text("VÁCUO")
-                        .font(.custom("Sora-ExtraBold", size: 40))
-                        .foregroundColor(.white)
+                    Image("void")
+                        .resizable()
+                        .frame(width: UIScreen.main.bounds.width * 0.3, height: UIScreen.main.bounds.height * 0.04)
+                        .padding(.bottom)
 
                     Spacer()
 
@@ -73,7 +82,7 @@ struct VacuoView: View {
                             .multilineTextAlignment(.center)
                             .foregroundColor(.white)
                             .frame(maxWidth: 300)
-                            .padding(.bottom, 40)
+                            .padding(.bottom, 20)
                     }
 
                     #if DEBUG
@@ -222,6 +231,7 @@ struct VacuoView: View {
         }
     }
 
+    /// Restores a connection from the vacuum state back to active status by artificially updating the last met date.
     private func resgatarContato(_ connection: Connection) {
         connection.lastMet = Date.now
         connection.metaManager.addOrSubtractScore(5)

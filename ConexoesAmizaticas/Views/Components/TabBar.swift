@@ -7,15 +7,21 @@
 
 import SwiftUI
 
+/// The custom bottom navigation bar for the main interface.
+///
+/// `TabBar` utilizes a `SemiCircle` shape to create a distinct, arched bottom edge. It holds the primary navigation
+/// routes branching out from the `InitialView`, specifically the `SearchView` and the `BLEView`.
 struct TabBar: View {
     @Binding var viewModel: InicialViewModel
     var user: User
+    var width = UIScreen.main.bounds.width
+    var height = UIScreen.main.bounds.height
     
     var body: some View {
         ZStack {
             SemiCircle()
                 .fill(Color.black)
-                .frame(width: UIScreen.main.bounds.width, height: 100)
+                .frame(width: width, height: 100)
             
             HStack {
                 NavigationLink {
@@ -23,41 +29,42 @@ struct TabBar: View {
                 } label: {
                     ZStack {
                         Circle()
-                            .frame(width: UIScreen.main.bounds.width * 0.15)
+                            .frame(width: width * 0.15)
                             .foregroundStyle(.lightBackground)
                         Image(systemName: "magnifyingglass")
                             .foregroundStyle(.black)
-                            .font(.largeTitle)
+                            .font(.title2)
                             .bold()
                     }
-                    .frame(width: UIScreen.main.bounds.width * 0.19, height: UIScreen.main.bounds.width * 0.19)
+                    .frame(width: width * 0.19, height: width * 0.19)
                     .background(.black)
                     .cornerRadius(100)
                 }
                 
                 Spacer()
                 
+                // Central App Logo
                 Image("zELu")
-                    .padding(.bottom, UIScreen.main.bounds.height * 0.07)
+                    .padding(.bottom, height * 0.07)
                 
                 Spacer()
                 
                 NavigationLink (destination: BLEView(profile: user)) {
                     ZStack {
                         Circle()
-                            .frame(width: UIScreen.main.bounds.width * 0.15)
+                            .frame(width: width * 0.15)
                             .foregroundStyle(.lightBackground)
                         Image(systemName: "person.2.badge.plus.fill")
                             .foregroundStyle(.black)
                             .font(.title2)
                     }
-                    .frame(width: UIScreen.main.bounds.width * 0.19, height: UIScreen.main.bounds.width * 0.19)
+                    .frame(width: width * 0.19, height: width * 0.19)
                     .background(.black)
                     .cornerRadius(100)
                 }
             }
             .padding(.horizontal, 20)
-            .padding(.bottom, UIScreen.main.bounds.width * 0.38)
+            .padding(.bottom, width * 0.38) // Pushes the icons upwards to align with the curve of the SemiCircle
         }
     }
 }

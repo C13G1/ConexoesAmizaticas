@@ -2,11 +2,17 @@
 //  EditProfileView.swift
 //  ConexoesAmizaticas
 //
+//  Created by Dayô Araújo on 27/05/26.
+//
 
 import SwiftUI
 import PhotosUI
 import SwiftData
 
+/// An interface for modifying the current user's core identity data.
+///
+/// `EditProfileView` binds to the application's global `InicialViewModel` to apply changes directly to the
+/// primary `User` model. It features a Save button that commits changes to the database via `modelContext.save()`.
 struct EditProfileView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss

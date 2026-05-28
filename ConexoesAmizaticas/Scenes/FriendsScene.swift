@@ -10,8 +10,14 @@ import SpriteKit
 let MAX_RADIUS: Double = 400
 let MIN_RADIUS: Double = 100
 
+/// An interactive physics-based scene representing the user's active social universe.
+///
+/// `FriendsScene` visualizes `Connection` objects as orbiting planetary nodes around a central hub (the spiral).
+/// It handles complex touch gestures like dragging nodes elastically and panning the entire camera view
+/// to explore the relationship graph.
 class FriendsScene: SKScene {
     var connections: Set<Connection> = Set()
+    
     var firstTouch: UITouch!
     var secondTouch: UITouch!
     var pinchDistance: Double!
@@ -21,12 +27,13 @@ class FriendsScene: SKScene {
     var deltaAngle: Double = 0
     let sceneType: SceneType!
 
-    // identifica o toque na BOLHA
+    /// Triggered when an individual friend node is tapped, routing the user to the profile view.
     var onFriendTapped: ((Connection) -> Void)?
-    // identifica quando toca no vacuo
+    
+    /// Triggered when the central spiral is tapped, routing the user to the "vacuum" (decayed connections) view.
     var onSpiralTapped: (() -> Void)?
 
-    // diferencia tap de drag
+    // State trackers to differentiate between a quick tap and a pan/drag gesture.
     private var touchStartedOnSpiral = false
     private var touchStartLocation: CGPoint?
 
@@ -36,6 +43,7 @@ class FriendsScene: SKScene {
         self.connections = connections
         self.backgroundColor = .lightBackground
         self.addChild(rootNode)
+        
         if sceneType == .initial {
             initBackground()
             initFriends()
@@ -68,19 +76,24 @@ class FriendsScene: SKScene {
         }
     }
 
+    /// Spawns a physical node for a connection and tethers it to the center using a spring joint.
     private func addFriendNode(for connection: Connection) {
         let friend = FriendNode(connection: connection)
         friend.onTapped = { [weak self] in
             self?.onFriendTapped?(connection)
         }
+        
+        // Random initial spawn location to prevent nodes from stacking perfectly on top of each other
         var randomX = CGFloat.random(in: -100...100)
         randomX = randomX < 0 ? min(-60, randomX) : max(60, randomX)
         var randomY = CGFloat.random(in: -100...100)
         randomY = randomY < 0 ? min(-60, randomY) : max(60, randomY)
 
         self.rootNode.addChild(friend)
+        
         let springAnchor = SpringNode()
         self.rootNode.addChild(springAnchor)
+        
         let spring = SKPhysicsJointSpring.joint(
             withBodyA: friend.physicsBody!,
             bodyB: springAnchor.physicsBody!,
@@ -89,9 +102,12 @@ class FriendsScene: SKScene {
         spring.frequency = 0.8
         spring.damping = 0.5
         self.physicsWorld.add(spring)
+        
         friend.position = CGPoint(x: randomX, y: randomY)
     }
 
+    /// Synchronizes the graphical nodes with the current state of the database.
+    /// Safely adds new friends or removes deleted ones without rebuilding the entire physics simulation.
     func updateConnections(receivedConnections: Set<Connection>) {
         let connectionsToDelete = self.connections.subtracting(receivedConnections)
         let connectionsToAdd = receivedConnections.subtracting(self.connections)
@@ -111,6 +127,7 @@ class FriendsScene: SKScene {
         }
     }
 
+    /// Forces all active nodes to recalculate their size, orbit, and color based on the latest relationship scores.
     func updateNodeVisuals() {
         for child in rootNode.children {
             guard let friendNode = child as? FriendNode else { continue }
@@ -126,11 +143,14 @@ class FriendsScene: SKScene {
         }
     }
 
+    /// Temporarily hides and freezes nodes that do not match the given search text.
     func filterByName(_ text: String) {
         for child in rootNode.children {
             guard let friendNode = child as? FriendNode else { continue }
             let connection = connections.first { $0.friend.id.uuidString == (friendNode.name ?? "") }
+            
             let visible = text.isEmpty || (connection?.friend.name.localizedCaseInsensitiveContains(text) ?? false)
+            
             friendNode.isHidden = !visible
             friendNode.physicsBody?.isDynamic = visible
             if !visible {
@@ -140,6 +160,8 @@ class FriendsScene: SKScene {
         }
     }
 
+    // MARK: - Touch Handling
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         firstTouch = touch
@@ -155,10 +177,13 @@ class FriendsScene: SKScene {
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         lastTouchLocation = touch.location(in: self.rootNode)
+        
+        // Translates linear finger movement into rotational movement for the entire social graph
         let location = touch.location(in: self.rootNode)
         let tan = (location.x) / (location.y)
         let newAngle = atan(tan)
         let deltaAngle = (newAngle - touchAngle)
+        
         self.rootNode.zRotation -= newAngle
         self.deltaAngle = deltaAngle
     }
@@ -166,7 +191,7 @@ class FriendsScene: SKScene {
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
 
-        // se movimento < 10 foi tap
+        // Determine if the interaction was a clean tap or a pan/drag
         if touchStartedOnSpiral, let start = touchStartLocation {
             let end = touch.location(in: self)
             let dx = end.x - start.x

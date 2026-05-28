@@ -12,23 +12,33 @@ import SwiftUI
 
 let BUFFER_SIZE = 1024
 
+/// A manager responsible for discovering and establishing Bluetooth Low Energy (BLE) connections with nearby peers.
+///
+/// `BLEManager` acts as both a Central and a Peripheral. It broadcasts the user's profile and scans for other users
+/// broadcasting the specific app service. Once connected, it uses an L2CAP channel to stream profile data.
 class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegate, CBPeripheralDelegate, StreamDelegate {
 
-    // avisa quando encontra um amigo no ble
+    /// A closure triggered when a complete user profile is successfully received over the BLE stream.
     var onFriendFound: ((User) -> Void)?
+    
+    /// A closure triggered when the L2CAP data stream is successfully opened and ready for data transfer.
     var onConnectionOpened: (() -> Void)?
 
     var centralManager: CBCentralManager!
     var peripheralManager: CBPeripheralManager!
     var connectedPeripheral: CBPeripheral!
+    
     let serviceID: CBUUID = CBUUID(string: "451A3F17-0062-41E1-82CC-98496CDA05FB")
     let portCharacteristicID: CBUUID = CBUUID(string: "B2C20EFB-B20F-4F0D-B708-4EA408F2C500")
     let advertisingKey: Int = Int.random(in: 1...100_000_000)
+    
     var psm: CBL2CAPPSM!
     var channelL2CAP: CBL2CAPChannel!
     var inputStream: InputStream!
     var outputStream: OutputStream!
     var dataStream: Data = Data()
+    
+    /// The profile of the current user that will be transmitted to peers.
     let profile: User
     private var didSendProfile = false
 
@@ -37,6 +47,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
         super.init()
     }
 
+    /// Initializes the Central and Peripheral managers and starts scanning/advertising.
     func startBLE() {
         print("start ble")
         stopBLE()
@@ -46,6 +57,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
         self.peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
     }
 
+    /// Stops all ongoing BLE scanning and advertising activities.
     func stopBLE() {
         print("stop ble")
         centralManager?.stopScan()
@@ -67,6 +79,9 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
         psm = nil
     }
 
+    // MARK: - CoreBluetooth Delegates
+    // (Standard CBCentralManager, CBPeripheralManager, and CBPeripheral delegate methods)
+    
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         if central.state == .poweredOn {
             print("central power on")
@@ -80,6 +95,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
         guard let keyString = advertisementData[CBAdvertisementDataLocalNameKey] as? String,
               let peripheralKey = Int(keyString) else { return }
 
+        // Tie-breaker to decide which device acts as the central and which acts as the peripheral
         if peripheralKey > advertisingKey {
             print("virou peripheral")
             centralManager.stopScan()
@@ -147,8 +163,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
             peripheral.respond(to: request, withResult: .attributeNotFound)
             return
         }
-        // CBL2CAPPSM é UInt16 (2 bytes)
-        // o MemoryLayout evita out of range
+        
         var psmValue = self.psm!
         let data = Data(bytes: &psmValue, count: MemoryLayout<CBL2CAPPSM>.size)
         request.value = data
@@ -174,7 +189,8 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
         self.psm = PSM
     }
 
-    // configura as streams após abrir canal L2CAP deixando o mesmo código para central e peripheral
+    // MARK: - Stream Handling
+
     private func setupStreams(for channel: CBL2CAPChannel) {
         guard let output = channel.outputStream,
               let input = channel.inputStream else {
@@ -209,6 +225,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
         setupStreams(for: channel)
     }
 
+    /// Reads incoming bytes from the input stream and appends them to the data buffer.
     func receiveData() {
         print("trying to receive data")
         var buffer = [UInt8](repeating: 0, count: BUFFER_SIZE)
@@ -225,6 +242,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
         }
     }
 
+    /// Decodes the received JSON data stream into a `User` profile.
     func decodeData() throws {
         guard dataStream.count >= 4 else { return }
         let expectedLength = dataStream.withUnsafeBytes {
@@ -265,6 +283,9 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
         }
     }
 
+    /// Encodes and sends the current user's profile over the output stream to the connected peer.
+    ///
+    /// - Throws: An error if JSON encoding fails.
     func sendProfile() throws {
         print("trying to send data")
         guard outputStream.hasSpaceAvailable else {

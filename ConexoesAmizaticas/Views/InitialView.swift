@@ -2,7 +2,7 @@
 //  InitialView.swift
 //  ConexoesAmizaticas
 //
-//  Created by Jonas Fernando Nascimento Melo on 25/05/26.
+//  Created by Dayô Araújo on 25/05/26.
 //
 
 import SwiftUI
@@ -10,59 +10,65 @@ import UIKit
 import _SpriteKit_SwiftUI
 import _SwiftData_SwiftUI
 
+/// The primary interactive workspace of the application.
+///
+/// `InitialView` is a hybrid component that overlays standard SwiftUI navigation and toolbars onto
+/// the custom SpriteKit simulation (`FriendsScene`). It is responsible for bridging touches from the
+/// 2D physics world into standard SwiftUI navigation paths.
 struct InitialView: View {
     @Environment(\.modelContext) private var modelContext
     @State var vm: InicialViewModel = InicialViewModel()
     @State private var selectedConnection: Connection?
     @State private var showVacuoView: Bool = false
-    
+    @State var navigation: NavigationPath = NavigationPath()
+
     @Query private var connections: [Connection]
     @Query private var users: [User]
-    
+
     var currentUser: User { users.first ?? User() }
-    @State var navigation: NavigationPath = NavigationPath()
-    
+    var width = UIScreen.main.bounds.width
+    var height = UIScreen.main.bounds.height
+
     @State private var scene: FriendsScene = {
         let s = FriendsScene(size: UIScreen.main.bounds.size, connections: Set(), sceneType: .initial)
         s.scaleMode = .aspectFill
         return s
     }()
-    
+
     var body: some View {
         NavigationStack(path: $navigation) {
             ZStack {
                 SpriteView(scene: scene, debugOptions: [])
-                    .frame(height: UIScreen.main.bounds.height)
-                
+                    .frame(height: height)
+
                 ZStack {
                     ToolBar(vm: $vm)
-                        .padding(.bottom, UIScreen.main.bounds.width * 2.28)
-                    
+                        .padding(.bottom, width * 2.28)
+
                     TabBar(viewModel: $vm, user: currentUser)
-                        .padding(.top, UIScreen.main.bounds.width * 2.15)
+                        .padding(.top, width * 2.15)
                 }
-                
+
                 if connections.isEmpty {
                     ZStack {
-                        VStack (spacing: 20){
+                        VStack(spacing: 20) {
                             Text("Bem Vindo Ao Zelu")
                                 .font(.custom("Bolota", size: 32))
-                            
+
                             Text("adicione seus amigos para iniciar")
                                 .font(.custom("Sora-Regular", size: 20))
                                 .multilineTextAlignment(.center)
-                                .frame(width: UIScreen.main.bounds.width * 0.6)
-                            
+                                .frame(width: width * 0.6)
                         }
                         .foregroundStyle(.addFriendsText)
-                        
+
                         Image("roundArrowAddFriends")
                             .resizable()
-                            .frame(width: UIScreen.main.bounds.width * 0.22, height: UIScreen.main.bounds.height * 0.1)
-                            .padding(.leading, UIScreen.main.bounds.width * 0.6)
-                            .padding(.top, UIScreen.main.bounds.height * 0.2)
+                            .frame(width: width * 0.22, height: height * 0.1)
+                            .padding(.leading, width * 0.6)
+                            .padding(.top, height * 0.2)
                     }
-                    .padding(.top, UIScreen.main.bounds.height * 0.3)
+                    .padding(.top, height * 0.3)
                 }
             }
             .navigationDestination(for: Connection.self) { value in

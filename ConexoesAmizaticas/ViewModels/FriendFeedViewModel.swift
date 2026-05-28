@@ -9,13 +9,22 @@ import SwiftUI
 import SwiftData
 import PhotosUI
 
+/// Controls the state and mathematical rendering of the memory carousel for a specific connection.
+///
+/// `FriendFeedViewModel` acts as the engine behind the `PictureScroll` UI component. It is responsible for bridging
+/// user interactions (drag gestures) with the complex trigonometric functions (`sin`, `cos`) that simulate a
+/// 3D cylindrical scrolling effect. It also orchestrates the persistence of new photos via SwiftData.
 @Observable
 class FriendFeedViewModel {
     private(set) var connection: Connection
     private(set) var posts: [Post] = []
     
+    /// Holds the raw items currently selected by the user in the native PhotosPicker.
     var selectedItems: [PhotosPickerItem] = []
     var isPickerPresented: Bool = false
+    
+    /// Temporarily stores the post that the user intends to delete, driving the overlay alert.
+    var postToDelete: Post? = nil
     
     var snappedItem: Double = 0
     var draggingItem: Double = 0
@@ -26,39 +35,43 @@ class FriendFeedViewModel {
         refreshPosts()
     }
     
+    /// Syncs the local memory array with the database, ensuring newest posts appear first.
     func refreshPosts() {
         self.posts = connection.feedManager.posts.sorted(by: { $0.date > $1.date })
     }
     
+    /// Converts async PhotosPicker selections into database `Post` entities.
     func addPostFromSelection(modelContext: ModelContext) async {
         if !selectedItems.isEmpty {
-            var imagesData: [Data] = []
             for item in selectedItems {
                 if let data = try? await item.loadTransferable(type: Data.self) {
-                    imagesData.append(data)
+                    let newPost = Post(images: [data])
+                    connection.feedManager.addPost(newPost)
+                    modelContext.insert(newPost)
                 }
             }
-            
-            if !imagesData.isEmpty {
-                let newPost = Post(images: imagesData)
-                connection.feedManager.addPost(newPost)
-                modelContext.insert(newPost)
-                try? modelContext.save()
-                refreshPosts()
-            }
+            try? modelContext.save()
+            refreshPosts()
             selectedItems = []
-        } else {
-            return
         }
     }
     
+    /// Purges a specific memory from both the active array and the SwiftData store.
     func deletePost(id: UUID, modelContext: ModelContext) {
         connection.feedManager.deletePost(id: id)
         posts.removeAll(where: { $0.id == id })
         try? modelContext.save()
         refreshPosts()
+        
+        // Resetting scroll anchors prevents Index Out of Range crashes when the array shrinks
+        snappedItem = 0
+        draggingItem = 0
+        activeIndex = 0
     }
     
+    // MARK: - Carousel Geometry Math
+    
+    /// Determines how far away an item is from the current focal point of the carousel.
     func distance(_ index: Int) -> Double {
         if !posts.isEmpty {
             return (draggingItem - Double(index)).remainder(dividingBy: Double(posts.count))
@@ -67,44 +80,43 @@ class FriendFeedViewModel {
         }
     }
     
-    /// Function that determines the radius of the circle
-    /// increasing the multiplier will increase the distance
-    /// between cards
+    /// Calculates the horizontal displacement of the image to simulate a curved cylinder.
     func xOffset(_ index: Int) -> Double {
-        let angle = Double.pi * 2 / Double(max(posts.count, 1)) * distance(index)
+        let effectiveCount = Double(max(posts.count, 3))
+        let angle = Double.pi * 2 / effectiveCount * distance(index)
         return sin(angle) * 245
     }
     
-    /// Function that defines the arch of the carrousel
+    /// Creates the subtle vertical dip at the edges to enhance the 3D depth effect.
     func yOffset(_ index: Int) -> Double {
         let dist = abs(distance(index))
         if dist > 1.5 { return -1000 }
-        
         return -pow(dist * 30, 2) / 10
     }
     
-    /// Function that determines the angle of the lateral
-    /// cards on the carrousel
+    /// Tilts the cards leaning away from the center based on their distance.
     func rotationEffect(_ index: Int) -> Double {
         let dist = distance(index)
         return -dist * 30
     }
     
+    /// Ensures the center card is always rendered strictly on top of the peripheral cards.
     func zIndex(_ index: Int) -> Double {
         1.0 - abs(distance(index)) * 0.1
     }
     
+    /// Scales down cards that are moving towards the edges to simulate distance.
     func scaleEffect(_ index: Int) -> Double {
         1.0 - abs(distance(index)) * 0.2
     }
     
-    /// Function that determines the opacity of the cards
-    /// making the cards that are not in the center or
-    /// sideways invisible
+    /// Hides cards that have rotated around to the "back" side of the virtual cylinder.
     func opacity(_ index: Int) -> Double {
         let dist = abs(distance(index))
         return dist > 1.5 ? 0.0 : 1.0
     }
+    
+    // MARK: - Gesture Tracking
     
     func onDragChanged(value: DragGesture.Value) {
         draggingItem = snappedItem + value.translation.width / 500
@@ -120,13 +132,9 @@ class FriendFeedViewModel {
             
             let count = posts.count
             activeIndex = count + Int(draggingItem)
-            if activeIndex > count || Int(draggingItem) >= 0 {
+            if activeIndex >= count || Int(draggingItem) >= 0 {
                 activeIndex = Int(draggingItem)
             }
         }
-    }
-    
-    func uiImage(from data: Data) -> UIImage? {
-        UIImage(data: data)
     }
 }
