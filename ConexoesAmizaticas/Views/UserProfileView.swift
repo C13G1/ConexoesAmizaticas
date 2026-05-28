@@ -135,8 +135,6 @@ struct UserProfileView: View {
     }
 }
 
-
-
 #Preview {
     @Previewable @State var viewModel = InicialViewModel()
     UserProfileView(vm: $viewModel)

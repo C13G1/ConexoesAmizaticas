@@ -5,13 +5,6 @@
 //  Created by Dayô Araújo on 27/05/26.
 //
 
-//
-//  EditProfileView.swift
-//  ConexoesAmizaticas
-//
-//  Created by Dayô Araújo on 27/05/26.
-//
-
 import SwiftUI
 import SwiftData
 import PhotosUI
