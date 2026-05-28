@@ -45,6 +45,7 @@ struct EditFriendProfileView: View {
                             .foregroundStyle(.gray)
                     }
                     Image(systemName: "pencil")
+                        .foregroundStyle(.lightBackground)
                         .font(.title)
                         .foregroundStyle(.white)
                         .padding(10)
