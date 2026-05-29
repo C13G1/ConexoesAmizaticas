@@ -29,8 +29,27 @@ struct BLEView: View {
     @State private var friend: User?
     @State private var foundFriend: Bool = false
 
+    @State private var phase: Phase = .searching
+    @State private var showSearchAgainButton: Bool = false
+    @State private var holdProgress: CGFloat = 0
+    @State private var isHolding: Bool = false
+    @State private var canConfirm: Bool = false
+    @State private var holdTimer: Timer?
+    @State private var confirmedReveal: CGFloat = 0
+    @State private var showConfirmationBackground: Bool = false
+
     /// The profile of the device owner, broadcasted to nearby peers.
     let profile: User
+
+    private let avatarDiameter: CGFloat = 132
+    private let holdDuration: Double = 1.0
+
+    private enum Phase {
+        case searching
+        case matched
+        case holding
+        case confirmed
+    }
 
     /// Evaluates if the discovered peer is already a saved connection to determine the subsequent action (create vs. update).
     private var existingConnection: Connection? {
@@ -39,21 +58,61 @@ struct BLEView: View {
     }
     private var isExistingFriend: Bool { existingConnection != nil }
 
+    private var shouldShowLens: Bool {
+        holdProgress > 0.001 || phase == .holding || phase == .confirmed
+    }
+
+    private var isWhiteMode: Bool {
+        phase == .confirmed || showConfirmationBackground
+    }
+
+    private var backgroundColor: Color {
+        if isWhiteMode {
+            return Color.white
+        }
+        return Color.bleBackground
+    }
+
     var body: some View {
-        VStack(spacing: 0) {
-            if foundFriend, let friend = friend {
-                foundFriendView(friend: friend)
-            } else {
-                searchingView
+        ZStack {
+            backgroundColor.ignoresSafeArea()
+
+            if isWhiteMode {
+                Color.white.ignoresSafeArea()
             }
 
-            if foundFriend, let friend = friend {
-                confirmButton(friend: friend)
-                    .padding(.top, 40)
-                    .padding(.bottom, 60)
+            GeometryReader { geo in
+                ZStack {
+                    if phase == .holding {
+                        Color.clear.ignoresSafeArea()
+                    }
+
+                    if shouldShowLens {
+                        lensLayer(in: geo.size)
+                            .allowsHitTesting(false)
+                            .zIndex(0)
+                            .drawingGroup()
+                    }
+
+                    avatarsLayer(in: geo.size)
+                        .opacity(avatarsOpacity)
+                        .zIndex(1)
+                        .compositingGroup()
+
+                    textLayer(in: geo.size)
+                        .allowsHitTesting(phase != .holding)
+
+                    if phase == .confirmed {
+                        confirmedOverlay
+                            .position(x: geo.size.width / 2, y: geo.size.height / 2)
+                            .allowsHitTesting(false)
+                    }
+                }
+                .frame(width: geo.size.width, height: geo.size.height)
+                .contentShape(Rectangle())
+                .gesture(holdGesture)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
             Aptabase.shared.trackEvent("screen_view", with: ["name": "ble_search"])
             let manager = BLEManager(profile: profile)
@@ -64,22 +123,198 @@ struct BLEView: View {
         }
         .onDisappear {
             bleManager?.stopBLE()
+            holdTimer?.invalidate()
         }
+        .onChange(of: foundFriend) { _, _ in tryTransitionToMatched() }
+        .onChange(of: friend?.id) { _, _ in tryTransitionToMatched() }
         .navigationTitle("Adicionar amigo")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(isWhiteMode ? Color.white : Color.bleBackground, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarColorScheme(isWhiteMode ? .light : .dark, for: .navigationBar)
     }
 
-    private var searchingView: some View {
-        VStack(spacing: 32) {
-            Spacer()
-            ProgressView().scaleEffect(1.5)
+    // MARK: - Layout helpers
+
+    private func topAvatarCenterY(in size: CGSize) -> CGFloat {
+        max(140, size.height * 0.18)
+    }
+
+    private func bottomAvatarCenterY(in size: CGSize) -> CGFloat {
+        min(size.height - 140, size.height * 0.82)
+    }
+
+    private var avatarsOpacity: Double {
+        return 1.0
+    }
+
+    // MARK: - Avatars layer
+
+    @ViewBuilder
+    private func avatarsLayer(in size: CGSize) -> some View {
+        let centerX = size.width / 2
+        let topY = topAvatarCenterY(in: size)
+        let bottomY = bottomAvatarCenterY(in: size)
+
+        // Friend (top) — slides in from above when match is detected
+        if let friend = friend {
+            avatarView(image: friend.profilePicture)
+                .scaleEffect(phase == .searching ? 0.8 : 1.0)
+                .position(
+                    x: centerX,
+                    y: phase == .searching ? -avatarDiameter : topY
+                )
+        }
+
+        // Own avatar (bottom) — always present, gently pulsing while searching
+        avatarView(image: profile.profilePicture)
+            .position(x: centerX, y: bottomY)
+    }
+
+    private func avatarView(image data: Data) -> some View {
+        ZStack {
+            Group {
+                if let uiImage = UIImage(data: data) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                } else if let fallback = UIImage(named: "defaultPicture") {
+                    Image(uiImage: fallback)
+                        .resizable()
+                        .scaledToFill()
+                }
+            }
+            .frame(width: avatarDiameter, height: avatarDiameter)
+            .clipShape(Circle())
+            .overlay(
+                Circle()
+                    .stroke(Color.white, lineWidth: 4)
+            )
+        }
+    }
+
+    // MARK: - Lens (press & hold) layer
+
+    /// Two growing white circles, joined by an even-odd fill that punches the intersection
+    /// out to reveal the dark background, forming a horizontal "vesica/lens" between them.
+    private func lensLayer(in size: CGSize) -> some View {
+        let centerX = size.width / 2
+        let topY = topAvatarCenterY(in: size)
+        let bottomY = bottomAvatarCenterY(in: size)
+        let halfDistance = (bottomY - topY) / 2
+        let startRadius: CGFloat = (avatarDiameter + 14) / 2
+        let endRadius: CGFloat = halfDistance + 80
+        let radius = startRadius + (endRadius - startRadius) * holdProgress
+
+        let topRect = CGRect(
+            x: centerX - radius, y: topY - radius,
+            width: radius * 2, height: radius * 2
+        )
+        let bottomRect = CGRect(
+            x: centerX - radius, y: bottomY - radius,
+            width: radius * 2, height: radius * 2
+        )
+
+        return VesicaShape(topRect: topRect, bottomRect: bottomRect)
+            .fill(Color.white, style: FillStyle(eoFill: true))
+            .opacity(phase == .confirmed ? 0 : 1)
+    }
+
+    // MARK: - Text / UI layer
+
+    @ViewBuilder
+    private func textLayer(in size: CGSize) -> some View {
+        VStack(spacing: 0) {
+            Spacer(minLength: topAvatarCenterY(in: size) + avatarDiameter / 2 + 24)
+
+            Group {
+                switch phase {
+                case .searching:
+                    searchingText
+                case .matched:
+                    matchedText
+                case .holding, .confirmed:
+                    EmptyView()
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 32)
+
+            Spacer(minLength: 24)
+
+            if phase == .matched, showSearchAgainButton {
+                Button {
+                    searchAgain()
+                } label: {
+                    HStack(alignment: .center, spacing: 10) {
+                        Text("procurar por outra pessoa")
+                            .font(
+                                Font.custom("Sora", size: 14)
+                                    .weight(.bold)
+                            )
+                            .kerning(0.38)
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(Color.bleBackground)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 0)
+                    .frame(minHeight: 34)
+                    .background(Color.white)
+                    .cornerRadius(30)
+                }
+                .transition(.opacity.combined(with: .scale(scale: 0.9)))
+                .padding(.bottom, size.height - bottomAvatarCenterY(in: size) + avatarDiameter / 2 + 28)
+            } else {
+                Spacer(minLength: size.height - bottomAvatarCenterY(in: size) + avatarDiameter / 2 + 28)
+            }
+        }
+        .frame(width: size.width, height: size.height)
+        .animation(.easeInOut(duration: 0.35), value: phase)
+        .animation(.easeInOut(duration: 0.35), value: showSearchAgainButton)
+    }
+
+    @ViewBuilder
+    private var searchingText: some View {
+        VStack(spacing: 14) {
             Text("Buscando contatos por perto...")
-                .font(.custom("Sora-ExtraBold", size: 28))
+                .font(.custom("Sora-ExtraBold", size: 26))
+                .foregroundStyle(Color.white)
                 .multilineTextAlignment(.center)
-                .frame(width: 270)
-            Spacer()
+                .frame(maxWidth: 280)
 
             #if DEBUG
+            debugButtons
+            #endif
+        }
+        .transition(.opacity)
+    }
+
+    @ViewBuilder
+    private var matchedText: some View {
+        if let friend = friend {
+            VStack(spacing: 14) {
+                Text(isExistingFriend
+                     ? "Você e \(friend.name) se encontraram!"
+                     : "Parece que você e \(friend.name) se encontraram!")
+                    .font(.custom("Sora-ExtraBold", size: 26))
+                    .foregroundStyle(Color.white)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: 300)
+
+                Text("pressione e segure para confirmar o momento.")
+                    .font(.custom("Sora-Regular", size: 15))
+                    .foregroundStyle(Color.white.opacity(0.7))
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: 280)
+            }
+            .transition(.opacity)
+        }
+    }
+
+    #if DEBUG
+    @ViewBuilder
+    private var debugButtons: some View {
+        VStack(spacing: 6) {
             Button("Simular novo amigo (teste)") {
                 self.friend = User(
                     name: "Amigo Novo",
@@ -87,142 +322,165 @@ struct BLEView: View {
                 )
                 self.foundFriend = true
             }
-            .font(.custom("Sora-Regular", size: 14))
-            .foregroundStyle(.secondary)
+            .font(.custom("Sora-Regular", size: 13))
+            .foregroundStyle(Color.white.opacity(0.55))
 
-            // simula encontrar um amigo
             if let first = existingConnections.first {
                 Button("Simular encontro com \(first.friend.name) (teste)") {
                     self.friend = first.friend
                     self.foundFriend = true
                 }
-                .font(.custom("Sora-Regular", size: 14))
-                .foregroundStyle(.secondary)
+                .font(.custom("Sora-Regular", size: 13))
+                .foregroundStyle(Color.white.opacity(0.55))
             }
-            Spacer().frame(height: 40)
-            #endif
         }
+        .padding(.top, 16)
     }
+    #endif
 
-    private func foundFriendView(friend: User) -> some View {
-        VStack(spacing: 24) {
-            Spacer()
-            ZStack {
-                Circle()
-                    .frame(width: 148, height: 148)
-                    .foregroundStyle(.themeYellow)
-                if let uiImage = UIImage(data: friend.profilePicture) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .clipShape(Circle())
-                        .frame(width: 132, height: 132)
-                }
-            }
+    // MARK: - Confirmed overlay
 
-            if isExistingFriend {
-                Text("Você e \(friend.name) se encontraram!")
-                    .font(.custom("Sora-ExtraBold", size: 28))
-                    .frame(width: 280)
-                    .multilineTextAlignment(.center)
-                Text("Pressione e segure sua foto para registrar o encontro.")
-                    .font(.custom("Sora-Regular", size: 16))
-                    .multilineTextAlignment(.center)
-                    .frame(width: 280)
-                    .foregroundStyle(.secondary)
-            } else {
-                Text("Parece que você e \(friend.name) se encontraram!")
-                    .font(.custom("Sora-ExtraBold", size: 28))
-                    .frame(width: 280)
-                    .multilineTextAlignment(.center)
-                Text("Pressione e segure sua foto para adicionar como amigo.")
-                    .font(.custom("Sora-Regular", size: 16))
-                    .multilineTextAlignment(.center)
-                    .frame(width: 280)
-                    .foregroundStyle(.secondary)
-            }
-
-            Button("Procurar por outra pessoa") {
-                self.foundFriend = false
-                self.friend = nil
-                bleManager?.startBLE()
-            }
-            .font(.custom("Sora-Bold", size: 14))
-            .foregroundStyle(.themeEstaveis)
-
-            Spacer()
-        }
-    }
-
-    @State private var isHolding = false
-    @State private var holdProgress: CGFloat = 0
-
-    /// A long-press confirmation button designed to prevent accidental pairings.
-    /// It requires the user to hold the button until the circular progress bar completes.
-    private func confirmButton(friend: User) -> some View {
+    private var confirmedOverlay: some View {
         ZStack {
             Circle()
-                .stroke(Color.themeYellow.opacity(0.3), lineWidth: 8)
-                .frame(width: 156, height: 156)
-            Circle()
-                .trim(from: 0, to: holdProgress)
-                .stroke(Color.themeYellow, lineWidth: 8)
-                .frame(width: 156, height: 156)
-                .rotationEffect(.degrees(-90))
-                .animation(.linear(duration: 0.05), value: holdProgress)
-            Circle()
-                .frame(width: 148, height: 148)
-                .foregroundStyle(.themeYellow)
-            if let uiImage = UIImage(data: profile.profilePicture) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .clipShape(Circle())
-                    .frame(width: 132, height: 132)
+                .fill(Color.bleBackground)
+                .frame(width: 233, height: 233)
+                .scaleEffect(0.92 + 0.08 * confirmedReveal)
+
+            VStack(spacing: 2) {
+                Text("Encontro registrado!")
             }
+            .font(
+                Font.custom("Bolota", size: 32)
+                    .weight(.bold)
+            )
+            .kerning(0.38)
+            .foregroundColor(Color.white)
+            .multilineTextAlignment(.center)
+            .frame(width: 263, alignment: .top)
         }
-        .scaleEffect(isHolding ? 1.05 : 1.0)
-        .animation(.easeInOut(duration: 0.1), value: isHolding)
-        .gesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in
-                    if !isHolding {
-                        isHolding = true
-                        startHoldTimer(friend: friend)
-                    }
-                }
-                .onEnded { _ in
-                    isHolding = false
-                    holdProgress = 0
-                }
-        )
+        .opacity(Double(confirmedReveal))
     }
 
-    private func startHoldTimer(friend: User) {
-        holdProgress = 0
-        let steps = 20
-        let stepDuration = 1.5 / Double(steps)
+    // MARK: - Gestures & phase transitions
+
+    private var holdGesture: some Gesture {
+        DragGesture(minimumDistance: 0)
+            .onChanged { _ in
+                guard phase == .matched else { return }
+                if !isHolding {
+                    isHolding = true
+                    startHold()
+                }
+            }
+            .onEnded { _ in
+                guard isHolding else { return }
+                isHolding = false
+                endHold()
+            }
+    }
+
+    private func tryTransitionToMatched() {
+        guard foundFriend, friend != nil, phase == .searching else { return }
+        showSearchAgainButton = false
+        withAnimation(.spring(response: 0.55, dampingFraction: 0.75)) {
+            phase = .matched
+        }
+        let targetFriendID = friend?.id
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(3))
+            guard phase == .matched, friend?.id == targetFriendID else { return }
+            withAnimation(.easeOut(duration: 0.4)) {
+                showSearchAgainButton = true
+            }
+        }
+    }
+
+    private func searchAgain() {
+        foundFriend = false
+        friend = nil
+        showSearchAgainButton = false
+        canConfirm = false
+        showConfirmationBackground = false
+        withAnimation(.easeInOut(duration: 0.35)) {
+            phase = .searching
+            holdProgress = 0
+        }
+        bleManager?.startBLE()
+    }
+
+    // MARK: - Hold timer (progress + haptics)
+
+    private func startHold() {
+        holdTimer?.invalidate()
+        canConfirm = false
+        showConfirmationBackground = false
+        withAnimation(.easeInOut(duration: 0.18)) {
+            phase = .holding
+        }
+
+        let steps = 60
+        let stepInterval = holdDuration / Double(steps)
         var current = 0
 
         let impact = UIImpactFeedbackGenerator(style: .medium)
-        let notification = UINotificationFeedbackGenerator()
         impact.prepare()
-        notification.prepare()
 
-        Timer.scheduledTimer(withTimeInterval: stepDuration, repeats: true) { timer in
-            guard isHolding else { timer.invalidate(); holdProgress = 0; return }
+        holdTimer = Timer.scheduledTimer(withTimeInterval: stepInterval, repeats: true) { timer in
+            guard isHolding else {
+                timer.invalidate()
+                return
+            }
             current += 1
-            holdProgress = CGFloat(current) / CGFloat(steps)
+            let progress = min(1.0, CGFloat(current) / CGFloat(steps))
+            DispatchQueue.main.async {
+                holdProgress = progress
+            }
 
             if current >= steps {
                 timer.invalidate()
-                notification.notificationOccurred(.success)
-                confirmFriend(friend)
+                canConfirm = true
+                // Haptic pro usuário soltar
             } else {
-                // Intensity ramps linearly from 0.1 to 1.0, matching the circle fill
-                let intensity = 0.1 + 0.9 * (CGFloat(current) / CGFloat(steps))
+                let intensity = 0.2 + 0.8 * progress
                 impact.impactOccurred(intensity: intensity)
             }
         }
     }
+
+    private func endHold() {
+        holdTimer?.invalidate()
+        holdTimer = nil
+
+        if canConfirm, let friend = friend {
+            let success = UINotificationFeedbackGenerator()
+            success.notificationOccurred(.success)
+
+            showConfirmationBackground = true
+            withAnimation(.easeOut(duration: 0.45)) {
+                phase = .confirmed
+            }
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.78).delay(0.05)) {
+                confirmedReveal = 1
+            }
+
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(1900))
+                confirmFriend(friend)
+            }
+        } else {
+            let light = UIImpactFeedbackGenerator(style: .light)
+            light.impactOccurred()
+
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                phase = .matched
+                holdProgress = 0
+            }
+        }
+        canConfirm = false
+    }
+
+    // MARK: - Persistence
 
     /// Resolves the pairing process by updating the persistent store.
     ///
@@ -249,7 +507,25 @@ struct BLEView: View {
         try? modelContext.save()
         NotificationManager.scheduleMetaReminder(for: connection)
         NotificationCenter.default.post(name: .meetingConfirmed, object: nil)
-        dismiss()
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(400))
+            dismiss()
+        }
+    }
+}
+
+/// Two overlapping circles drawn into one Path. Filled with `eoFill`,
+/// the intersection of the circles is excluded — producing the horizontal
+/// "olho/vesica" lens that reveals the dark background through the middle.
+private struct VesicaShape: Shape {
+    let topRect: CGRect
+    let bottomRect: CGRect
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.addEllipse(in: topRect)
+        path.addEllipse(in: bottomRect)
+        return path
     }
 }
 
