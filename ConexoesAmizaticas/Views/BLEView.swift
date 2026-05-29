@@ -58,7 +58,15 @@ struct BLEView: View {
             Aptabase.shared.trackEvent("screen_view", with: ["name": "ble_search"])
             let manager = BLEManager(profile: profile)
             manager.onConnectionOpened = { self.foundFriend = true }
-            manager.onFriendFound = { self.friend = $0 }
+            manager.onFriendFound = { foundUser in
+                self.friend = foundUser
+                // If this is a known friend, notify them via CloudKit that we're physically nearby.
+                // This fires before the user confirms the meeting, giving them a push even if they
+                // have the app closed.
+                if self.existingConnections.contains(where: { $0.friend.id == foundUser.id }) {
+                    CloudKitManager.notifyFriendNearby(friendID: foundUser.id, senderName: self.profile.name)
+                }
+            }
             self.bleManager = manager
             manager.startBLE()
         }

@@ -86,6 +86,7 @@ struct InitialView: View {
             }
             try? modelContext.save()
             NotificationManager.rescheduleAll(connections: connections)
+            CloudKitManager.subscribeToProximityPings(userID: currentUser.id)
             scene.onFriendTapped = { connection in
                 DispatchQueue.main.async {
                     guard navigation.count == 0 else { return }

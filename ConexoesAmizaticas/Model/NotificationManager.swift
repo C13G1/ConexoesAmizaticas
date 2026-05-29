@@ -13,7 +13,11 @@ import UIKit
 struct NotificationManager {
 
     static func requestPermission() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+            DispatchQueue.main.async {
+                UIApplication.shared.registerForRemoteNotifications()
+            }
+        }
     }
 
     static func scheduleMetaReminder(for connection: Connection) {
@@ -89,7 +93,15 @@ class ProximityNotifier: NSObject, CBCentralManagerDelegate {
         }
     }
 
+    // Called by iOS when the app is relaunched in background after being terminated by the system
+    // (not force-quit). Restarting the scan here resumes proximity detection immediately.
     func centralManager(_ central: CBCentralManager, willRestoreState dict: [String: Any]) {
+        if central.state == .poweredOn {
+            central.scanForPeripherals(
+                withServices: [serviceID],
+                options: [CBCentralManagerScanOptionAllowDuplicatesKey: false]
+            )
+        }
     }
 
     func centralManager(
@@ -98,15 +110,14 @@ class ProximityNotifier: NSObject, CBCentralManagerDelegate {
         advertisementData: [String: Any],
         rssi: NSNumber
     ) {
-        guard UIApplication.shared.applicationState != .active else { return }
         if let last = lastNotificationDate, Date().timeIntervalSince(last) < cooldown { return }
         lastNotificationDate = Date()
 
+        // Local notification — fires immediately on this device (app in background)
         let content = UNMutableNotificationContent()
         content.title = "Alguém com Zelu está por perto!"
         content.body = "Abra o app para registrar um encontro com seu amigo."
         content.sound = .default
-
         let request = UNNotificationRequest(
             identifier: "proximity_\(UUID().uuidString)",
             content: content,

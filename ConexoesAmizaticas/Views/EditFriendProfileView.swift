@@ -2,6 +2,8 @@
 //  EditFriendProfileView.swift
 //  ConexoesAmizaticas
 //
+//  Created by Enzo Ferroni on 27/05/26.
+//
 
 import SwiftUI
 import PhotosUI
