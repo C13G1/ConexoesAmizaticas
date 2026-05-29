@@ -35,14 +35,14 @@ struct BLEView: View {
     @State private var isHolding: Bool = false
     @State private var canConfirm: Bool = false
     @State private var holdTimer: Timer?
-    @State private var pulsate: Bool = false
     @State private var confirmedReveal: CGFloat = 0
+    @State private var showConfirmationBackground: Bool = false
 
     /// The profile of the device owner, broadcasted to nearby peers.
     let profile: User
 
     private let avatarDiameter: CGFloat = 132
-    private let holdDuration: Double = 1.5
+    private let holdDuration: Double = 1.0
 
     private enum Phase {
         case searching
@@ -62,19 +62,42 @@ struct BLEView: View {
         holdProgress > 0.001 || phase == .holding || phase == .confirmed
     }
 
+    private var isWhiteMode: Bool {
+        phase == .confirmed || showConfirmationBackground
+    }
+
+    private var backgroundColor: Color {
+        if isWhiteMode {
+            return Color.white
+        }
+        return Color.bleBackground
+    }
+
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            backgroundColor.ignoresSafeArea()
+
+            if isWhiteMode {
+                Color.white.ignoresSafeArea()
+            }
 
             GeometryReader { geo in
                 ZStack {
-                    avatarsLayer(in: geo.size)
-                        .opacity(avatarsOpacity)
+                    if phase == .holding {
+                        Color.clear.ignoresSafeArea()
+                    }
 
                     if shouldShowLens {
                         lensLayer(in: geo.size)
                             .allowsHitTesting(false)
+                            .zIndex(0)
+                            .drawingGroup()
                     }
+
+                    avatarsLayer(in: geo.size)
+                        .opacity(avatarsOpacity)
+                        .zIndex(1)
+                        .compositingGroup()
 
                     textLayer(in: geo.size)
                         .allowsHitTesting(phase != .holding)
@@ -92,7 +115,6 @@ struct BLEView: View {
         }
         .onAppear {
             Aptabase.shared.trackEvent("screen_view", with: ["name": "ble_search"])
-            startSearchPulse()
             let manager = BLEManager(profile: profile)
             manager.onConnectionOpened = { self.foundFriend = true }
             manager.onFriendFound = { self.friend = $0 }
@@ -107,9 +129,9 @@ struct BLEView: View {
         .onChange(of: friend?.id) { _, _ in tryTransitionToMatched() }
         .navigationTitle("Adicionar amigo")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(Color.black, for: .navigationBar)
+        .toolbarBackground(isWhiteMode ? Color.white : Color.bleBackground, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarColorScheme(.dark, for: .navigationBar)
+        .toolbarColorScheme(isWhiteMode ? .light : .dark, for: .navigationBar)
     }
 
     // MARK: - Layout helpers
@@ -123,14 +145,7 @@ struct BLEView: View {
     }
 
     private var avatarsOpacity: Double {
-        switch phase {
-        case .searching, .matched:
-            return 1.0
-        case .holding:
-            return Double(max(0, 1.0 - holdProgress * 1.6))
-        case .confirmed:
-            return 0
-        }
+        return 1.0
     }
 
     // MARK: - Avatars layer
@@ -149,22 +164,15 @@ struct BLEView: View {
                     x: centerX,
                     y: phase == .searching ? -avatarDiameter : topY
                 )
-                .animation(.spring(response: 0.6, dampingFraction: 0.72), value: phase)
-                .animation(.spring(response: 0.6, dampingFraction: 0.72), value: friend.id)
         }
 
         // Own avatar (bottom) — always present, gently pulsing while searching
         avatarView(image: profile.profilePicture)
-            .scaleEffect(phase == .searching && pulsate ? 1.05 : 1.0)
             .position(x: centerX, y: bottomY)
     }
 
     private func avatarView(image data: Data) -> some View {
         ZStack {
-            Circle()
-                .fill(Color.themeYellow)
-                .frame(width: avatarDiameter + 14, height: avatarDiameter + 14)
-
             Group {
                 if let uiImage = UIImage(data: data) {
                     Image(uiImage: uiImage)
@@ -174,12 +182,14 @@ struct BLEView: View {
                     Image(uiImage: fallback)
                         .resizable()
                         .scaledToFill()
-                } else {
-                    Circle().fill(Color.themeYellow.opacity(0.6))
                 }
             }
             .frame(width: avatarDiameter, height: avatarDiameter)
             .clipShape(Circle())
+            .overlay(
+                Circle()
+                    .stroke(Color.white, lineWidth: 4)
+            )
         }
     }
 
@@ -208,7 +218,6 @@ struct BLEView: View {
         return VesicaShape(topRect: topRect, bottomRect: bottomRect)
             .fill(Color.white, style: FillStyle(eoFill: true))
             .opacity(phase == .confirmed ? 0 : 1)
-            .animation(.easeOut(duration: 0.45), value: phase)
     }
 
     // MARK: - Text / UI layer
@@ -237,15 +246,21 @@ struct BLEView: View {
                 Button {
                     searchAgain()
                 } label: {
-                    Text("procurar por outra pessoa")
-                        .font(.custom("Sora-Medium", size: 14))
-                        .foregroundStyle(Color.white)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 12)
-                        .overlay(
-                            Capsule()
-                                .stroke(Color.white.opacity(0.55), lineWidth: 1)
-                        )
+                    HStack(alignment: .center, spacing: 10) {
+                        Text("procurar por outra pessoa")
+                            .font(
+                                Font.custom("Sora", size: 14)
+                                    .weight(.bold)
+                            )
+                            .kerning(0.38)
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(Color.bleBackground)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 0)
+                    .frame(minHeight: 34)
+                    .background(Color.white)
+                    .cornerRadius(30)
                 }
                 .transition(.opacity.combined(with: .scale(scale: 0.9)))
                 .padding(.bottom, size.height - bottomAvatarCenterY(in: size) + avatarDiameter / 2 + 28)
@@ -328,18 +343,22 @@ struct BLEView: View {
     private var confirmedOverlay: some View {
         ZStack {
             Circle()
-                .stroke(Color.white.opacity(0.9), lineWidth: 1.5)
-                .frame(width: 240, height: 240)
+                .fill(Color.bleBackground)
+                .frame(width: 233, height: 233)
+                .scaleEffect(0.92 + 0.08 * confirmedReveal)
 
             VStack(spacing: 2) {
-                Text("ENCONTRO")
-                Text("REGISTRADO!")
+                Text("Encontro registrado!")
             }
-            .font(.custom("Sora-ExtraBold", size: 22))
-            .foregroundStyle(Color.white)
+            .font(
+                Font.custom("Bolota", size: 32)
+                    .weight(.bold)
+            )
+            .kerning(0.38)
+            .foregroundColor(Color.white)
             .multilineTextAlignment(.center)
+            .frame(width: 263, alignment: .top)
         }
-        .scaleEffect(0.85 + 0.15 * confirmedReveal)
         .opacity(Double(confirmedReveal))
     }
 
@@ -382,6 +401,7 @@ struct BLEView: View {
         friend = nil
         showSearchAgainButton = false
         canConfirm = false
+        showConfirmationBackground = false
         withAnimation(.easeInOut(duration: 0.35)) {
             phase = .searching
             holdProgress = 0
@@ -389,19 +409,13 @@ struct BLEView: View {
         bleManager?.startBLE()
     }
 
-    private func startSearchPulse() {
-        guard !pulsate else { return }
-        withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
-            pulsate = true
-        }
-    }
-
     // MARK: - Hold timer (progress + haptics)
 
     private func startHold() {
         holdTimer?.invalidate()
         canConfirm = false
-        withAnimation(.easeOut(duration: 0.2)) {
+        showConfirmationBackground = false
+        withAnimation(.easeInOut(duration: 0.18)) {
             phase = .holding
         }
 
@@ -419,14 +433,14 @@ struct BLEView: View {
             }
             current += 1
             let progress = min(1.0, CGFloat(current) / CGFloat(steps))
-            withAnimation(.linear(duration: stepInterval)) {
+            DispatchQueue.main.async {
                 holdProgress = progress
             }
 
             if current >= steps {
                 timer.invalidate()
                 canConfirm = true
-                // Haptic silence — sinal para o usuário soltar
+                // Haptic pro usuário soltar
             } else {
                 let intensity = 0.2 + 0.8 * progress
                 impact.impactOccurred(intensity: intensity)
@@ -442,15 +456,16 @@ struct BLEView: View {
             let success = UINotificationFeedbackGenerator()
             success.notificationOccurred(.success)
 
+            showConfirmationBackground = true
             withAnimation(.easeOut(duration: 0.45)) {
                 phase = .confirmed
             }
-            withAnimation(.spring(response: 0.55, dampingFraction: 0.75).delay(0.1)) {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.78).delay(0.05)) {
                 confirmedReveal = 1
             }
 
             Task { @MainActor in
-                try? await Task.sleep(for: .milliseconds(900))
+                try? await Task.sleep(for: .milliseconds(1900))
                 confirmFriend(friend)
             }
         } else {
@@ -492,7 +507,10 @@ struct BLEView: View {
         try? modelContext.save()
         NotificationManager.scheduleMetaReminder(for: connection)
         NotificationCenter.default.post(name: .meetingConfirmed, object: nil)
-        dismiss()
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(400))
+            dismiss()
+        }
     }
 }
 
