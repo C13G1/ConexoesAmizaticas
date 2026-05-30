@@ -8,17 +8,18 @@
 import Foundation
 import SwiftData
 
-let SCORE_DISTANTES:     Double = 20
-let SCORE_ESTAVEIS:      Double = 30
-let SCORE_PROXIMOS:      Double = 40
-let SCORE_INSEPARAVEIS:  Double = 50
-
 /// Manages the scoring system and the expected meeting goals (`Meta`) for a specific connection.
 ///
 /// The `MetaManager` automatically recalculates the `RelationshipState` whenever the score fluctuates,
 /// keeping the visual representation of the friendship synchronized with real-world interactions.
 @Model
 class MetaManager {
+    /// Score thresholds that map a numeric score to a `RelationshipState`.
+    private static let distantesThreshold:    Double = 20
+    private static let estaveisThreshold:     Double = 30
+    private static let proximosThreshold:     Double = 40
+    private static let inseparaveisThreshold: Double = 50
+
     private(set) var meta: Meta
     private(set) var currentRelationshipState: RelationshipState
     private(set) var score: Double
@@ -36,13 +37,13 @@ class MetaManager {
 
     /// Evaluates the current score against predefined thresholds to determine the health of the connection.
     private func calculateRelationshipState() -> RelationshipState {
-        if self.score < SCORE_DISTANTES {
+        if self.score < MetaManager.distantesThreshold {
             return .afastados
-        } else if self.score < SCORE_ESTAVEIS {
+        } else if self.score < MetaManager.estaveisThreshold {
             return .distantes
-        } else if self.score < SCORE_PROXIMOS {
+        } else if self.score < MetaManager.proximosThreshold {
             return .estaveis
-        } else if self.score < SCORE_INSEPARAVEIS {
+        } else if self.score < MetaManager.inseparaveisThreshold {
             return .proximos
         } else {
             return .inseparaveis

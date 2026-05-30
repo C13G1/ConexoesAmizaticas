@@ -61,13 +61,13 @@ struct UserTests {
         }
     }
 
-    @Test("userDTO codifica e decodifica corretamente")
+    @Test("UserDTO codifica e decodifica corretamente")
     func userDTORoundTrip() throws {
         let id = UUID()
-        let dto = userDTO(name: "DTO Test", profilePicture: Data([0x01]), id: id)
+        let dto = UserDTO(name: "DTO Test", profilePicture: Data([0x01]), id: id)
 
         let json = try JSONEncoder().encode(dto)
-        let decoded = try JSONDecoder().decode(userDTO.self, from: json)
+        let decoded = try JSONDecoder().decode(UserDTO.self, from: json)
 
         #expect(decoded.name == "DTO Test")
         #expect(decoded.id == id)

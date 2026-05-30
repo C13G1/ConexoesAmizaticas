@@ -10,13 +10,22 @@ import CoreBluetooth
 import UIKit
 import SwiftUI
 
-let BUFFER_SIZE = 1024
+/// A lightweight Data Transfer Object used exclusively for serializing `User` payloads over the BLE
+/// L2CAP stream before they are reconstructed as full SwiftData models on the receiver side.
+struct UserDTO: Codable {
+    var name: String
+    var profilePicture: Data
+    var id: UUID
+}
 
 /// A manager responsible for discovering and establishing Bluetooth Low Energy (BLE) connections with nearby peers.
 ///
 /// `BLEManager` acts as both a Central and a Peripheral. It broadcasts the user's profile and scans for other users
 /// broadcasting the specific app service. Once connected, it uses an L2CAP channel to stream profile data.
 class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegate, CBPeripheralDelegate, StreamDelegate {
+
+    /// Maximum bytes read from the L2CAP input stream in a single pass.
+    private static let bufferSize: Int = 1024
 
     /// A closure triggered when a complete user profile is successfully received over the BLE stream.
     var onFriendFound: ((User) -> Void)?
@@ -228,9 +237,9 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
     /// Reads incoming bytes from the input stream and appends them to the data buffer.
     func receiveData() {
         print("trying to receive data")
-        var buffer = [UInt8](repeating: 0, count: BUFFER_SIZE)
+        var buffer = [UInt8](repeating: 0, count: BLEManager.bufferSize)
         while inputStream.hasBytesAvailable {
-            let bytesReceived = inputStream.read(&buffer, maxLength: BUFFER_SIZE)
+            let bytesReceived = inputStream.read(&buffer, maxLength: BLEManager.bufferSize)
             if bytesReceived > 0 {
                 self.dataStream.append(contentsOf: buffer.prefix(bytesReceived))
             }
@@ -253,7 +262,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
             return
         }
         let jsonData = dataStream.subdata(in: 4..<expectedLength + 4)
-        let friendDTO = try JSONDecoder().decode(userDTO.self, from: jsonData)
+        let friendDTO = try JSONDecoder().decode(UserDTO.self, from: jsonData)
         let friend = User(name: friendDTO.name, profilePicture: friendDTO.profilePicture, id: friendDTO.id)
         print("data decoded: \(friend.name)")
         dataStream = Data()
@@ -300,7 +309,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegat
         } else {
             pictureToSend = profile.profilePicture
         }
-        let profileDTO = userDTO(name: profile.name, profilePicture: pictureToSend, id: profile.id)
+        let profileDTO = UserDTO(name: profile.name, profilePicture: pictureToSend, id: profile.id)
         let jsonData = try JSONEncoder().encode(profileDTO)
 
         var length = UInt32(jsonData.count).bigEndian
