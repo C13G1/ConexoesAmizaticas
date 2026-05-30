@@ -2,7 +2,7 @@
 //  BLEAvatarsLayer.swift
 //  ConexoesAmizaticas
 //
-//  Created by Thomas Pinheiro Grandin on 15/05/26.
+//  Created by Enzo Ferroni on 27/05/26.
 //
 
 import SwiftUI
@@ -23,16 +23,24 @@ struct BLEAvatarsLayer: View {
 
         ZStack {
             if let friendImageData = friendImageData {
-                BLEAvatarView(imageData: friendImageData, diameter: avatarDiameter)
-                    .scaleEffect(phase == .searching ? 0.8 : 1.0)
-                    .position(
-                        x: centerX,
-                        y: phase == .searching ? -avatarDiameter : topY
-                    )
+                FriendAvatar(
+                    imageData: friendImageData,
+                    diameter: avatarDiameter,
+                    strokeColor: .white
+                )
+                .scaleEffect(phase == .searching ? 0.8 : 1.0)
+                .position(
+                    x: centerX,
+                    y: phase == .searching ? -avatarDiameter : topY
+                )
             }
 
-            BLEAvatarView(imageData: profileImageData, diameter: avatarDiameter)
-                .position(x: centerX, y: bottomY)
+            FriendAvatar(
+                imageData: profileImageData,
+                diameter: avatarDiameter,
+                strokeColor: .white
+            )
+            .position(x: centerX, y: bottomY)
         }
     }
 }

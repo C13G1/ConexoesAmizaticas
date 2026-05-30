@@ -2,7 +2,7 @@
 //  BLEConfirmedOverlay.swift
 //  ConexoesAmizaticas
 //
-//  Created by Thomas Pinheiro Grandin on 15/05/26.
+//  Created by Enzo Ferroni on 27/05/26.
 //
 
 import SwiftUI

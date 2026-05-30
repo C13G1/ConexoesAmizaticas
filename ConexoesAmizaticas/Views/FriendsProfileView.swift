@@ -205,72 +205,19 @@ struct FriendsProfileView: View {
             }
 
             if let post = feedViewModel.postToDelete {
-                Color.black.opacity(0.6)
-                    .ignoresSafeArea()
-                    .onTapGesture {
+                ConfirmationOverlay(
+                    imageData: post.images.first,
+                    title: "QUER MESMO DELETAR ESTE MOMENTO?",
+                    description: "Esta ação é permanente e a foto será apagada da conexão.",
+                    confirmIcon: "trash",
+                    onCancel: { withAnimation { feedViewModel.postToDelete = nil } },
+                    onConfirm: {
+                        if let id = feedViewModel.postToDelete?.id {
+                            feedViewModel.deletePost(id: id, modelContext: modelContext)
+                        }
                         withAnimation { feedViewModel.postToDelete = nil }
                     }
-
-                VStack {
-                    ZStack {
-                        Circle()
-                            .foregroundStyle(.red)
-                            .frame(width: 140, height: 140)
-
-                        if let data = post.images.first, let uiImage = UIImage(data: data) {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .scaledToFill()
-                                .clipShape(Circle())
-                                .frame(width: 132, height: 132)
-                        }
-                    }
-
-                    Text("QUER MESMO DELETAR ESTE MOMENTO?")
-                        .foregroundStyle(.white)
-                        .font(.custom("Bolota", size: 24))
-                        .fontWeight(.bold)
-                        .frame(width: 280)
-                        .multilineTextAlignment(.center)
-                        .padding(.top, 16)
-
-                    Text("Esta ação é permanente e a foto será apagada da conexão.")
-                        .font(.custom("Sora-Regular", size: 12))
-                        .foregroundStyle(.white)
-                        .frame(width: 206)
-                        .multilineTextAlignment(.center)
-                        .padding(.top, 8)
-
-                    HStack(spacing: 50) {
-                        Button {
-                            withAnimation { feedViewModel.postToDelete = nil }
-                        } label: {
-                            ZStack {
-                                Circle().foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
-                                Image(systemName: "xmark")
-                                    .resizable().frame(width: 32, height: 32)
-                                    .foregroundStyle(.white).bold()
-                            }
-                        }
-                        .frame(width: 72, height: 72)
-
-                        Button {
-                            if let id = feedViewModel.postToDelete?.id {
-                                feedViewModel.deletePost(id: id, modelContext: modelContext)
-                            }
-                            withAnimation { feedViewModel.postToDelete = nil }
-                        } label: {
-                            ZStack {
-                                Circle().foregroundStyle(.white)
-                                Image(systemName: "trash")
-                                    .resizable().frame(width: 32, height: 32)
-                                    .foregroundStyle(.red).bold()
-                            }
-                        }
-                        .frame(width: 72, height: 72)
-                    }
-                    .padding(.top, 40)
-                }
+                )
             }
         }
         .toolbar {
