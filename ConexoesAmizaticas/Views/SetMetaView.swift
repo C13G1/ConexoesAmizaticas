@@ -33,7 +33,7 @@ struct SetMetaView: View {
         ZStack {
             Rectangle()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .foregroundStyle(.friendProfileBackGround)
+                .foregroundStyle(.friendProfileBackground)
                 .ignoresSafeArea()
 
             VStack(alignment: .center) {
