@@ -1,5 +1,5 @@
 //
-//  MetaManager.swift
+//  Friendship.swift
 //  ConexoesAmizaticas
 //
 //  Created by Thomas Pinheiro Grandin on 18/05/26.
@@ -8,12 +8,14 @@
 import Foundation
 import SwiftData
 
-/// Manages the scoring system and the expected meeting goals (`Meta`) for a specific connection.
+/// Tracks the health of a specific friendship: the meeting goal (`Meta`), the current score and the
+/// derived `RelationshipState`.
 ///
-/// The `MetaManager` automatically recalculates the `RelationshipState` whenever the score fluctuates,
-/// keeping the visual representation of the friendship synchronized with real-world interactions.
+/// `Friendship` is a persistent entity owned by each `Connection`. It automatically recalculates the
+/// `RelationshipState` whenever the score changes, keeping the visual representation in sync with the
+/// real-world interactions registered by the user.
 @Model
-class MetaManager {
+class Friendship {
     /// Score thresholds that map a numeric score to a `RelationshipState`.
     private static let distantesThreshold:    Double = 20
     private static let estaveisThreshold:     Double = 30
@@ -37,13 +39,13 @@ class MetaManager {
 
     /// Evaluates the current score against predefined thresholds to determine the health of the connection.
     private func calculateRelationshipState() -> RelationshipState {
-        if self.score < MetaManager.distantesThreshold {
+        if self.score < Friendship.distantesThreshold {
             return .afastados
-        } else if self.score < MetaManager.estaveisThreshold {
+        } else if self.score < Friendship.estaveisThreshold {
             return .distantes
-        } else if self.score < MetaManager.proximosThreshold {
+        } else if self.score < Friendship.proximosThreshold {
             return .estaveis
-        } else if self.score < MetaManager.inseparaveisThreshold {
+        } else if self.score < Friendship.inseparaveisThreshold {
             return .proximos
         } else {
             return .inseparaveis

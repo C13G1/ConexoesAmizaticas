@@ -16,7 +16,7 @@ struct BLEViewLogicTests {
     private func makeContext() throws -> ModelContext {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(
-            for: User.self, Connection.self, MetaManager.self, FeedManager.self, Post.self,
+            for: User.self, Connection.self, Friendship.self, Feed.self, Post.self,
             configurations: config
         )
         return ModelContext(container)
@@ -65,10 +65,10 @@ struct BLEViewLogicTests {
 
         // Replica o if do confirmFriend
         connection.lastMet = Date.now
-        connection.metaManager.addOrSubtractScore(10)
+        connection.friendship.addOrSubtractScore(10)
 
         #expect(connection.lastMet != nil)
-        #expect(connection.metaManager.score == 30)
+        #expect(connection.friendship.score == 30)
     }
 
     @Test("Não é possível parear consigo mesmo (mesmo id)")

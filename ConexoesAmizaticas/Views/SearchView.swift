@@ -75,8 +75,8 @@ struct SearchView: View {
         .modelContainer(for: [
             User.self,
             Post.self,
-            FeedManager.self,
+            Feed.self,
             Connection.self,
-            MetaManager.self,
+            Friendship.self,
         ])
 }

@@ -1,5 +1,5 @@
 //
-//  FeedManager.swift
+//  Feed.swift
 //  ConexoesAmizaticas
 //
 //  Created by Thomas Pinheiro Grandin on 18/05/26.
@@ -8,9 +8,12 @@
 import Foundation
 import SwiftData
 
-/// Manages a collection of shared moments (`Post` objects) for a specific `Connection`.
+/// Holds the collection of shared moments (`Post` objects) attached to a `Connection`.
+///
+/// `Feed` is a persistent entity owned by each `Connection`: it exposes the ordered post array and
+/// provides the minimal mutations (`addPost`, `deletePost`) needed by the photo carousel.
 @Model
-class FeedManager {
+class Feed {
     private(set) var posts: [Post] = []
     
     init(){}

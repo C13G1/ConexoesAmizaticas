@@ -24,11 +24,11 @@ class FriendProfileViewModel {
     
     /// Overwrites the current interaction goal established for this relationship.
     func defineMeta(meta: Meta){
-        connection.metaManager.setMeta(meta)
+        connection.friendship.setMeta(meta)
     }
     
     func getMeta() -> Meta {
-        return connection.metaManager.meta
+        return connection.friendship.meta
     }
     
     func getFriendImage() -> UIImage? {
@@ -67,13 +67,13 @@ class FriendProfileViewModel {
     
     /// Derives the visual UI theme color based on the current health score of the relationship.
     func getProfileColor() -> Color {
-        return Color(connection.metaManager.currentRelationshipState.color)
+        return Color(connection.friendship.currentRelationshipState.color)
     }
     
     /// Computes the remaining time before the user fails their set relationship goal (`Meta`).
     /// - Returns: A positive integer representing remaining days, or a negative integer if the goal is overdue.
     func getTimeUntilMeet() -> Int {
-        connection.metaManager.meta.days - getTimeSinceLastMet()
+        connection.friendship.meta.days - getTimeSinceLastMet()
     }
     
     /// Permanently removes the connection, its score/feed managers and the underlying friend from SwiftData.
@@ -82,8 +82,8 @@ class FriendProfileViewModel {
     /// - Parameter modelContext: The SwiftData context that should commit the cascading delete.
     func deleteConnection(modelContext: ModelContext) {
         NotificationManager.cancelMetaReminder(for: connection)
-        modelContext.delete(connection.metaManager)
-        modelContext.delete(connection.feedManager)
+        modelContext.delete(connection.friendship)
+        modelContext.delete(connection.feed)
         modelContext.delete(connection.friend)
         modelContext.delete(connection)
         try? modelContext.save()

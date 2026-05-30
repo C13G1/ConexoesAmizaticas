@@ -40,10 +40,10 @@ struct VacuoViewLogicTests {
         #expect(connection.inVacuo == true)
 
         connection.lastMet = Date.now
-        connection.metaManager.addOrSubtractScore(5)
+        connection.friendship.addOrSubtractScore(5)
 
         #expect(connection.lastMet != nil)
-        #expect(connection.metaManager.score == 5)
+        #expect(connection.friendship.score == 5)
         #expect(connection.inVacuo == false)
     }
 }

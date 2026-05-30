@@ -214,11 +214,11 @@ class BLEViewModel {
         let connection: Connection
         if let existing = existingConnections.first(where: { $0.friend.id == friend.id }) {
             existing.lastMet = Date.now
-            existing.metaManager.addOrSubtractScore(10)
+            existing.friendship.addOrSubtractScore(10)
             connection = existing
             Aptabase.shared.trackEvent("meeting_registered", with: [
-                "relationship_state": existing.metaManager.currentRelationshipState.rawValue,
-                "score": existing.metaManager.score
+                "relationship_state": existing.friendship.currentRelationshipState.rawValue,
+                "score": existing.friendship.score
             ])
         } else {
             modelContext.insert(friend)

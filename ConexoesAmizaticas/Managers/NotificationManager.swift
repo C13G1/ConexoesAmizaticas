@@ -22,12 +22,12 @@ struct NotificationManager {
     /// Schedules a single reminder for a given connection, replacing any previous one for the same friend.
     ///
     /// The reminder fires at 80% of the meeting interval, so the user still has time to plan the encounter before the goal expires.
-    /// - Parameter connection: The `Connection` whose `metaManager` and `lastMet` drive the reminder timing.
+    /// - Parameter connection: The `Connection` whose `friendship` and `lastMet` drive the reminder timing.
     static func scheduleMetaReminder(for connection: Connection) {
         let id = "meta_\(connection.id.uuidString)"
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
 
-        let meta = connection.metaManager.meta
+        let meta = connection.friendship.meta
         guard meta != .nenhuma, meta.days > 0 else { return }
 
         let reference = connection.lastMet ?? connection.firstConnection

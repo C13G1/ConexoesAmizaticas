@@ -22,16 +22,16 @@ struct ConnectionTests {
         let connection = Connection(friend: friend)
 
         #expect(connection.friend.getName() == "Lucas")
-        #expect(connection.metaManager.score == 10.0)
-        #expect(connection.feedManager.posts.isEmpty)
+        #expect(connection.friendship.score == 10.0)
+        #expect(connection.feed.posts.isEmpty)
         #expect(connection.lastMet == nil)
     }
 
-    @Test("Init com score customizado propaga ao MetaManager")
+    @Test("Init com score customizado propaga ao Friendship")
     func initPropagatesScore() {
         let connection = Connection(friend: makeFriend(), score: 45.0)
-        #expect(connection.metaManager.score == 45.0)
-        #expect(connection.metaManager.currentRelationshipState == .proximos)
+        #expect(connection.friendship.score == 45.0)
+        #expect(connection.friendship.currentRelationshipState == .proximos)
     }
 
     @Test("firstConnection é definido próximo ao instante atual")
@@ -93,9 +93,9 @@ struct ConnectionTests {
     @Test("inVacuo torna-se true após decay completo")
     func inVacuoAfterFullDecay() {
         let connection = Connection(friend: makeFriend(), score: 5.0)
-        connection.metaManager.setMeta(.semanal)
+        connection.friendship.setMeta(.semanal)
         let oldDate = Calendar.current.date(byAdding: .day, value: -365, to: .now)
-        connection.metaManager.applyDecayIfNeeded(lastMet: oldDate)
+        connection.friendship.applyDecayIfNeeded(lastMet: oldDate)
         #expect(connection.inVacuo == true)
     }
 

@@ -173,7 +173,7 @@ struct FriendsProfileView: View {
             .onAppear {
                 Aptabase.shared.trackEvent("screen_view", with: [
                     "name": "friend_profile",
-                    "relationship_state": viewModel.connection.metaManager.currentRelationshipState.rawValue
+                    "relationship_state": viewModel.connection.friendship.currentRelationshipState.rawValue
                 ])
             }
             .onReceive(NotificationCenter.default.publisher(for: .friendProfileUpdated)) { _ in
@@ -248,7 +248,7 @@ struct FriendsProfileView: View {
 
         for _ in 0..<5 {
             let post = Post(images: [mockData])
-            c.feedManager.addPost(post)
+            c.feed.addPost(post)
         }
 
         return c

@@ -99,7 +99,7 @@ struct UserProfileView: View {
         .modelContainer(for: [
             Connection.self,
             User.self,
-            MetaManager.self,
-            FeedManager.self
+            Friendship.self,
+            Feed.self
         ])
 }

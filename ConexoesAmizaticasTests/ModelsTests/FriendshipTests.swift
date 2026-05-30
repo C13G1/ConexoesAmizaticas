@@ -1,5 +1,5 @@
 //
-//  MetaManagerTests.swift
+//  FriendshipTests.swift
 //  ConexoesAmizaticas
 //
 //  Created by Jonas Fernando Nascimento Melo on 28/05/26.
@@ -10,13 +10,13 @@ import Testing
 import Foundation
 @testable import ConexoesAmizaticas
 
-struct MetaManagerTests {
+struct FriendshipTests {
 
     // MARK: - Init
 
     @Test("Init usa score padrão de 10 e meta mensal")
     func defaultInit() {
-        let mm = MetaManager()
+        let mm = Friendship()
         #expect(mm.score == 10.0)
         #expect(mm.meta == .mensal)
         #expect(mm.lastDecayDate == nil)
@@ -36,7 +36,7 @@ struct MetaManagerTests {
             (50.0, RelationshipState.inseparaveis)
           ])
     func initSetsCorrectState(score: Double, expected: RelationshipState) {
-        let mm = MetaManager(score: score)
+        let mm = Friendship(score: score)
         #expect(mm.currentRelationshipState == expected)
     }
 
@@ -44,7 +44,7 @@ struct MetaManagerTests {
 
     @Test("setMeta atualiza a meta")
     func setMetaUpdatesMeta() {
-        let mm = MetaManager()
+        let mm = Friendship()
         mm.setMeta(.semanal)
         #expect(mm.meta == .semanal)
     }
@@ -53,7 +53,7 @@ struct MetaManagerTests {
 
     @Test("addOrSubtractScore soma valor positivo")
     func addPositiveScore() {
-        let mm = MetaManager(score: 10)
+        let mm = Friendship(score: 10)
         mm.addOrSubtractScore(15)
         #expect(mm.score == 25)
         #expect(mm.currentRelationshipState == .distantes)
@@ -61,7 +61,7 @@ struct MetaManagerTests {
 
     @Test("addOrSubtractScore subtrai valor negativo")
     func addNegativeScore() {
-        let mm = MetaManager(score: 30)
+        let mm = Friendship(score: 30)
         mm.addOrSubtractScore(-10)
         #expect(mm.score == 20)
         #expect(mm.currentRelationshipState == .distantes)
@@ -69,7 +69,7 @@ struct MetaManagerTests {
 
     @Test("Score é limitado em 50 (cap superior)")
     func scoreCapsAtFifty() {
-        let mm = MetaManager(score: 45)
+        let mm = Friendship(score: 45)
         mm.addOrSubtractScore(100)
         #expect(mm.score == 50)
         #expect(mm.currentRelationshipState == .inseparaveis)
@@ -77,7 +77,7 @@ struct MetaManagerTests {
 
     @Test("Score é limitado em 0 (cap inferior)")
     func scoreCapsAtZero() {
-        let mm = MetaManager(score: 5)
+        let mm = Friendship(score: 5)
         mm.addOrSubtractScore(-100)
         #expect(mm.score == 0)
         #expect(mm.currentRelationshipState == .afastados)
@@ -85,7 +85,7 @@ struct MetaManagerTests {
 
     @Test("Adicionar zero não altera o score")
     func addingZeroKeepsScore() {
-        let mm = MetaManager(score: 25)
+        let mm = Friendship(score: 25)
         mm.addOrSubtractScore(0)
         #expect(mm.score == 25)
     }
@@ -94,7 +94,7 @@ struct MetaManagerTests {
 
     @Test("Decay não é aplicado quando meta é nenhuma")
     func decayNotAppliedForMetaNenhuma() {
-        let mm = MetaManager(score: 50)
+        let mm = Friendship(score: 50)
         mm.setMeta(.nenhuma)
         let lastMet = Calendar.current.date(byAdding: .day, value: -365, to: .now)
         mm.applyDecayIfNeeded(lastMet: lastMet)
@@ -103,7 +103,7 @@ struct MetaManagerTests {
 
     @Test("Decay não é aplicado se nenhum período foi completado")
     func decayNotAppliedWithinPeriod() {
-        let mm = MetaManager(score: 50)
+        let mm = Friendship(score: 50)
         mm.setMeta(.semanal) // 7 days
         let lastMet = Calendar.current.date(byAdding: .day, value: -3, to: .now)
         mm.applyDecayIfNeeded(lastMet: lastMet)
@@ -112,7 +112,7 @@ struct MetaManagerTests {
 
     @Test("Aplica -5 por cada período perdido (1 período)")
     func decayOnePeriod() {
-        let mm = MetaManager(score: 50)
+        let mm = Friendship(score: 50)
         mm.setMeta(.semanal) // 7 dias
         let lastMet = Calendar.current.date(byAdding: .day, value: -10, to: .now)
         mm.applyDecayIfNeeded(lastMet: lastMet)
@@ -122,7 +122,7 @@ struct MetaManagerTests {
 
     @Test("Aplica decay proporcional a múltiplos períodos perdidos")
     func decayMultiplePeriods() {
-        let mm = MetaManager(score: 50)
+        let mm = Friendship(score: 50)
         mm.setMeta(.semanal) // 7 dias
         let lastMet = Calendar.current.date(byAdding: .day, value: -30, to: .now)
         mm.applyDecayIfNeeded(lastMet: lastMet)
@@ -132,7 +132,7 @@ struct MetaManagerTests {
 
     @Test("Chamar applyDecayIfNeeded múltiplas vezes não aplica decay duplicado")
     func decayIsNotDoubleApplied() {
-        let mm = MetaManager(score: 50)
+        let mm = Friendship(score: 50)
         mm.setMeta(.semanal)
         let lastMet = Calendar.current.date(byAdding: .day, value: -10, to: .now)
 
@@ -145,7 +145,7 @@ struct MetaManagerTests {
 
     @Test("Sem lastMet e sem lastDecayDate, nenhum decay é aplicado")
     func decayNotAppliedWithoutBaseDate() {
-        let mm = MetaManager(score: 50)
+        let mm = Friendship(score: 50)
         mm.setMeta(.semanal)
         mm.applyDecayIfNeeded(lastMet: nil)
         #expect(mm.score == 50)
@@ -153,7 +153,7 @@ struct MetaManagerTests {
 
     @Test("Decay nunca leva score abaixo de zero")
     func decayDoesNotGoBelowZero() {
-        let mm = MetaManager(score: 5)
+        let mm = Friendship(score: 5)
         mm.setMeta(.semanal)
         let lastMet = Calendar.current.date(byAdding: .day, value: -100, to: .now)
         mm.applyDecayIfNeeded(lastMet: lastMet)
@@ -163,7 +163,7 @@ struct MetaManagerTests {
 
     @Test("Encontro recente reseta a base de decay")
     func recentMeetingResetsBase() {
-        let mm = MetaManager(score: 50)
+        let mm = Friendship(score: 50)
         mm.setMeta(.semanal)
 
         // primeiro: aplica decay com base antiga

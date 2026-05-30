@@ -17,7 +17,7 @@ struct UserProfileViewLogicTests {
         let orderedStates: [RelationshipState] = [
             .afastados, .proximos, .distantes, .estaveis, .inseparaveis
         ]
-        let grouped = Dictionary(grouping: connections) { $0.metaManager.currentRelationshipState }
+        let grouped = Dictionary(grouping: connections) { $0.friendship.currentRelationshipState }
         return orderedStates.compactMap { state in
             let count = grouped[state]?.count ?? 0
             guard count > 0 else { return nil }

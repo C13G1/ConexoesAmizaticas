@@ -16,7 +16,7 @@ struct InitialViewLogicTests {
     private func makeContext() throws -> ModelContext {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(
-            for: User.self, Connection.self, MetaManager.self, FeedManager.self, Post.self,
+            for: User.self, Connection.self, Friendship.self, Feed.self, Post.self,
             configurations: config
         )
         return ModelContext(container)
@@ -74,16 +74,16 @@ struct InitialViewLogicTests {
         let oldDate = Calendar.current.date(byAdding: .day, value: -30, to: .now)
         c1.lastMet = oldDate
         c2.lastMet = oldDate
-        c1.metaManager.setMeta(.semanal)
-        c2.metaManager.setMeta(.semanal)
+        c1.friendship.setMeta(.semanal)
+        c2.friendship.setMeta(.semanal)
         context.insert(c1); context.insert(c2)
         try context.save()
 
         for connection in [c1, c2] {
-            connection.metaManager.applyDecayIfNeeded(lastMet: connection.lastMet)
+            connection.friendship.applyDecayIfNeeded(lastMet: connection.lastMet)
         }
 
-        #expect(c1.metaManager.score < 50)
-        #expect(c2.metaManager.score < 50)
+        #expect(c1.friendship.score < 50)
+        #expect(c2.friendship.score < 50)
     }
 }

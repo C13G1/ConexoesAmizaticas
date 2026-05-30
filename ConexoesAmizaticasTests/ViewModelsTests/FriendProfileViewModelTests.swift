@@ -44,13 +44,13 @@ struct FriendProfileViewModelTests {
         #expect(vm.getFriendImage() == nil)
     }
 
-    @Test("getMeta retorna a meta atual do MetaManager (mensal por padrão)")
+    @Test("getMeta retorna a meta atual do Friendship (mensal por padrão)")
     func getMetaDefault() {
         let vm = FriendProfileViewModel(connection: makeConnection())
         #expect(vm.getMeta() == .mensal)
     }
 
-    @Test("defineMeta propaga para o MetaManager")
+    @Test("defineMeta propaga para o Friendship")
     func defineMetaUpdates() {
         let vm = FriendProfileViewModel(connection: makeConnection())
         vm.defineMeta(meta: .semanal)

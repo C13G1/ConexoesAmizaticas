@@ -23,9 +23,9 @@ struct ConexoesAmizaticasApp: App {
         let schema = Schema([
             User.self,
             Post.self,
-            FeedManager.self,
+            Feed.self,
             Connection.self,
-            MetaManager.self,
+            Friendship.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

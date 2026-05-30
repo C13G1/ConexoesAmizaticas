@@ -48,8 +48,8 @@ class FriendNode: SKShapeNode {
     /// Initializes a new interactive node based on a specific connection's state.
     /// - Parameter connection: The `Connection` model containing the user data and relationship score.
     init(connection: Connection) {
-        self.score = connection.metaManager.score
-        let state = connection.metaManager.currentRelationshipState
+        self.score = connection.friendship.score
+        let state = connection.friendship.currentRelationshipState
         let imageData = connection.friend.profilePicture
         let path = UIBezierPath(roundedRect: CGRect(x: -128, y: -128, width: 256, height: 256), cornerRadius: 128).cgPath
         
