@@ -1,5 +1,5 @@
 //
-//  Font.swift
+//  Font+Variable.swift
 //  ConexoesAmizaticas
 //
 //  Created by Dayô Araújo on 27/05/26.

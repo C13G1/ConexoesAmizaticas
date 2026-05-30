@@ -11,11 +11,6 @@ import SwiftData
 import UIKit
 import Aptabase
 
-extension Notification.Name {
-    static let meetingConfirmed = Notification.Name("meetingConfirmed")
-    static let friendProfileUpdated = Notification.Name("friendProfileUpdated")
-}
-
 /// Coordinates the proximity-based pairing experience between two nearby users.
 ///
 /// `BLEViewModel` drives the entire interaction loop of `BLEView`: it owns the underlying `BLEManager`,
