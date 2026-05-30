@@ -1,5 +1,5 @@
 //
-//  InicialViewModelTests.swift
+//  InitialViewModelTests.swift
 //  ConexoesAmizaticas
 //
 //  Created by Dayô Araújo on 28/05/26.
@@ -12,7 +12,7 @@ import SwiftData
 @testable import ConexoesAmizaticas
 
 @MainActor
-struct InicialViewModelTests {
+struct InitialViewModelTests {
 
     private func makeContext() throws -> ModelContext {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
@@ -28,7 +28,7 @@ struct InicialViewModelTests {
     @Test("setModelContext armazena o contexto fornecido")
     func setModelContextStores() throws {
         let context = try makeContext()
-        let vm = InicialViewModel()
+        let vm = InitialViewModel()
         vm.setModelContext(modelContext: context)
         #expect(vm.modelContext === context)
     }
@@ -38,7 +38,7 @@ struct InicialViewModelTests {
     @Test("fetchData não atualiza estado quando não há usuários no store")
     func fetchDataNoOpWithEmptyStore() throws {
         let context = try makeContext()
-        let vm = InicialViewModel()
+        let vm = InitialViewModel()
         vm.setModelContext(modelContext: context)
 
         let originalId = vm.profile.id
@@ -62,7 +62,7 @@ struct InicialViewModelTests {
         context.insert(connection)
         try context.save()
 
-        let vm = InicialViewModel()
+        let vm = InitialViewModel()
         vm.setModelContext(modelContext: context)
         vm.fetchData()
 
@@ -75,7 +75,7 @@ struct InicialViewModelTests {
 
     @Test("getFriends retorna vazio quando não há conexões")
     func getFriendsEmpty() throws {
-        let vm = InicialViewModel()
+        let vm = InitialViewModel()
         let context = try makeContext()
         vm.setModelContext(modelContext: context)
         #expect(vm.getFriends().isEmpty)
@@ -94,7 +94,7 @@ struct InicialViewModelTests {
         context.insert(Connection(friend: friend2))
         try context.save()
 
-        let vm = InicialViewModel()
+        let vm = InitialViewModel()
         vm.setModelContext(modelContext: context)
         vm.fetchData()
 
@@ -106,13 +106,13 @@ struct InicialViewModelTests {
 
     @Test("convertDataToImage retorna nil para Data vazio")
     func convertDataToImageNilForEmpty() {
-        let vm = InicialViewModel()
+        let vm = InitialViewModel()
         #expect(vm.convertDataToImage(data: Data()) == nil)
     }
 
     @Test("convertDataToImage retorna UIImage válido para PNG real")
     func convertDataToImageValidPNG() {
-        let vm = InicialViewModel()
+        let vm = InitialViewModel()
         // gera um PNG mínimo válido (1x1 transparente)
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: 1, height: 1))
         let pngData = renderer.image { _ in }.pngData()!
@@ -134,7 +134,7 @@ struct InicialViewModelTests {
         context.insert(connection)
         try context.save()
 
-        let vm = InicialViewModel()
+        let vm = InitialViewModel()
         vm.setModelContext(modelContext: context)
         vm.fetchData()
 
@@ -149,7 +149,7 @@ struct InicialViewModelTests {
         context.insert(main)
         try context.save()
 
-        let vm = InicialViewModel()
+        let vm = InitialViewModel()
         vm.setModelContext(modelContext: context)
         vm.fetchData()
 

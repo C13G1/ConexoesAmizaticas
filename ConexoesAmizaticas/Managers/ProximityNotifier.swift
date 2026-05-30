@@ -1,5 +1,5 @@
 //
-//  NotificationManager.swift
+//  ProximityNotifier.swift
 //  ConexoesAmizaticas
 //
 //  Created by Enzo Ferroni on 27/05/26.
@@ -10,58 +10,14 @@ import UserNotifications
 import CoreBluetooth
 import UIKit
 
-struct NotificationManager {
-
-    static func requestPermission() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
-    }
-
-    static func scheduleMetaReminder(for connection: Connection) {
-        let id = "meta_\(connection.id.uuidString)"
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
-
-        let meta = connection.metaManager.meta
-        guard meta != .nenhuma, meta.days > 0 else { return }
-
-        let reference = connection.lastMet ?? connection.firstConnection
-        let totalInterval = TimeInterval(meta.days) * 86400
-        let notifyDate = reference.addingTimeInterval(totalInterval * 0.8)
-        let deadlineDate = reference.addingTimeInterval(totalInterval)
-        let now = Date()
-
-        guard deadlineDate > now else { return }
-
-        let content = UNMutableNotificationContent()
-        content.title = "Tá na hora de marcar um encontro!"
-        content.body = "Você prometeu se encontrar com \(connection.friend.name) \(meta.displayText). O prazo está chegando!"
-        content.sound = .default
-
-        let trigger: UNNotificationTrigger?
-        if notifyDate <= now {
-            trigger = nil
-        } else {
-            let components = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: notifyDate)
-            trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
-        }
-
-        let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
-        UNUserNotificationCenter.current().add(request)
-    }
-
-    static func cancelMetaReminder(for connection: Connection) {
-        let id = "meta_\(connection.id.uuidString)"
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
-    }
-
-    static func rescheduleAll(connections: [Connection]) {
-        for connection in connections {
-            scheduleMetaReminder(for: connection)
-        }
-    }
-}
-
-// Scans for nearby Zelu users in the background and fires a local notification.
+/// Detects nearby Zelu users while the app is not in the foreground and fires a local notification
+/// inviting the user to open the app and register the encounter.
+///
+/// `ProximityNotifier` is a singleton because Core Bluetooth restoration requires a stable
+/// `CBCentralManager` identifier across launches. It only emits a notification when the app is
+/// in the background or inactive and respects a cooldown to avoid spam.
 class ProximityNotifier: NSObject, CBCentralManagerDelegate {
+    /// The shared instance bound to the Core Bluetooth restoration identifier.
     static let shared = ProximityNotifier()
 
     private var centralManager: CBCentralManager?
@@ -71,6 +27,7 @@ class ProximityNotifier: NSObject, CBCentralManagerDelegate {
 
     private override init() { super.init() }
 
+    /// Boots the underlying `CBCentralManager` with state restoration. Safe to call multiple times.
     func start() {
         guard centralManager == nil else { return }
         centralManager = CBCentralManager(

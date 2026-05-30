@@ -12,7 +12,7 @@ import SwiftUI
 /// `TabBar` utilizes a `SemiCircle` shape to create a distinct, arched bottom edge. It holds the primary navigation
 /// routes branching out from the `InitialView`, specifically the `SearchView` and the `BLEView`.
 struct TabBar: View {
-    @Binding var viewModel: InicialViewModel
+    @Binding var viewModel: InitialViewModel
     var user: User
     var width = UIScreen.main.bounds.width
     var height = UIScreen.main.bounds.height

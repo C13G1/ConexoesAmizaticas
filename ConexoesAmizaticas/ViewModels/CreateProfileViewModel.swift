@@ -1,5 +1,5 @@
 //
-//  CriarPerfilViewModel.swift
+//  CreateProfileViewModel.swift
 //  ConexoesAmizaticas
 //
 //  Created by Jonas Fernando Nascimento Melo on 19/05/26.
@@ -14,7 +14,7 @@ import SwiftUI
 /// This ViewModel isolates the SwiftData insert operations required when the user first opens the app,
 /// converting SwiftUI images to raw byte data before persisting it to the database.
 @Observable
-class CreatProfileViewModel {
+class CreateProfileViewModel {
     var modelContext : ModelContext
     var profile      : [User]
 
@@ -28,7 +28,7 @@ class CreatProfileViewModel {
     /// - Parameters:
     ///   - name: The display name chosen by the user.
     ///   - image: The SwiftUI image selected via the onboarding picker.
-    func creatProfile(name: String, image: Image) {
+    func createProfile(name: String, image: Image) {
         let renderer = ImageRenderer(content: image)
         if let uiImage = renderer.uiImage {
             guard let data = uiImage.pngData()  else{

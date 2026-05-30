@@ -15,7 +15,7 @@ import SwiftData
 /// SwiftUI Charts. It categorizes friendships based on their `RelationshipState` (e.g., "Próximos", "Afastados"),
 /// offering a high-level perspective of social health.
 struct UserProfileView: View {
-    @Binding var vm: InicialViewModel
+    @Binding var vm: InitialViewModel
     @Query private var connections: [Connection]
 
     @State private var selectedAngle: Double?
@@ -168,7 +168,7 @@ struct UserProfileView: View {
 }
 
 #Preview {
-    @Previewable @State var viewModel = InicialViewModel()
+    @Previewable @State var viewModel = InitialViewModel()
     UserProfileView(vm: $viewModel)
         .modelContainer(for: [
             Connection.self,

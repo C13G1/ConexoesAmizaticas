@@ -1,5 +1,5 @@
 //
-//  InicialViewModel.swift
+//  InitialViewModel.swift
 //  ConexoesAmizaticas
 //
 //  Created by Jonas Fernando Nascimento Melo on 20/05/26.
@@ -11,11 +11,11 @@ import SwiftData
 
 /// The central source of truth for the application's root state.
 ///
-/// `InicialViewModel` manages the active user profile and oversees the comprehensive list of their
+/// `InitialViewModel` manages the active user profile and oversees the comprehensive list of their
 /// social connections. It serves as the primary data provider for the root navigational structures
 /// (like `InitialView` and `TabBar`) and handles initial data fetching from SwiftData on launch.
 @Observable
-class InicialViewModel {
+class InitialViewModel {
     private(set) var modelContext           : ModelContext!
     private(set) var profile                : User = User()
     private(set) var connectionsWithFriends : [Connection] = []

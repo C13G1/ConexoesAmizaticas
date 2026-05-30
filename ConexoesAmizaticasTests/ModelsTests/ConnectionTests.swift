@@ -1,5 +1,5 @@
 //
-//  ConnectionModelTests.swift
+//  ConnectionTests.swift
 //  ConexoesAmizaticas
 //
 //  Created by Jonas Fernando Nascimento Melo on 28/05/26.
@@ -10,7 +10,7 @@ import Testing
 import Foundation
 @testable import ConexoesAmizaticas
 
-struct ConnectionModelTests {
+struct ConnectionTests {
 
     private func makeFriend(name: String = "Amigo") -> User {
         User(name: name, profilePicture: Data(), id: UUID())

@@ -17,7 +17,7 @@ import _SwiftData_SwiftUI
 /// 2D physics world into standard SwiftUI navigation paths.
 struct InitialView: View {
     @Environment(\.modelContext) private var modelContext
-    @State var vm: InicialViewModel = InicialViewModel()
+    @State var vm: InitialViewModel = InitialViewModel()
     @State private var selectedConnection: Connection?
     @State private var showVacuoView: Bool = false
     @State var navigation: NavigationPath = NavigationPath()

@@ -1,5 +1,5 @@
 //
-//  BLEModels.swift
+//  BLEManager.swift
 //  ConexoesAmizaticas
 //
 //  Created by Thomas Pinheiro Grandin on 15/05/26.

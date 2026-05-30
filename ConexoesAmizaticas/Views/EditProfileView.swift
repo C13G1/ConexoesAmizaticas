@@ -11,12 +11,12 @@ import SwiftData
 
 /// An interface for modifying the current user's core identity data.
 ///
-/// `EditProfileView` binds to the application's global `InicialViewModel` to apply changes directly to the
+/// `EditProfileView` binds to the application's global `InitialViewModel` to apply changes directly to the
 /// primary `User` model. It features a Save button that commits changes to the database via `modelContext.save()`.
 
 struct EditProfileView: View {
     @Environment(\.modelContext) private var modelContext
-    @Binding var vm: InicialViewModel
+    @Binding var vm: InitialViewModel
     
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var editableName: String = ""
@@ -94,6 +94,6 @@ struct EditProfileView: View {
 }
 
 #Preview {
-    @Previewable @State var viewModel = InicialViewModel()
+    @Previewable @State var viewModel = InitialViewModel()
     EditProfileView(vm: $viewModel)
 }

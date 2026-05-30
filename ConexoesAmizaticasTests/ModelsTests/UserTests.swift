@@ -11,7 +11,7 @@ import Testing
 import Foundation
 @testable import ConexoesAmizaticas
 
-struct UserModelTests {
+struct UserTests {
 
     @Test("Init com valores customizados preserva propriedades")
     func initWithCustomValues() {

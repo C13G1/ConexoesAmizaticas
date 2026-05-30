@@ -1,5 +1,5 @@
 //
-//  CreatProfileViewModelTests.swift
+//  CreateProfileViewModelTests.swift
 //  ConexoesAmizaticas
 //
 //  Created by Dayô Araújo on 28/05/26.
@@ -12,7 +12,7 @@ import SwiftData
 @testable import ConexoesAmizaticas
 
 @MainActor
-struct CreatProfileViewModelTests {
+struct CreateProfileViewModelTests {
 
     private func makeContext() throws -> ModelContext {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
@@ -26,7 +26,7 @@ struct CreatProfileViewModelTests {
     @Test("Init com store vazio começa com profile vazio")
     func initStartsEmpty() throws {
         let context = try makeContext()
-        let vm = CreatProfileViewModel(modelContext: context)
+        let vm = CreateProfileViewModel(modelContext: context)
         #expect(vm.profile.isEmpty)
     }
 
@@ -37,7 +37,7 @@ struct CreatProfileViewModelTests {
         context.insert(existing)
         try context.save()
 
-        let vm = CreatProfileViewModel(modelContext: context)
+        let vm = CreateProfileViewModel(modelContext: context)
 
         #expect(vm.profile.count == 1)
         #expect(vm.profile.first?.getName() == "Existente")
@@ -46,7 +46,7 @@ struct CreatProfileViewModelTests {
     @Test("modelContext é preservado depois do init")
     func modelContextIsStored() throws {
         let context = try makeContext()
-        let vm = CreatProfileViewModel(modelContext: context)
+        let vm = CreateProfileViewModel(modelContext: context)
         #expect(vm.modelContext === context)
     }
 
@@ -59,7 +59,7 @@ struct CreatProfileViewModelTests {
         context.insert(u2)
         try context.save()
 
-        let vm = CreatProfileViewModel(modelContext: context)
+        let vm = CreateProfileViewModel(modelContext: context)
         let firstOrder = vm.profile.map(\.id)
 
         vm.fetchData()

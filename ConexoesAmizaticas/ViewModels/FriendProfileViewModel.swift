@@ -13,6 +13,7 @@ import SwiftData
 ///
 /// It acts as a bridge between the complex `Connection` model and the `FriendsProfileView`, isolating UI
 /// components from database calculations like calendar math, goal tracking, and dynamic styling based on relationship state.
+@Observable
 class FriendProfileViewModel {
     private(set) var connection: Connection
     

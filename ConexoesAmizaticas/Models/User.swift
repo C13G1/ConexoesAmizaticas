@@ -1,5 +1,5 @@
 //
-//  UserModel.swift
+//  User.swift
 //  ConexoesAmizaticas
 //
 //  Created by Thomas Pinheiro Grandin on 18/05/26.

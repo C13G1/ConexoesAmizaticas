@@ -12,7 +12,7 @@ import SwiftUI
 /// By employing an inverted `SemiCircle`, `ToolBar` mirrors the design language of the bottom `TabBar`.
 /// It encapsulates the `ProfileCircleAndName` component, anchoring the user's identity to the top of the screen.
 struct ToolBar: View {
-    @Binding var vm: InicialViewModel
+    @Binding var vm: InitialViewModel
     
     var body: some View {
         ZStack {
@@ -29,6 +29,6 @@ struct ToolBar: View {
 }
 
 #Preview {
-    @Previewable @State var viewModel = InicialViewModel()
+    @Previewable @State var viewModel = InitialViewModel()
     ToolBar(vm: $viewModel)
 }

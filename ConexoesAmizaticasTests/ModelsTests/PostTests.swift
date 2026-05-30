@@ -1,5 +1,5 @@
 //
-//  PostModelTests.swift
+//  PostTests.swift
 //  ConexoesAmizaticas
 //
 //  Created by Jonas Fernando Nascimento Melo on 28/05/26.
@@ -10,7 +10,7 @@ import Testing
 import Foundation
 @testable import ConexoesAmizaticas
 
-struct PostModelTests {
+struct PostTests {
 
     @Test("Init armazena imagens e data")
     func initStoresImagesAndDate() {

@@ -15,7 +15,7 @@ import SpriteKit
 /// SwiftUI `.searchable` modifier. It filters the visible connections in the scene, effectively blending
 /// traditional list-searching paradigms with spatial node interaction.
 struct SearchView: View {
-    @Binding var viewModel: InicialViewModel
+    @Binding var viewModel: InitialViewModel
     @State private var searchText: String = ""
     @State var navPath: NavigationPath = NavigationPath()
     @State var reloadScreen: Bool = false
@@ -85,7 +85,7 @@ struct SearchView: View {
 
 
 #Preview {
-    @Previewable @State var viewModel = InicialViewModel()
+    @Previewable @State var viewModel = InitialViewModel()
     SearchView(viewModel: $viewModel)
         .modelContainer(for: [
             User.self,

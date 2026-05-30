@@ -11,7 +11,7 @@ import SwiftUI
 ///
 /// Similar to `ProfileCircleAndName` but scaled up for a dedicated profile screen, establishing visual hierarchy.
 struct ProfileHeader: View {
-    @Binding var vm: InicialViewModel
+    @Binding var vm: InitialViewModel
     var width = UIScreen.main.bounds.width
     
     var body: some View {
@@ -46,7 +46,7 @@ struct ProfileHeader: View {
 }
 
 #Preview {
-    @Previewable @State var viewModel = InicialViewModel()
+    @Previewable @State var viewModel = InitialViewModel()
     ProfileHeader(
         vm: $viewModel
     )

@@ -10,9 +10,9 @@ import SwiftUI
 /// A compact visual identifier showing the user's avatar and name.
 ///
 /// Placed inside the top `ToolBar`, this component acts as the primary gateway to the `UserProfileView`.
-/// It extracts the active profile data directly from the root `InicialViewModel`.
+/// It extracts the active profile data directly from the root `InitialViewModel`.
 struct ProfileCircleAndName: View {
-    @Binding var vm: InicialViewModel
+    @Binding var vm: InitialViewModel
     var width = UIScreen.main.bounds.width
     
     var body: some View {
@@ -53,7 +53,7 @@ struct ProfileCircleAndName: View {
 }
 
 #Preview {
-    @Previewable @State var viewModel = InicialViewModel()
+    @Previewable @State var viewModel = InitialViewModel()
     ProfileCircleAndName(
         vm: $viewModel
     )
