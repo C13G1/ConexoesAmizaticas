@@ -89,72 +89,10 @@ struct FriendsProfileView: View {
                         .frame(width: width * 0.8)
                         .fontWeight(.semibold)
 
-                    HStack(spacing: 20.5) {
-                        TextedRoundedRectangle(text: "conectados há",
-                                               subText: "\(viewModel.getConnectionTime()) Dias",
-                                               subTextColor: viewModel.getProfileColor(),
-                                               isTwelve: false)
-                        TextedRoundedRectangle(text: "último encontro",
-                                               subText: lastMeetDaysText,
-                                               subTextColor: viewModel.getProfileColor(),
-                                               isTwelve: false)
-                        TextedRoundedRectangle(text: "promessa",
-                                               subText: viewModel.getMeta().rawValue,
-                                               subTextColor: viewModel.getProfileColor(),
-                                               isTwelve: false)
-                    }
+                    FriendStatsRow(viewModel: viewModel, lastMeetText: lastMeetDaysText)
 
-                    if viewModel.getTimeUntilMeet() < 0 {
-                        TextedRoundedRectangle(width: 351, height: 77,
-                                               text: "vocês prometeram se encontrar dentro de",
-                                               textSize: 15, subText: "\(viewModel.getTimeUntilMeet() * -1) dias atrasados",
-                                               subTextSize: 36,
-                                               subTextColor: viewModel.getProfileColor(),
-                                               isTwelve: false)
-                    } else {
-                        TextedRoundedRectangle(width: 351, height: 77,
-                                               text: "vocês prometeram se encontrar dentro de",
-                                               textSize: 15,
-                                               subText: "\(viewModel.getTimeUntilMeet()) dias",
-                                               subTextSize: 36,
-                                               subTextColor: viewModel.getProfileColor(),
-                                               isTwelve: false)
-                    }
-
-                    NavigationLink(destination: BLEView(profile: ownUser ?? User())) {
-                        ZStack {
-                            HStack(spacing: -40) {
-                                CurvedRectangle(depth: 2)
-                                    .stroke(viewModel.getProfileColor(),
-                                            style: StrokeStyle(
-                                                lineWidth: 5,
-                                                lineCap: .round
-                                            )
-                                    )
-                                    .frame(width: UIScreen.main.bounds.height * 0.0957,
-                                           height: UIScreen.main.bounds.width * 0.0741)
-                                    .rotationEffect(Angle(degrees: 90))
-
-                                Ellipse()
-                                    .frame(width: UIScreen.main.bounds.width * 0.623,
-                                           height: UIScreen.main.bounds.height * 0.123)
-                                    .foregroundStyle(viewModel.getProfileColor())
-
-                                CurvedRectangle(depth: 2)
-                                    .stroke(viewModel.getProfileColor(),
-                                            style: StrokeStyle(
-                                                lineWidth: 5,
-                                                lineCap: .round
-                                            )
-                                    )
-                                    .frame(width: UIScreen.main.bounds.height * 0.0957,
-                                           height: UIScreen.main.bounds.width * 0.0741)
-                                    .rotationEffect(Angle(degrees: -90))
-                            }
-                            Text("registrar\num momento")
-                                .font(.custom("Bolota", size: 24))
-                                .foregroundStyle(.white)
-                        }
+                    RecordMomentButton(color: viewModel.getProfileColor()) {
+                        BLEView(profile: ownUser ?? User())
                     }
 
                     AddPictureButton(viewModel: feedViewModel, color: viewModel.getProfileColor())
