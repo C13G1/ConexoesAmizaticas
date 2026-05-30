@@ -110,14 +110,4 @@ struct MetaEnumTests {
     }
 }
 
-struct OrbitRadiusTests {
 
-    @Test("Valores brutos do OrbitRadius correspondem aos do RelationshipState.orbitRadius")
-    func orbitRadiusValuesMatch() {
-        #expect(OrbitRadius.afastados.rawValue    == RelationshipState.afastados.orbitRadius)
-        #expect(OrbitRadius.distantes.rawValue    == RelationshipState.distantes.orbitRadius)
-        #expect(OrbitRadius.estaveis.rawValue     == RelationshipState.estaveis.orbitRadius)
-        #expect(OrbitRadius.proximos.rawValue     == RelationshipState.proximos.orbitRadius)
-        #expect(OrbitRadius.inseparaveis.rawValue == RelationshipState.inseparaveis.orbitRadius)
-    }
-}

@@ -9,7 +9,7 @@ import SpriteKit
 
 /// A non-interactive, invisible physics anchor.
 ///
-/// `SpringNode` is solely utilized by `OrbitNode` to act as the fixed reference point (`bodyB`)
+/// `SpringNode` is utilized by `FriendsScene` to act as the fixed reference point (`bodyB`)
 /// when creating an `SKPhysicsJointSpring` constraint. It ensures that a `FriendNode`
 /// always pulls back to its designated mathematical location on the orbit when dragged.
 class SpringNode: SKNode {

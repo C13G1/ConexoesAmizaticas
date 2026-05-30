@@ -109,32 +109,14 @@ class FriendNode: SKShapeNode {
             }
         }
         
-        // If it was dragged and released, recalculate the vector so the spring pulls it back into its lane
-        if let _ = self.parent as? OrbitNode {
-            findOrbit()
-        }
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    /// Recalculates the node's position relative to its assigned `orbitRadius`.
-    /// This prevents the physics joint from glitching or snapping violently after the user releases a dragged node.
-    func findOrbit() {
-        let h = sqrt(position.x * position.x + position.y * position.y)
-        let ratio = h / orbitRadius
-        let delta: Double = 1.0 / ratio
-        let oldPosition = self.position
-        let newPosition = CGPoint(x: position.x * delta, y: position.y * delta)
-        let spritePosition = CGPoint(x: oldPosition.x - newPosition.x, y: oldPosition.y - newPosition.y)
-        
-        self.position = newPosition
-        self.sprite.position = spritePosition
-    }
-
     /// Updates the node's position to follow the user's finger.
-    /// Called sequentially by the parent `OrbitNode` during the scene's update loop.
+    /// Called sequentially by `FriendsScene` during the scene's update loop.
     func update() {
         if let _ = currentTouch {
             self.position.x += lastTouchLocation.x - self.position.x
