@@ -11,46 +11,32 @@ import SpriteKit
 
 /// A specialized exploratory view utilizing a text-based filter over the physical simulation.
 ///
-/// `SearchView` repurposes the `FriendsScene` as a dynamic background that reacts in real-time to the
-/// SwiftUI `.searchable` modifier. It filters the visible connections in the scene, effectively blending
-/// traditional list-searching paradigms with spatial node interaction.
+/// `SearchView` is the presentational shell over `SearchViewModel`. It pairs the SwiftUI `.searchable`
+/// modifier with the `FriendsScene` background, mirroring the SwiftData query into the view model so the
+/// scene can react to the typed query in real time.
 struct SearchView: View {
     @Binding var viewModel: InitialViewModel
-    @State private var searchText: String = ""
-    @State var navPath: NavigationPath = NavigationPath()
-    @State var reloadScreen: Bool = false
-    @State private var selectedConnection: Connection?
-    
+    @State private var searchViewModel = SearchViewModel()
+
     @Query private var connections: [Connection]
     @Query private var users: [User]
-
-    @FocusState private var isFocused: Bool
 
     @State private var scene: FriendsScene = {
         let scene = FriendsScene(size: UIScreen.main.bounds.size, connections: Set(), sceneType: .search)
         scene.scaleMode = .aspectFill
         return scene
     }()
-    
-    /// Computes the subset of connections matching the active search query.
-    var searchResults: [Connection] {
-        if searchText.isEmpty {
-            return []
-        } else {
-            return connections.filter { c in
-                c.friend.name.localizedStandardContains(searchText)
-            }
-        }
-    }
-    
+
     var body: some View {
-        NavigationStack(path: $navPath) {
+        @Bindable var bindable = searchViewModel
+
+        NavigationStack(path: $bindable.navPath) {
             ZStack {
                 SpriteView(scene: scene)
                     .ignoresSafeArea()
                     .tag("searchView")
-                
-                if !searchText.isEmpty && searchResults.isEmpty {
+
+                if searchViewModel.hasEmptyResults {
                     Text("Você não tem nenhum contato com esse nome")
                         .font(.custom("Sora-Regular", size: 24))
                         .frame(width: UIScreen.main.bounds.width * 0.8)
@@ -59,7 +45,7 @@ struct SearchView: View {
             }
             .background(Color.lightBackground)
             .searchable(
-                text: $searchText,
+                text: $bindable.searchText,
                 placement: .navigationBarDrawer(displayMode: .always)
             )
             .navigationDestination(for: Connection.self) { value in
@@ -69,20 +55,19 @@ struct SearchView: View {
         .onAppear {
             scene.updateConnections(receivedConnections: Set(connections.filter { !$0.inVacuo }))
             scene.onFriendTapped = { connection in
-                selectedConnection = connection
-                navPath.append(connection)
+                searchViewModel.navPath.append(connection)
             }
         }
-        .onChange(of: connections) { _, newConnections in
+        .onChange(of: connections, initial: true) { _, newConnections in
+            searchViewModel.connections = newConnections
             scene.updateConnections(receivedConnections: Set(newConnections.filter { !$0.inVacuo }))
             scene.updateNodeVisuals()
         }
-        .onChange(of: searchText) {
-            scene.filterByName(searchText)
+        .onChange(of: searchViewModel.searchText) { _, newValue in
+            scene.filterByName(newValue)
         }
     }
 }
-
 
 #Preview {
     @Previewable @State var viewModel = InitialViewModel()
