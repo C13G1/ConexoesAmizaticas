@@ -1,5 +1,5 @@
 //
-//  Enums.swift
+//  RelationshipState.swift
 //  ConexoesAmizaticas
 //
 //  Created by Thomas Pinheiro Grandin on 18/05/26.
@@ -18,7 +18,7 @@ enum RelationshipState: String, Codable {
     case estaveis     = "estaveis"
     case proximos     = "proximos"
     case inseparaveis = "inseparaveis"
-    
+
     /// The distance from the center node in the graphical visualizer.
     var orbitRadius: Double {
         switch self {
@@ -29,7 +29,7 @@ enum RelationshipState: String, Codable {
         case .inseparaveis: return 500
         }
     }
-    
+
     /// The velocity at which the node travels along its orbit.
     var orbitSpeed: Double {
         switch self {
@@ -40,7 +40,7 @@ enum RelationshipState: String, Codable {
         case .inseparaveis: return 5
         }
     }
-    
+
     /// The thematic color identifying this specific relationship state.
     var color: UIColor {
         switch self {
@@ -69,61 +69,6 @@ enum RelationshipState: String, Codable {
         case .estaveis:     return "Estáveis"
         case .proximos:     return "Próximos"
         case .inseparaveis: return "Inseparáveis"
-        }
-    }
-}
-
-enum SceneType {
-    case initial
-    case search
-}
-
-enum OrbitRadius: Double {
-    case afastados    = 100
-    case distantes    = 200
-    case estaveis     = 300
-    case proximos     = 400
-    case inseparaveis = 500
-}
-
-enum CodingKeys: String, CodingKey {
-    case name
-    case profilePicture
-    case id
-}
-
-/// Represents the commitment goal set by the user to meet a specific friend.
-enum Meta: String, Codable {
-    case nenhuma   = "nenhuma"
-    case semanal   = "semanal"
-    case quinzenal = "quizenal"
-    case mensal    = "mensal"
-    case bimestral = "bimestral"
-    case semestral = "semestral"
-    case anual     = "anual"
-
-    var displayText: String {
-        switch self {
-        case .nenhuma:   return "Nenhuma"
-        case .semanal:   return "1 vez por semana"
-        case .quinzenal: return "a cada 15 dias"
-        case .mensal:    return "1 vez por mês"
-        case .bimestral: return "a cada 3 meses"
-        case .semestral: return "a cada 6 meses"
-        case .anual:     return "1 vez por ano"
-        }
-    }
-
-    /// The numeric equivalent of the goal in days.
-    var days: Int {
-        switch self {
-        case .nenhuma:   return 0
-        case .semanal:   return 7
-        case .quinzenal: return 15
-        case .mensal:    return 30
-        case .bimestral: return 60
-        case .semestral: return 182
-        case .anual:     return 360
         }
     }
 }
