@@ -1,5 +1,5 @@
 //
-//  Notification+App.swift
+//  NotificationName+App.swift
 //  ConexoesAmizaticas
 //
 //  Created by Enzo Ferroni on 27/05/26.
