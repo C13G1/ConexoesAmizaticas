@@ -6,83 +6,20 @@
 //
 
 import SwiftUI
-import Charts
 import SwiftData
 
 /// A macroscopic overview of the user's entire social network.
 ///
-/// `UserProfileView` aggregates data from all active connections to render an analytical breakdown using
-/// SwiftUI Charts. It categorizes friendships based on their `RelationshipState` (e.g., "Próximos", "Afastados"),
-/// offering a high-level perspective of social health.
+/// `UserProfileView` is the presentational layer on top of `UserProfileViewModel`. It composes the header,
+/// the summary stats and the `RelationshipChart`, mirroring SwiftData query results into the view model.
 struct UserProfileView: View {
     @Binding var vm: InitialViewModel
     @Query private var connections: [Connection]
 
-    @State private var selectedAngle: Double?
+    @State private var viewModel = UserProfileViewModel()
 
     var width = UIScreen.main.bounds.width
     var height = UIScreen.main.bounds.height
-
-    private var friendsByState: [(state: RelationshipState, count: Int)] {
-        let orderedStates: [RelationshipState] = [
-            .afastados, .proximos, .distantes, .estaveis, .inseparaveis
-        ]
-        let grouped = Dictionary(grouping: connections) {
-            $0.metaManager.currentRelationshipState
-        }
-        return orderedStates.compactMap { state in
-            let count = grouped[state]?.count ?? 0
-            guard count > 0 else { return nil }
-            return (state: state, count: count)
-        }
-    }
-
-    private var categoryRanges: [(state: RelationshipState, range: Range<Double>)] {
-        var total = 0.0
-        return friendsByState.map { item in
-            let newTotal = total + Double(item.count)
-            let result = (state: item.state, range: total ..< newTotal)
-            total = newTotal
-            return result
-        }
-    }
-
-    private var selectedItem: (state: RelationshipState, count: Int)? {
-        guard let selectedAngle else { return nil }
-        guard let index = categoryRanges.firstIndex(where: { $0.range.contains(selectedAngle) }) else { return nil }
-        return friendsByState[index]
-    }
-
-    private var lastMeetingText: String {
-        let mostRecent = connections.compactMap { $0.lastMet }.max()
-        guard let mostRecent else { return "NUNCA" }
-        let days = Calendar.current.dateComponents([.day], from: mostRecent, to: .now).day ?? 0
-        if days == 0 { return "HOJE" }
-        if days == 1 { return "HÁ 1 DIA" }
-        return "HÁ \(days) DIAS"
-    }
-
-    private var chartCenterLabel: some View {
-        VStack(spacing: 4) {
-            if let selected = selectedItem {
-                let percentage = Int(round(Double(selected.count) / Double(connections.count) * 100))
-                Text("\(percentage)%")
-                    .font(.custom("Bolota", size: 36))
-                    .foregroundStyle(Color(uiColor: selected.state.color))
-                Text(selected.state.displayName.uppercased())
-                    .font(.custom("Sora-SemiBold", size: 13))
-                    .foregroundStyle(Color(uiColor: selected.state.color))
-            } else {
-                Text("RODA DA")
-                    .font(.custom("Bolota", size: 16))
-                    .foregroundStyle(.lightBackground)
-                Text("AMIZADE")
-                    .font(.custom("Bolota", size: 16))
-                    .foregroundStyle(.lightBackground)
-            }
-        }
-        .multilineTextAlignment(.center)
-    }
 
     var body: some View {
         ZStack {
@@ -94,58 +31,10 @@ struct UserProfileView: View {
             VStack(spacing: 60) {
                 VStack(spacing: 20) {
                     ProfileHeader(vm: $vm)
-
-                    HStack(spacing: 70) {
-                        VStack(alignment: .center) {
-                            Text("VOCÊ TEM")
-                                .font(.custom("Sora-Regular", size: 12))
-
-                            Text("\(connections.count) \(connections.count == 1 ? "amigo" : "amigos")")
-                                .font(.custom("Bolota", size: 24))
-                        }
-
-                        VStack(alignment: .center) {
-                            Text("ÚLTIMO ENCONTRO")
-                                .font(.custom("Sora-Regular", size: 12))
-
-                            Text(lastMeetingText)
-                                .font(.custom("Bolota", size: 24))
-                        }
-                    }
-                    .foregroundStyle(.lightBackground)
+                    summaryStats
                 }
 
-                if friendsByState.isEmpty {
-                    Text("Sem amigos ainda")
-                        .font(.custom("Bolota", size: 32))
-                        .foregroundStyle(.lightBackground)
-                        .frame(height: height * 0.35)
-                } else {
-                    Chart {
-                        ForEach(friendsByState, id: \.state) { item in
-                            SectorMark(
-                                angle: .value("Quantidade", item.count),
-                                innerRadius: .inset(24),
-                                angularInset: 2
-                            )
-                            .cornerRadius(4)
-                            .opacity(selectedItem == nil ? 1 : (selectedItem?.state == item.state ? 1 : 0.4))
-                            .foregroundStyle(Color(item.state.color))
-                        }
-                    }
-                    .chartAngleSelection(value: $selectedAngle)
-                    .chartBackground { chartProxy in
-                        GeometryReader { geometry in
-                            if let anchor = chartProxy.plotFrame {
-                                let frame = geometry[anchor]
-                                chartCenterLabel
-                                    .position(x: frame.midX, y: frame.midY)
-                            }
-                        }
-                    }
-                    .chartLegend(.hidden)
-                    .frame(width: width * 0.8, height: height * 0.35)
-                }
+                chartSection
             }
             .padding(.top, height * 0.05)
         }
@@ -164,6 +53,43 @@ struct UserProfileView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
+        .onChange(of: connections, initial: true) { _, newValue in
+            viewModel.connections = newValue
+        }
+    }
+
+    private var summaryStats: some View {
+        HStack(spacing: 70) {
+            VStack(alignment: .center) {
+                Text("VOCÊ TEM")
+                    .font(.custom("Sora-Regular", size: 12))
+                Text("\(viewModel.friendCount) \(viewModel.friendCount == 1 ? "amigo" : "amigos")")
+                    .font(.custom("Bolota", size: 24))
+            }
+
+            VStack(alignment: .center) {
+                Text("ÚLTIMO ENCONTRO")
+                    .font(.custom("Sora-Regular", size: 12))
+                Text(viewModel.lastMeetingText)
+                    .font(.custom("Bolota", size: 24))
+            }
+        }
+        .foregroundStyle(.lightBackground)
+    }
+
+    @ViewBuilder
+    private var chartSection: some View {
+        if viewModel.friendsByState.isEmpty {
+            Text("Sem amigos ainda")
+                .font(.custom("Bolota", size: 32))
+                .foregroundStyle(.lightBackground)
+                .frame(height: height * 0.35)
+        } else {
+            RelationshipChart(
+                viewModel: viewModel,
+                size: CGSize(width: width * 0.8, height: height * 0.35)
+            )
+        }
     }
 }
 
