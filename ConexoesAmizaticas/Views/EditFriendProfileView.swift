@@ -85,5 +85,5 @@ struct EditFriendProfileView: View {
     NavigationStack {
         EditFriendProfileView(connection: Connection(friend: User(name: "Juliana")))
     }
-    .modelContainer(for: [User.self, Connection.self], inMemory: true)
+    .modelContainer(for: AppSchema.models, inMemory: true)
 }

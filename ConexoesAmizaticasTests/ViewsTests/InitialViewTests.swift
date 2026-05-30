@@ -16,7 +16,7 @@ struct InitialViewLogicTests {
     private func makeContext() throws -> ModelContext {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(
-            for: User.self, Connection.self, Friendship.self, Feed.self, Post.self,
+            for: AppSchema.schema,
             configurations: config
         )
         return ModelContext(container)

@@ -270,5 +270,5 @@ struct BLEView: View {
     NavigationStack {
         BLEView(profile: User())
     }
-    .modelContainer(for: [User.self, Connection.self], inMemory: true)
+    .modelContainer(for: AppSchema.models, inMemory: true)
 }

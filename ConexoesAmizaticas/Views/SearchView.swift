@@ -72,11 +72,5 @@ struct SearchView: View {
 #Preview {
     @Previewable @State var viewModel = InitialViewModel()
     SearchView(viewModel: $viewModel)
-        .modelContainer(for: [
-            User.self,
-            Post.self,
-            Feed.self,
-            Connection.self,
-            Friendship.self,
-        ])
+        .modelContainer(for: AppSchema.models)
 }

@@ -86,5 +86,5 @@ struct OnboardingView: View {
 
 #Preview {
     OnboardingView()
-        .modelContainer(for: User.self, inMemory: true)
+        .modelContainer(for: AppSchema.models, inMemory: true)
 }

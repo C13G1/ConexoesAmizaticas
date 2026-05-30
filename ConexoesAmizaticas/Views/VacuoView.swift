@@ -155,5 +155,5 @@ struct VacuoView: View {
 
 #Preview {
     VacuoView()
-        .modelContainer(for: [User.self, Connection.self, Friendship.self, Feed.self], inMemory: true)
+        .modelContainer(for: AppSchema.models, inMemory: true)
 }

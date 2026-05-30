@@ -96,10 +96,5 @@ struct UserProfileView: View {
 #Preview {
     @Previewable @State var viewModel = InitialViewModel()
     UserProfileView(vm: $viewModel)
-        .modelContainer(for: [
-            Connection.self,
-            User.self,
-            Friendship.self,
-            Feed.self
-        ])
+        .modelContainer(for: AppSchema.models)
 }
