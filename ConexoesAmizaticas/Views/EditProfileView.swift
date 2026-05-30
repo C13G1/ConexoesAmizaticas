@@ -11,32 +11,48 @@ import SwiftData
 
 /// An interface for modifying the current user's core identity data.
 ///
-/// `EditProfileView` binds to the application's global `InitialViewModel` to apply changes directly to the
-/// primary `User` model. It features a Save button that commits changes to the database via `modelContext.save()`.
-
+/// `EditProfileView` is the presentational shell on top of `EditProfileViewModel`. It surfaces the user's
+/// avatar and name field; the view model owns the form state and writes changes back to SwiftData on every edit.
 struct EditProfileView: View {
     @Environment(\.modelContext) private var modelContext
     @Binding var vm: InitialViewModel
-    
-    @State private var selectedPhoto: PhotosPickerItem?
-    @State private var editableName: String = ""
+
+    @State private var viewModel: EditProfileViewModel?
     @FocusState private var isNameFocused: Bool
-    
+
     var width = UIScreen.main.bounds.width
     var height = UIScreen.main.bounds.height
-    
+
     var body: some View {
+        Group {
+            if let viewModel = viewModel {
+                content(viewModel: viewModel)
+            } else {
+                Color.clear
+            }
+        }
+        .onAppear {
+            if viewModel == nil {
+                viewModel = EditProfileViewModel(profile: vm.profile, modelContext: modelContext)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func content(viewModel: EditProfileViewModel) -> some View {
+        @Bindable var bindable = viewModel
+
         VStack(spacing: 40) {
             ZStack {
-                if let uiImage = UIImage(data: vm.profile.profilePicture) {
+                if let uiImage = UIImage(data: viewModel.profileImageData) {
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFill()
                         .frame(width: width * 0.75, height: width * 0.75)
                         .clipShape(Circle())
                 }
-                
-                PhotosPicker(selection: $selectedPhoto, matching: .images, photoLibrary: .shared()) {
+
+                PhotosPicker(selection: $bindable.selectedPhoto, matching: .images, photoLibrary: .shared()) {
                     Image(systemName: "pencil")
                         .foregroundStyle(.lightBackground)
                         .font(.title)
@@ -47,49 +63,28 @@ struct EditProfileView: View {
                 .padding(.leading, width * 0.45)
                 .padding(.top, height * 0.28)
             }
-            .onChange(of: selectedPhoto) { _, newValue in
-                if let newValue {
-                    Task {
-                        if let data = try? await newValue.loadTransferable(type: Data.self) {
-                            vm.profile.editProfileImageData(data)
-                            try? modelContext.save()
-                        }
-                    }
-                }
+            .onChange(of: viewModel.selectedPhoto) { _, _ in
+                Task { await viewModel.commitSelectedPhoto() }
             }
-            
+
             VStack(spacing: 2) {
-                let characterLimit = 10
-                
-                TextField("Seu nome", text: $editableName)
+                TextField("Seu nome", text: $bindable.editableName)
                     .font(.custom("Bolota", size: 48))
                     .multilineTextAlignment(.center)
                     .focused($isNameFocused)
-                    .onAppear {
-                        editableName = vm.profile.name
+                    .onChange(of: viewModel.editableName) { _, _ in
+                        viewModel.commitName()
                     }
-                    .onChange(of: editableName) { oldValue, newValue in
-                        if newValue.count > characterLimit {
-                            editableName = String(newValue.prefix(characterLimit))
-                        } else {
-                            vm.profile.editName(newValue)
-                            try? modelContext.save()
-                        }
-                    }
-                    .onSubmit {
-                        isNameFocused = false
-                    }
-                
+                    .onSubmit { isNameFocused = false }
+
                 Capsule()
                     .frame(width: width * 0.75, height: 5)
             }
-            
+
             Spacer()
         }
         .foregroundStyle(.black)
-        .onTapGesture {
-            isNameFocused = false
-        }
+        .onTapGesture { isNameFocused = false }
     }
 }
 
