@@ -41,18 +41,12 @@ class FriendProfileViewModel {
     
     /// Calculates the total lifespan of the friendship in exact days.
     func getConnectionTime() -> Int {
-        let connectionDate = Date(timeIntervalSinceNow: connection.timeConnected)
-        let now = Date()
-        let days = Calendar.current.dateComponents([.day], from: connectionDate, to: now).day ?? 1
-        return days * -1
+        daysElapsed(since: connection.timeConnected)
     }
     
     /// Computes the elapsed days since the user and the friend last recorded a physical meeting.
     func getTimeSinceLastMet() -> Int {
-        let connectionDate = Date(timeIntervalSinceNow: connection.timeSinceLastMet)
-        let now = Date()
-        let days = Calendar.current.dateComponents([.day], from: connectionDate, to: now).day ?? 0
-        return days * -1
+        daysElapsed(since: connection.timeSinceLastMet)
     }
     
     func getLastMeet() -> Date? {
@@ -68,11 +62,7 @@ class FriendProfileViewModel {
     
     func getRecordTimeNotMeeting() -> Int {
         setRecordTimeNotMeeting()
-        
-        let connectionDate = Date(timeIntervalSinceNow: connection.recordTimeNotMeeting ?? 0)
-        let now = Date()
-        let days = Calendar.current.dateComponents([.day], from: connectionDate, to: now).day ?? 0
-        return days * -1 
+        return daysElapsed(since: connection.recordTimeNotMeeting ?? 0)
     }
     
     /// Derives the visual UI theme color based on the current health score of the relationship.
@@ -83,10 +73,28 @@ class FriendProfileViewModel {
     /// Computes the remaining time before the user fails their set relationship goal (`Meta`).
     /// - Returns: A positive integer representing remaining days, or a negative integer if the goal is overdue.
     func getTimeUntilMeet() -> Int {
-        let connectionDate = Date(timeIntervalSinceNow: connection.timeSinceLastMet)
-        let now = Date()
-        let daysUntil = Calendar.current.dateComponents([.day], from: connectionDate, to: now).day ?? 0
-        let trueDays =  connection.metaManager.meta.days + daysUntil
-        return trueDays
+        connection.metaManager.meta.days - getTimeSinceLastMet()
+    }
+    
+    /// Permanently removes the connection, its score/feed managers and the underlying friend from SwiftData.
+    ///
+    /// Also cancels the matching meta reminder so no orphaned notification fires after deletion.
+    /// - Parameter modelContext: The SwiftData context that should commit the cascading delete.
+    func deleteConnection(modelContext: ModelContext) {
+        NotificationManager.cancelMetaReminder(for: connection)
+        modelContext.delete(connection.metaManager)
+        modelContext.delete(connection.feedManager)
+        modelContext.delete(connection.friend)
+        modelContext.delete(connection)
+        try? modelContext.save()
+    }
+
+    /// Converts a positive interval representing a duration ending at the present moment into elapsed whole days.
+    /// - Parameter interval: A `TimeInterval` such as `timeConnected` or `timeSinceLastMet`.
+    /// - Returns: The number of whole days the interval covers. Returns `0` when the interval is too short to span a full day.
+    private func daysElapsed(since interval: TimeInterval) -> Int {
+        let referenceDate = Date(timeIntervalSinceNow: interval)
+        let days = Calendar.current.dateComponents([.day], from: referenceDate, to: Date()).day ?? 0
+        return -days
     }
 }

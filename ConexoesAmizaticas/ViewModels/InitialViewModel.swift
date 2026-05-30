@@ -63,4 +63,17 @@ class InitialViewModel {
         }
         return nil
     }
+
+    /// Applies score decay to every saved connection and reschedules every pending meta reminder.
+    ///
+    /// Called once when the root view appears, this method ensures connections that the user missed
+    /// while the app was closed get their decay applied and their reminders refreshed in one pass.
+    /// - Parameter connections: The connections to evaluate, typically the SwiftData query result.
+    func bootstrap(connections: [Connection]) {
+        for connection in connections {
+            connection.metaManager.applyDecayIfNeeded(lastMet: connection.lastMet)
+        }
+        try? modelContext?.save()
+        NotificationManager.rescheduleAll(connections: connections)
+    }
 }
