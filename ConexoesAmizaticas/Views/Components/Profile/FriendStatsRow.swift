@@ -42,13 +42,11 @@ struct FriendStatsRow: View {
         }
     }
 
-    @ViewBuilder
     private var countdownCard: some View {
         let days = viewModel.getTimeUntilMeet()
-        let isOverdue = days < 0
-        let displayText = isOverdue ? "\(-days) dias atrasados" : "\(days) dias"
+        let displayText = days < 0 ? "\(-days) dias atrasados" : "\(days) dias"
 
-        TextedRoundedRectangle(
+        return TextedRoundedRectangle(
             width: 351,
             height: 77,
             text: "vocês prometeram se encontrar dentro de",

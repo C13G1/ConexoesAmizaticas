@@ -44,7 +44,6 @@ struct RelationshipChart: View {
         .frame(width: size.width, height: size.height)
     }
 
-    @ViewBuilder
     private var centerLabel: some View {
         VStack(spacing: 4) {
             if let selected = viewModel.selectedItem, let percentage = viewModel.selectedPercentage {

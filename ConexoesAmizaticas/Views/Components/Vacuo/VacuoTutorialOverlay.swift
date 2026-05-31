@@ -26,22 +26,25 @@ struct VacuoTutorialOverlay: View {
                 .ignoresSafeArea()
 
             TabView(selection: $step) {
-                page(text: "amigos que ficarem\nmuito distantes vão\naparecer aqui") {
+                VStack(spacing: 60) {
+                    pageText("Amigos que ficarem\nmuito distantes vão\naparecer aqui")
                     sampleAvatar
                 }
                 .tag(0)
 
-                page(text: "mas se você deixá-los\naqui por muito tempo\neles desaparecem") {
+                VStack(spacing: 60) {
+                    pageText("Mas se você deixá-los\naqui por muito tempo\neles desaparecem")
                     dissolvingSampleAvatar
                 }
                 .tag(1)
 
-                page(text: "vocês podem se\nconectar novamente,\nmas tudo vai ser\nrecomeçado") {
-                    EmptyView()
+                VStack(spacing: 60) {
+                    pageText("Vocês podem se\nconectar novamente,\nmas tudo vai ser\nrecomeçado")
                 }
                 .tag(2)
 
-                page(text: "não deixe seus amigos\nno vácuo!") {
+                VStack(spacing: 60) {
+                    pageText("Não deixe seus amigos\nno vácuo!")
                     okButton
                 }
                 .tag(3)
@@ -57,15 +60,12 @@ struct VacuoTutorialOverlay: View {
         }
     }
 
-    private func page<Content: View>(text: String, @ViewBuilder bottom: () -> Content) -> some View {
-        VStack(spacing: 60) {
-            Text(text)
-                .font(.system(size: 24, weight: .light))
-                .multilineTextAlignment(.center)
-                .foregroundColor(.white)
-                .frame(maxWidth: 280)
-            bottom()
-        }
+    private func pageText(_ string: String) -> some View {
+        Text(string)
+            .font(.system(size: 24, weight: .light))
+            .multilineTextAlignment(.center)
+            .foregroundColor(.white)
+            .frame(maxWidth: 280)
     }
 
     private var sampleAvatar: some View {

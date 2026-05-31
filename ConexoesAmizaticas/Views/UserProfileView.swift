@@ -34,7 +34,17 @@ struct UserProfileView: View {
                     summaryStats
                 }
 
-                chartSection
+                if viewModel.friendsByState.isEmpty {
+                    Text("Sem amigos ainda")
+                        .font(.custom("Bolota", size: 32))
+                        .foregroundStyle(.lightBackground)
+                        .frame(height: height * 0.35)
+                } else {
+                    RelationshipChart(
+                        viewModel: viewModel,
+                        size: CGSize(width: width * 0.8, height: height * 0.35)
+                    )
+                }
             }
             .padding(.top, height * 0.05)
         }
@@ -77,20 +87,6 @@ struct UserProfileView: View {
         .foregroundStyle(.lightBackground)
     }
 
-    @ViewBuilder
-    private var chartSection: some View {
-        if viewModel.friendsByState.isEmpty {
-            Text("Sem amigos ainda")
-                .font(.custom("Bolota", size: 32))
-                .foregroundStyle(.lightBackground)
-                .frame(height: height * 0.35)
-        } else {
-            RelationshipChart(
-                viewModel: viewModel,
-                size: CGSize(width: width * 0.8, height: height * 0.35)
-            )
-        }
-    }
 }
 
 #Preview {

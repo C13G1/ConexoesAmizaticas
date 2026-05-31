@@ -125,7 +125,6 @@ struct BLEView: View {
 
     // MARK: - Text / button layer
 
-    @ViewBuilder
     private func textLayer(in size: CGSize) -> some View {
         VStack(spacing: 0) {
             Spacer(minLength: topAvatarCenterY(in: size) + avatarDiameter / 2 + 24)
@@ -158,7 +157,6 @@ struct BLEView: View {
         .animation(.easeInOut(duration: 0.35), value: viewModel.showSearchAgainButton)
     }
 
-    @ViewBuilder
     private var searchingText: some View {
         VStack(spacing: 14) {
             Text("Buscando contatos por perto...")
@@ -174,26 +172,29 @@ struct BLEView: View {
         .transition(.opacity)
     }
 
-    @ViewBuilder
     private var matchedText: some View {
-        if let friend = viewModel.friend {
-            VStack(spacing: 14) {
-                Text(viewModel.isExistingFriend(in: existingConnections)
-                     ? "Você e \(friend.name) se encontraram!"
-                     : "Parece que você e \(friend.name) se encontraram!")
-                    .font(.custom("Sora-ExtraBold", size: 26))
-                    .foregroundStyle(Color.white)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: 300)
-
-                Text("pressione e segure para confirmar o momento.")
-                    .font(.custom("Sora-Regular", size: 15))
-                    .foregroundStyle(Color.white.opacity(0.7))
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: 280)
-            }
-            .transition(.opacity)
+        let friend = viewModel.friend
+        let headline = friend.map { friend in
+            viewModel.isExistingFriend(in: existingConnections)
+                ? "Você e \(friend.name) se encontraram!"
+                : "Parece que você e \(friend.name) se encontraram!"
         }
+
+        return VStack(spacing: 14) {
+            Text(headline ?? "")
+                .font(.custom("Sora-ExtraBold", size: 26))
+                .foregroundStyle(Color.white)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 300)
+
+            Text("pressione e segure para confirmar o momento.")
+                .font(.custom("Sora-Regular", size: 15))
+                .foregroundStyle(Color.white.opacity(0.7))
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 280)
+        }
+        .opacity(friend == nil ? 0 : 1)
+        .transition(.opacity)
     }
 
     private var searchAgainButton: some View {
@@ -219,9 +220,8 @@ struct BLEView: View {
     }
 
     #if DEBUG
-    @ViewBuilder
     private var debugButtons: some View {
-        VStack(spacing: 6) {
+        VStack() {
             Button("Simular novo amigo (teste)") {
                 let fake = User(
                     name: "Amigo Novo",
@@ -229,18 +229,13 @@ struct BLEView: View {
                 )
                 viewModel.simulateMatch(with: fake)
             }
-            .font(.custom("Sora-Regular", size: 13))
-            .foregroundStyle(Color.white.opacity(0.55))
 
             if let first = existingConnections.first {
                 Button("Simular encontro com \(first.friend.name) (teste)") {
                     viewModel.simulateMatch(with: first.friend)
                 }
-                .font(.custom("Sora-Regular", size: 13))
-                .foregroundStyle(Color.white.opacity(0.55))
             }
         }
-        .padding(.top, 16)
     }
     #endif
 

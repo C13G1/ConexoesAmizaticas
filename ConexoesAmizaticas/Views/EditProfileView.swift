@@ -25,8 +25,52 @@ struct EditProfileView: View {
 
     var body: some View {
         Group {
-            if let viewModel = viewModel {
-                content(viewModel: viewModel)
+            if let viewModel {
+                @Bindable var bindable = viewModel
+
+                VStack(spacing: 40) {
+                    ZStack {
+                        if let uiImage = UIImage(data: viewModel.profileImageData) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: width * 0.75, height: width * 0.75)
+                                .clipShape(Circle())
+                        }
+
+                        PhotosPicker(selection: $bindable.selectedPhoto, matching: .images, photoLibrary: .shared()) {
+                            Image(systemName: "pencil")
+                                .foregroundStyle(.lightBackground)
+                                .font(.title)
+                                .padding(8)
+                                .background(Color.green)
+                                .cornerRadius(100)
+                        }
+                        .padding(.leading, width * 0.45)
+                        .padding(.top, height * 0.28)
+                    }
+                    .onChange(of: viewModel.selectedPhoto) { _, _ in
+                        Task { await viewModel.commitSelectedPhoto() }
+                    }
+
+                    VStack(spacing: 2) {
+                        TextField("Seu nome", text: $bindable.editableName)
+                            .font(.custom("Bolota", size: 48))
+                            .multilineTextAlignment(.center)
+                            .focused($isNameFocused)
+                            .onChange(of: viewModel.editableName) { _, _ in
+                                viewModel.commitName()
+                            }
+                            .onSubmit { isNameFocused = false }
+
+                        Capsule()
+                            .frame(width: width * 0.75, height: 5)
+                    }
+
+                    Spacer()
+                }
+                .foregroundStyle(.black)
+                .onTapGesture { isNameFocused = false }
             } else {
                 Color.clear
             }
@@ -36,55 +80,6 @@ struct EditProfileView: View {
                 viewModel = EditProfileViewModel(profile: vm.profile, modelContext: modelContext)
             }
         }
-    }
-
-    @ViewBuilder
-    private func content(viewModel: EditProfileViewModel) -> some View {
-        @Bindable var bindable = viewModel
-
-        VStack(spacing: 40) {
-            ZStack {
-                if let uiImage = UIImage(data: viewModel.profileImageData) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: width * 0.75, height: width * 0.75)
-                        .clipShape(Circle())
-                }
-
-                PhotosPicker(selection: $bindable.selectedPhoto, matching: .images, photoLibrary: .shared()) {
-                    Image(systemName: "pencil")
-                        .foregroundStyle(.lightBackground)
-                        .font(.title)
-                        .padding(8)
-                        .background(Color.green)
-                        .cornerRadius(100)
-                }
-                .padding(.leading, width * 0.45)
-                .padding(.top, height * 0.28)
-            }
-            .onChange(of: viewModel.selectedPhoto) { _, _ in
-                Task { await viewModel.commitSelectedPhoto() }
-            }
-
-            VStack(spacing: 2) {
-                TextField("Seu nome", text: $bindable.editableName)
-                    .font(.custom("Bolota", size: 48))
-                    .multilineTextAlignment(.center)
-                    .focused($isNameFocused)
-                    .onChange(of: viewModel.editableName) { _, _ in
-                        viewModel.commitName()
-                    }
-                    .onSubmit { isNameFocused = false }
-
-                Capsule()
-                    .frame(width: width * 0.75, height: 5)
-            }
-
-            Spacer()
-        }
-        .foregroundStyle(.black)
-        .onTapGesture { isNameFocused = false }
     }
 }
 
