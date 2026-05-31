@@ -41,6 +41,10 @@ class FriendNode: SKShapeNode {
     private var touchStartLocation: CGPoint?
     private var lastTapTime: TimeInterval = 0
 
+    /// When the press began over the spiral, the node forwards the entire touch sequence to the scene
+    /// so the underlying spiral can win the tap even with friend nodes overlapping it.
+    private var forwardingToScene = false
+
     /// A closure triggered when the node is tapped.
     /// Used by the parent scene to route the user to the `FriendsProfileView`.
     var onTapped: (() -> Void)?
@@ -78,6 +82,15 @@ class FriendNode: SKShapeNode {
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first, let parent = self.parent else { return }
+
+        if let scene = self.scene as? FriendsScene,
+           scene.isTouchOverSpiral(touch.location(in: scene)) {
+            forwardingToScene = true
+            scene.touchesBegan(touches, with: event)
+            return
+        }
+
+        forwardingToScene = false
         currentTouch = touch
         let loc = touch.location(in: parent)
         lastTouchLocation = loc
@@ -85,17 +98,27 @@ class FriendNode: SKShapeNode {
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if forwardingToScene {
+            self.scene?.touchesMoved(touches, with: event)
+            return
+        }
         guard let touch = touches.first, let parent = self.parent else { return }
         lastTouchLocation = touch.location(in: parent)
         currentTouch = touch
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if forwardingToScene {
+            self.scene?.touchesEnded(touches, with: event)
+            forwardingToScene = false
+            return
+        }
+
         defer {
             currentTouch = nil
             touchStartLocation = nil
         }
-        
+
         // Differentiate a tap from a drag — 22pt matches iOS's own tap tolerance (~half a finger width)
         if let touch = touches.first, let parent = self.parent, let start = touchStartLocation {
             let end = touch.location(in: parent)
@@ -108,7 +131,16 @@ class FriendNode: SKShapeNode {
                 return
             }
         }
-        
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if forwardingToScene {
+            self.scene?.touchesCancelled(touches, with: event)
+            forwardingToScene = false
+            return
+        }
+        currentTouch = nil
+        touchStartLocation = nil
     }
 
     required init?(coder aDecoder: NSCoder) {

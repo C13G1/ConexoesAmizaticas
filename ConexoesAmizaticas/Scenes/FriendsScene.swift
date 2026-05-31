@@ -141,6 +141,12 @@ class FriendsScene: SKScene {
         }
     }
 
+    /// Checks whether the given scene-space point lies over the central spiral node.
+    /// Allows overlapping friend nodes to forward their touch sequence to the scene so the spiral tap still wins.
+    func isTouchOverSpiral(_ sceneLocation: CGPoint) -> Bool {
+        nodes(at: sceneLocation).contains { $0.name == "spiral" }
+    }
+
     /// Temporarily hides and freezes nodes that do not match the given search text.
     func filterByName(_ text: String) {
         for child in rootNode.children {

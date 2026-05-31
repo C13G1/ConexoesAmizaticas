@@ -19,7 +19,8 @@ class VacuoViewModel {
     /// Mirror of the SwiftData query result. Update from the view whenever connections change.
     var allConnections: [Connection] = []
 
-    var showInfo: Bool = false
+    var showTutorial: Bool = false
+    var tutorialStep: Int = 0
     var focusedConnection: Connection?
 
     /// Subset of the connections that decayed past the vacuum threshold.
