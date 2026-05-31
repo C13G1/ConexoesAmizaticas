@@ -204,7 +204,7 @@ class BLEViewModel {
 
     // MARK: - Persistence
 
-    /// Persists the encounter to SwiftData: updates the `lastMet` and score for existing friendships,
+    /// Persists the encounter to SwiftData: updates the `lastMet` and score for existing metaManagers,
     /// or bootstraps a brand-new `Connection` for fresh contacts.
     private func confirmFriend(_ friend: User, modelContext: ModelContext, existingConnections: [Connection]) {
         guard friend.id != profile.id else {
@@ -214,11 +214,11 @@ class BLEViewModel {
         let connection: Connection
         if let existing = existingConnections.first(where: { $0.friend.id == friend.id }) {
             existing.lastMet = Date.now
-            existing.friendship.addOrSubtractScore(10)
+            existing.metaManager.addOrSubtractScore(10)
             connection = existing
             Aptabase.shared.trackEvent("meeting_registered", with: [
-                "relationship_state": existing.friendship.currentRelationshipState.rawValue,
-                "score": existing.friendship.score
+                "relationship_state": existing.metaManager.currentRelationshipState.rawValue,
+                "score": existing.metaManager.score
             ])
         } else {
             modelContext.insert(friend)

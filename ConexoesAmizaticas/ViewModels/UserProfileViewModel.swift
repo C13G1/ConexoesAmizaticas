@@ -20,7 +20,7 @@ class UserProfileViewModel {
     /// Angle currently focused by the user via `.chartAngleSelection`.
     var selectedAngle: Double?
 
-    /// Total number of saved friendships.
+    /// Total number of saved metaManagers.
     var friendCount: Int { connections.count }
 
     /// Friendships grouped by `RelationshipState`, ordered for a stable chart layout.
@@ -29,7 +29,7 @@ class UserProfileViewModel {
             .afastados, .proximos, .distantes, .estaveis, .inseparaveis
         ]
         let grouped = Dictionary(grouping: connections) {
-            $0.friendship.currentRelationshipState
+            $0.metaManager.currentRelationshipState
         }
         return orderedStates.compactMap { state in
             let count = grouped[state]?.count ?? 0
@@ -56,7 +56,7 @@ class UserProfileViewModel {
         return friendsByState[index]
     }
 
-    /// Localized text describing the most recent meeting across all friendships.
+    /// Localized text describing the most recent meeting across all metaManagers.
     var lastMeetingText: String {
         let mostRecent = connections.compactMap { $0.lastMet }.max()
         guard let mostRecent else { return "NUNCA" }

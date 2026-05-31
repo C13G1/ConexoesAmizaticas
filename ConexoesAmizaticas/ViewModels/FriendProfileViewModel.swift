@@ -24,11 +24,11 @@ class FriendProfileViewModel {
     
     /// Overwrites the current interaction goal established for this relationship.
     func defineMeta(meta: Meta){
-        connection.friendship.setMeta(meta)
+        connection.metaManager.setMeta(meta)
     }
     
     func getMeta() -> Meta {
-        return connection.friendship.meta
+        return connection.metaManager.meta
     }
     
     func getFriendImage() -> UIImage? {
@@ -39,7 +39,7 @@ class FriendProfileViewModel {
         return connection.friend.getName()
     }
     
-    /// Calculates the total lifespan of the friendship in exact days.
+    /// Calculates the total lifespan of the metaManager in exact days.
     func getConnectionTime() -> Int {
         daysElapsed(since: connection.timeConnected)
     }
@@ -53,7 +53,7 @@ class FriendProfileViewModel {
         return connection.lastMet
     }
     
-    /// Validates if the current absence streak breaks the historical record for this specific friendship.
+    /// Validates if the current absence streak breaks the historical record for this specific metaManager.
     func setRecordTimeNotMeeting() {
         if connection.timeSinceLastMet > connection.recordTimeNotMeeting ?? 0 {
             connection.recordTimeNotMeeting = connection.timeSinceLastMet
@@ -67,13 +67,13 @@ class FriendProfileViewModel {
     
     /// Derives the visual UI theme color based on the current health score of the relationship.
     func getProfileColor() -> Color {
-        return Color(connection.friendship.currentRelationshipState.color)
+        return Color(connection.metaManager.currentRelationshipState.color)
     }
     
     /// Computes the remaining time before the user fails their set relationship goal (`Meta`).
     /// - Returns: A positive integer representing remaining days, or a negative integer if the goal is overdue.
     func getTimeUntilMeet() -> Int {
-        connection.friendship.meta.days - getTimeSinceLastMet()
+        connection.metaManager.meta.days - getTimeSinceLastMet()
     }
     
     /// Permanently removes the connection, its score/feed managers and the underlying friend from SwiftData.
@@ -82,8 +82,8 @@ class FriendProfileViewModel {
     /// - Parameter modelContext: The SwiftData context that should commit the cascading delete.
     func deleteConnection(modelContext: ModelContext) {
         NotificationManager.cancelMetaReminder(for: connection)
-        modelContext.delete(connection.friendship)
-        modelContext.delete(connection.feed)
+        modelContext.delete(connection.metaManager)
+        modelContext.delete(connection.feedManager)
         modelContext.delete(connection.friend)
         modelContext.delete(connection)
         try? modelContext.save()

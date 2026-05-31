@@ -15,9 +15,9 @@ enum AppSchema {
     static let models: [any PersistentModel.Type] = [
         User.self,
         Post.self,
-        Feed.self,
+        FeedManager.self,
         Connection.self,
-        Friendship.self
+        MetaManager.self
     ]
 
     /// Convenience wrapper that builds a `Schema` from `models`, ready to be passed to `ModelContainer`.

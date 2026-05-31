@@ -1,5 +1,5 @@
 //
-//  Friendship.swift
+//  MetaManager.swift
 //  ConexoesAmizaticas
 //
 //  Created by Thomas Pinheiro Grandin on 18/05/26.
@@ -8,14 +8,12 @@
 import Foundation
 import SwiftData
 
-/// Tracks the health of a specific friendship: the meeting goal (`Meta`), the current score and the
-/// derived `RelationshipState`.
+/// Manages the scoring system and the expected meeting goals (`Meta`) for a specific connection.
 ///
-/// `Friendship` is a persistent entity owned by each `Connection`. It automatically recalculates the
-/// `RelationshipState` whenever the score changes, keeping the visual representation in sync with the
-/// real-world interactions registered by the user.
+/// The `MetaManager` automatically recalculates the `RelationshipState` whenever the score fluctuates,
+/// keeping the visual representation of the friendship synchronized with real-world interactions.
 @Model
-class Friendship {
+class MetaManager {
     /// Score thresholds that map a numeric score to a `RelationshipState`.
     private static let distantesThreshold:    Double = 20
     private static let estaveisThreshold:     Double = 30
@@ -39,13 +37,13 @@ class Friendship {
 
     /// Evaluates the current score against predefined thresholds to determine the health of the connection.
     private func calculateRelationshipState() -> RelationshipState {
-        if self.score < Friendship.distantesThreshold {
+        if self.score < MetaManager.distantesThreshold {
             return .afastados
-        } else if self.score < Friendship.estaveisThreshold {
+        } else if self.score < MetaManager.estaveisThreshold {
             return .distantes
-        } else if self.score < Friendship.proximosThreshold {
+        } else if self.score < MetaManager.proximosThreshold {
             return .estaveis
-        } else if self.score < Friendship.inseparaveisThreshold {
+        } else if self.score < MetaManager.inseparaveisThreshold {
             return .proximos
         } else {
             return .inseparaveis

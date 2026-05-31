@@ -71,7 +71,7 @@ class InitialViewModel {
     /// - Parameter connections: The connections to evaluate, typically the SwiftData query result.
     func bootstrap(connections: [Connection]) {
         for connection in connections {
-            connection.friendship.applyDecayIfNeeded(lastMet: connection.lastMet)
+            connection.metaManager.applyDecayIfNeeded(lastMet: connection.lastMet)
         }
         try? modelContext?.save()
         NotificationManager.rescheduleAll(connections: connections)

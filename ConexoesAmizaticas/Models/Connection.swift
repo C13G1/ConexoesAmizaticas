@@ -10,8 +10,8 @@ import Foundation
 
 /// Represents a persistent relationship between the current user and a friend.
 ///
-/// A `Connection` ties together the `User` profile of the friend, a `Friendship` to track the relationship health,
-/// and a `Feed` to store shared moments. It calculates crucial states, such as whether a friendship has fallen into the "vacuum" state.
+/// A `Connection` ties together the `User` profile of the friend, a `MetaManager` to track the relationship health,
+/// and a `FeedManager` to store shared moments. It calculates crucial states, such as whether a friendship has fallen into the "vacuum" state.
 @Model
 class Connection: Hashable {
     private(set) var id: UUID = UUID()
@@ -19,8 +19,8 @@ class Connection: Hashable {
     /// The profile of the friend associated with this connection.
     private(set) var friend: User
     
-    var friendship: Friendship
-    var feed: Feed
+    var metaManager: MetaManager
+    var feedManager: FeedManager
     
     var firstConnection: Date
     var lastMet: Date?
@@ -45,13 +45,13 @@ class Connection: Hashable {
     /// A boolean indicating if the connection has decayed into the vacuum state.
     /// Returns `true` when the score reaches zero — caused by consecutive missed meeting periods.
     var inVacuo: Bool {
-        return friendship.score <= 0
+        return metaManager.score <= 0
     }
 
     init(friend: User, lastMet: Date? = nil, score: Double = 10.0) {
         self.friend = friend
-        self.friendship = Friendship(score: score)
-        self.feed = Feed()
+        self.metaManager = MetaManager(score: score)
+        self.feedManager = FeedManager()
         self.firstConnection = Date.now
         self.lastMet = lastMet
     }

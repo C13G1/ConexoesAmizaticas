@@ -65,10 +65,10 @@ struct BLEViewLogicTests {
 
         // Replica o if do confirmFriend
         connection.lastMet = Date.now
-        connection.friendship.addOrSubtractScore(10)
+        connection.metaManager.addOrSubtractScore(10)
 
         #expect(connection.lastMet != nil)
-        #expect(connection.friendship.score == 30)
+        #expect(connection.metaManager.score == 30)
     }
 
     @Test("Não é possível parear consigo mesmo (mesmo id)")

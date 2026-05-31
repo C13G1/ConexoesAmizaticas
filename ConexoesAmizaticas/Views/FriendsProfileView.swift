@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 import Aptabase
 
-/// A comprehensive dashboard detailing a specific friendship.
+/// A comprehensive dashboard detailing a specific metaManager.
 ///
 /// `FriendsProfileView` aggregates the shared memory feed (via `PictureScroll`) and the analytical relationship metrics.
 /// It operates as the central hub for interacting with a specific `Connection`, allowing the user to view goals,
@@ -111,7 +111,7 @@ struct FriendsProfileView: View {
             .onAppear {
                 Aptabase.shared.trackEvent("screen_view", with: [
                     "name": "friend_profile",
-                    "relationship_state": viewModel.connection.friendship.currentRelationshipState.rawValue
+                    "relationship_state": viewModel.connection.metaManager.currentRelationshipState.rawValue
                 ])
             }
             .onReceive(NotificationCenter.default.publisher(for: .friendProfileUpdated)) { _ in
@@ -186,7 +186,7 @@ struct FriendsProfileView: View {
 
         for _ in 0..<5 {
             let post = Post(images: [mockData])
-            c.feed.addPost(post)
+            c.feedManager.addPost(post)
         }
 
         return c

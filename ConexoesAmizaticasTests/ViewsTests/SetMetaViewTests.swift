@@ -49,7 +49,7 @@ struct SetMetaViewLogicTests {
 
         vm.defineMeta(meta: .semanal)
         #expect(vm.getMeta() == .semanal)
-        #expect(connection.friendship.meta == .semanal)
+        #expect(connection.metaManager.meta == .semanal)
     }
 
     @Test("Alteração de meta é persistida após save")
@@ -66,12 +66,12 @@ struct SetMetaViewLogicTests {
         try context.save()
 
         let fetched = try context.fetch(FetchDescriptor<Connection>()).first
-        #expect(fetched?.friendship.meta == .anual)
+        #expect(fetched?.metaManager.meta == .anual)
     }
 
     private func performDelete(connection: Connection, in context: ModelContext) {
-        context.delete(connection.friendship)
-        context.delete(connection.feed)
+        context.delete(connection.metaManager)
+        context.delete(connection.feedManager)
         context.delete(connection.friend)
         context.delete(connection)
     }

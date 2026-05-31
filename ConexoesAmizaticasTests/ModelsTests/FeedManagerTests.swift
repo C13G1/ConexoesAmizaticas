@@ -1,5 +1,5 @@
 //
-//  FeedTests.swift
+//  FeedManagerTests.swift
 //  ConexoesAmizaticas
 //
 //  Created by Jonas Fernando Nascimento Melo on 28/05/26.
@@ -9,17 +9,17 @@ import Testing
 import Foundation
 @testable import ConexoesAmizaticas
 
-struct FeedTests {
+struct FeedManagerTests {
 
     @Test("Feed manager inicia vazio")
     func startsEmpty() {
-        let feed = Feed()
+        let feed = FeedManager()
         #expect(feed.posts.isEmpty)
     }
 
     @Test("addPost adiciona o post à lista")
     func addPostAppendsPost() {
-        let feed = Feed()
+        let feed = FeedManager()
         let post = Post(images: [Data([0x01])])
 
         feed.addPost(post)
@@ -30,7 +30,7 @@ struct FeedTests {
 
     @Test("addPost preserva ordem de inserção")
     func addPostPreservesOrder() {
-        let feed = Feed()
+        let feed = FeedManager()
         let p1 = Post(images: [])
         let p2 = Post(images: [])
         let p3 = Post(images: [])
@@ -44,7 +44,7 @@ struct FeedTests {
 
     @Test("deletePost remove apenas o post com id correspondente")
     func deletePostRemovesById() {
-        let feed = Feed()
+        let feed = FeedManager()
         let p1 = Post(images: [])
         let p2 = Post(images: [])
         feed.addPost(p1)
@@ -58,7 +58,7 @@ struct FeedTests {
 
     @Test("deletePost com id inexistente não altera a lista")
     func deletePostNonexistentIsNoOp() {
-        let feed = Feed()
+        let feed = FeedManager()
         let p1 = Post(images: [])
         feed.addPost(p1)
 
