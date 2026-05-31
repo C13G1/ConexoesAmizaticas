@@ -1,6 +1,6 @@
 //
-//  ConexoesAmizaticasTests.swift
-//  ConexoesAmizaticasTests
+//  UserTests.swift
+//  ConexoesAmizaticas
 //
 //  Created by Enzo Ferroni on 14/05/26.
 //
