@@ -175,13 +175,10 @@ class FriendsScene: SKScene {
         let tan = (location.x) / (location.y)
         touchOffset = atan(tan)
 
-        let touchedNodes = nodes(at: sceneLocation)
-        // Só conta como toque na espiral se nenhum FriendNode (nomeado com UUID) estiver sobreposto
-        let isFriendNodeTouched = touchedNodes.contains { node in
-            guard let name = node.name else { return false }
-            return UUID(uuidString: name) != nil
-        }
-        touchStartedOnSpiral = touchedNodes.contains { $0.name == "spiral" } && !isFriendNodeTouched
+        // The scene only receives the touch when no friend node consumed it, or when a friend node
+        // explicitly forwarded the sequence because the spiral was sitting beneath the press.
+        // In both cases the spiral wins as long as it is in `nodes(at:)`.
+        touchStartedOnSpiral = nodes(at: sceneLocation).contains { $0.name == "spiral" }
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {

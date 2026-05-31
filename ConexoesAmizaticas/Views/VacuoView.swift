@@ -23,6 +23,7 @@ struct VacuoView: View {
 
     @State private var voidScene: FriendsScene = {
         let s = FriendsScene(size: UIScreen.main.bounds.size, connections: Set(), sceneType: .search)
+        s.scaleMode = .aspectFill
         s.backgroundColor = .clear
         return s
     }()
@@ -84,10 +85,16 @@ struct VacuoView: View {
         }
         .onAppear {
             Aptabase.shared.trackEvent("screen_view", with: ["name": "vacuo"])
-            viewModel.allConnections = allConnections
-            voidScene.onFriendTapped = { connection in
+            // Rebuild the SpriteKit scene on every appearance: the same `@State` instance occasionally
+            // comes back paused after a navigation pop, leaving the SpriteView gray until the user taps.
+            let fresh = FriendsScene(size: UIScreen.main.bounds.size, connections: Set(), sceneType: .search)
+            fresh.scaleMode = .aspectFill
+            fresh.backgroundColor = .clear
+            fresh.onFriendTapped = { connection in
                 viewModel.focusedConnection = connection
             }
+            voidScene = fresh
+            viewModel.allConnections = allConnections
             voidScene.updateConnections(receivedConnections: Set(viewModel.vacuumConnections))
             voidScene.updateNodeVisuals()
         }
@@ -109,6 +116,7 @@ struct VacuoView: View {
 
             SpriteView(scene: voidScene, options: [.allowsTransparency])
                 .ignoresSafeArea()
+                .id(ObjectIdentifier(voidScene))
 
             if viewModel.vacuumConnections.isEmpty {
                 VStack {
@@ -121,6 +129,18 @@ struct VacuoView: View {
                         .padding(.bottom, 20)
                 }
             }
+
+            #if DEBUG
+            VStack {
+                Spacer()
+                Button("+ amigo no vácuo (debug)") {
+                    modelContext.insert(Connection(friend: User(name: "Amigo Vácuo"), score: 0))
+                }
+                .font(.custom("Sora-Regular", size: 13))
+                .foregroundStyle(.white.opacity(0.55))
+                .padding(.bottom, 40)
+            }
+            #endif
         }
     }
 
