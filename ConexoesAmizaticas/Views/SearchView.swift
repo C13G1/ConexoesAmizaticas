@@ -53,14 +53,14 @@ struct SearchView: View {
             }
         }
         .onAppear {
-            scene.updateConnections(receivedConnections: Set(connections.filter { !$0.inVacuo }))
+            scene.updateConnections(receivedConnections: Set(connections))
             scene.onFriendTapped = { connection in
                 searchViewModel.navPath.append(connection)
             }
         }
         .onChange(of: connections, initial: true) { _, newConnections in
             searchViewModel.connections = newConnections
-            scene.updateConnections(receivedConnections: Set(newConnections.filter { !$0.inVacuo }))
+            scene.updateConnections(receivedConnections: Set(newConnections))
             scene.updateNodeVisuals()
         }
         .onChange(of: searchViewModel.searchText) { _, newValue in

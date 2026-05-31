@@ -35,6 +35,9 @@ class FriendsScene: SKScene {
     private var touchStartedOnSpiral = false
     private var touchStartLocation: CGPoint?
 
+    /// The active search query — empty means no filter and every connection in `connections` is on stage.
+    private var currentFilterText: String = ""
+
     init(size: CGSize, connections: Set<Connection>, sceneType: SceneType) {
         self.sceneType = sceneType
         super.init(size: size)
@@ -107,21 +110,33 @@ class FriendsScene: SKScene {
     /// Synchronizes the graphical nodes with the current state of the database.
     /// Safely adds new friends or removes deleted ones without rebuilding the entire physics simulation.
     func updateConnections(receivedConnections: Set<Connection>) {
-        let connectionsToDelete = self.connections.subtracting(receivedConnections)
-        let connectionsToAdd = receivedConnections.subtracting(self.connections)
+        self.connections = receivedConnections
+        syncNodesToVisibleConnections()
+    }
 
-        self.connections.subtract(connectionsToDelete)
-        var nodesToRemove: [SKNode] = []
-        for connection in connectionsToDelete {
-            if let node = self.rootNode.childNode(withName: connection.friend.id.uuidString) {
-                nodesToRemove.append(node)
-            }
+    /// The subset of `connections` that should currently be on stage, respecting the active search filter.
+    private var visibleConnections: Set<Connection> {
+        guard !currentFilterText.isEmpty else { return connections }
+        return connections.filter { $0.friend.name.localizedCaseInsensitiveContains(currentFilterText) }
+    }
+
+    /// Adds nodes for newly visible connections and removes the ones that fell out of view,
+    /// so the physics simulation keeps animating only the relevant subset instead of frozen invisible nodes.
+    private func syncNodesToVisibleConnections() {
+        let target = visibleConnections
+        let targetIDs = Set(target.map { $0.friend.id.uuidString })
+
+        let currentNodes = rootNode.children.compactMap { $0 as? FriendNode }
+        let currentIDs = Set(currentNodes.compactMap { $0.name })
+
+        let nodesToRemove = currentNodes.filter { node in
+            guard let name = node.name else { return false }
+            return !targetIDs.contains(name)
         }
-        self.rootNode.removeChildren(in: nodesToRemove)
+        rootNode.removeChildren(in: nodesToRemove)
 
-        for connection in connectionsToAdd {
+        for connection in target where !currentIDs.contains(connection.friend.id.uuidString) {
             addFriendNode(for: connection)
-            self.connections.insert(connection)
         }
     }
 
@@ -147,21 +162,11 @@ class FriendsScene: SKScene {
         nodes(at: sceneLocation).contains { $0.name == "spiral" }
     }
 
-    /// Temporarily hides and freezes nodes that do not match the given search text.
+    /// Updates the active search filter and re-synchronizes the visible nodes so the unmatched ones
+    /// physically leave the stage instead of remaining as frozen invisible bodies.
     func filterByName(_ text: String) {
-        for child in rootNode.children {
-            guard let friendNode = child as? FriendNode else { continue }
-            let connection = connections.first { $0.friend.id.uuidString == (friendNode.name ?? "") }
-            
-            let visible = text.isEmpty || (connection?.friend.name.localizedCaseInsensitiveContains(text) ?? false)
-            
-            friendNode.isHidden = !visible
-            friendNode.physicsBody?.isDynamic = visible
-            if !visible {
-                friendNode.physicsBody?.velocity = .zero
-                friendNode.physicsBody?.angularVelocity = 0
-            }
-        }
+        currentFilterText = text
+        syncNodesToVisibleConnections()
     }
 
     // MARK: - Touch Handling
