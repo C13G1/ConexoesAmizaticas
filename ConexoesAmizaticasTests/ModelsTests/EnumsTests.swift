@@ -75,8 +75,8 @@ struct MetaEnumTests {
             (Meta.semanal,   7),
             (Meta.quinzenal, 15),
             (Meta.mensal,    30),
-            (Meta.bimestral, 60),
-            (Meta.semestral, 182),
+            (Meta.bimestral, 90),
+            (Meta.semestral, 180),
             (Meta.anual,     360)
           ])
     func daysMapping(meta: Meta, expected: Int) {

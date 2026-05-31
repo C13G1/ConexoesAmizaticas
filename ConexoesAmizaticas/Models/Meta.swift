@@ -36,8 +36,8 @@ enum Meta: String, Codable {
         case .semanal:   return 7
         case .quinzenal: return 15
         case .mensal:    return 30
-        case .bimestral: return 60
-        case .semestral: return 182
+        case .bimestral: return 90
+        case .semestral: return 180
         case .anual:     return 360
         }
     }
