@@ -17,6 +17,10 @@ struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = OnboardingViewModel()
 
+    /// Optional override invoked when the user taps "advance" instead of the default `createProfile`.
+    /// Receives the trimmed name and the picked image data (nil if the user did not pick one).
+    var onComplete: ((String, Data?) -> Void)?
+
     var body: some View {
         ZStack(alignment: .top) {
             RoundedRectangle(cornerRadius: 64)
@@ -70,7 +74,14 @@ struct OnboardingView: View {
                     .multilineTextAlignment(.center)
 
                 Button {
-                    viewModel.createProfile(modelContext: modelContext)
+                    if let onComplete {
+                        onComplete(
+                            viewModel.name.trimmingCharacters(in: .whitespaces),
+                            viewModel.profileImageData
+                        )
+                    } else {
+                        viewModel.createProfile(modelContext: modelContext)
+                    }
                 } label: {
                     Image(systemName: "arrow.right")
                         .resizable()

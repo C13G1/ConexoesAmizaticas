@@ -13,10 +13,12 @@ import SwiftData
 /// `UserProfileView` is the presentational layer on top of `UserProfileViewModel`. It composes the header,
 /// the summary stats and the `RelationshipChart`, mirroring SwiftData query results into the view model.
 struct UserProfileView: View {
+    @Environment(\.modelContext) private var modelContext
     @Binding var vm: InitialViewModel
     @Query private var connections: [Connection]
 
     @State private var viewModel = UserProfileViewModel()
+    @State private var showOnboardingTest = false
 
     var width = UIScreen.main.bounds.width
     var height = UIScreen.main.bounds.height
@@ -45,6 +47,12 @@ struct UserProfileView: View {
                         size: CGSize(width: width * 0.8, height: height * 0.35)
                     )
                 }
+
+                #if DEBUG
+                Button("Testar onboarding") {
+                    showOnboardingTest = true
+                }
+                #endif
             }
             .padding(.top, height * 0.05)
         }
@@ -66,6 +74,18 @@ struct UserProfileView: View {
         .onChange(of: connections, initial: true) { _, newValue in
             viewModel.connections = newValue
         }
+        #if DEBUG
+        .fullScreenCover(isPresented: $showOnboardingTest) {
+            OnboardingView { newName, newImageData in
+                vm.profile.editName(newName)
+                if let newImageData {
+                    vm.profile.editProfileImageData(newImageData)
+                }
+                try? modelContext.save()
+                showOnboardingTest = false
+            }
+        }
+        #endif
     }
 
     private var summaryStats: some View {
