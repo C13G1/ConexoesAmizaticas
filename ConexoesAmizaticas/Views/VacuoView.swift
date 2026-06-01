@@ -136,9 +136,6 @@ struct VacuoView: View {
                 Button("+ amigo no vácuo (debug)") {
                     modelContext.insert(Connection(friend: User(name: "Amigo Vácuo"), score: 0))
                 }
-                .font(.custom("Sora-Regular", size: 13))
-                .foregroundStyle(.white.opacity(0.55))
-                .padding(.bottom, 40)
             }
             #endif
         }

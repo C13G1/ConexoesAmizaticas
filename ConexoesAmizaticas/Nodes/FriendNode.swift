@@ -56,7 +56,7 @@ class FriendNode: SKShapeNode {
         let state = connection.metaManager.currentRelationshipState
         let imageData = connection.friend.profilePicture
         let path = UIBezierPath(roundedRect: CGRect(x: -128, y: -128, width: 256, height: 256), cornerRadius: 128).cgPath
-        
+
         self.sprite = SKShapeNode(path: path)
         let image = (UIImage(data: imageData) ?? UIImage()).normalized
         self.sprite.fillTexture = SKTexture(image: image)
@@ -66,10 +66,12 @@ class FriendNode: SKShapeNode {
         super.init()
 
         self.name = connection.friend.id.uuidString
-        self.physicsBody = SKPhysicsBody(circleOfRadius: 128)
+        // 138 = 128 (path radius) + 10 (the colored stroke that sits outside the path) so colored
+        // borders meet edge-to-edge with the spiral and with other friend nodes without overlapping.
+        self.physicsBody = SKPhysicsBody(circleOfRadius: 138)
         self.physicsBody?.isDynamic = true
         self.physicsBody?.affectedByGravity = false
-        
+
         self.isUserInteractionEnabled = false
         let nodeScale = state.nodeSize / 256.0
         self.scale = nodeScale
