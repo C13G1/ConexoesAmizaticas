@@ -133,7 +133,7 @@ struct VacuoView: View {
             #if DEBUG
             VStack {
                 Spacer()
-                Button("+ amigo no vácuo (debug)") {
+                Button("Simular amigo no vácuo (teste)") {
                     modelContext.insert(Connection(friend: User(name: "Amigo Vácuo"), score: 0))
                 }
             }
