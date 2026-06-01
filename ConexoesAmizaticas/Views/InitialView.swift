@@ -17,7 +17,7 @@ import _SwiftData_SwiftUI
 /// 2D physics world into standard SwiftUI navigation paths.
 struct InitialView: View {
     @Environment(\.modelContext) private var modelContext
-    @State var vm: InicialViewModel = InicialViewModel()
+    @State var vm: InitialViewModel = InitialViewModel()
     @State private var selectedConnection: Connection?
     @State private var showVacuoView: Bool = false
     @State var navigation: NavigationPath = NavigationPath()
@@ -81,14 +81,9 @@ struct InitialView: View {
         .onAppear {
             vm.setModelContext(modelContext: modelContext)
             vm.fetchData()
-            for connection in connections {
-                connection.metaManager.applyDecayIfNeeded(lastMet: connection.lastMet)
-            }
-            try? modelContext.save()
-            NotificationManager.rescheduleAll(connections: connections)
+            vm.bootstrap(connections: connections)
             scene.onFriendTapped = { connection in
                 DispatchQueue.main.async {
-                    guard navigation.count == 0 else { return }
                     navigation.append(connection)
                 }
             }

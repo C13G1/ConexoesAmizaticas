@@ -41,6 +41,10 @@ class FriendNode: SKShapeNode {
     private var touchStartLocation: CGPoint?
     private var lastTapTime: TimeInterval = 0
 
+    /// When the press began over the spiral, the node forwards the entire touch sequence to the scene
+    /// so the underlying spiral can win the tap even with friend nodes overlapping it.
+    private var forwardingToScene = false
+
     /// A closure triggered when the node is tapped.
     /// Used by the parent scene to route the user to the `FriendsProfileView`.
     var onTapped: (() -> Void)?
@@ -52,7 +56,7 @@ class FriendNode: SKShapeNode {
         let state = connection.metaManager.currentRelationshipState
         let imageData = connection.friend.profilePicture
         let path = UIBezierPath(roundedRect: CGRect(x: -128, y: -128, width: 256, height: 256), cornerRadius: 128).cgPath
-        
+
         self.sprite = SKShapeNode(path: path)
         let image = (UIImage(data: imageData) ?? UIImage()).normalized
         self.sprite.fillTexture = SKTexture(image: image)
@@ -62,10 +66,12 @@ class FriendNode: SKShapeNode {
         super.init()
 
         self.name = connection.friend.id.uuidString
-        self.physicsBody = SKPhysicsBody(circleOfRadius: 128)
+        // 138 = 128 (path radius) + 10 (the colored stroke that sits outside the path) so colored
+        // borders meet edge-to-edge with the spiral and with other friend nodes without overlapping.
+        self.physicsBody = SKPhysicsBody(circleOfRadius: 138)
         self.physicsBody?.isDynamic = true
         self.physicsBody?.affectedByGravity = false
-        
+
         self.isUserInteractionEnabled = false
         let nodeScale = state.nodeSize / 256.0
         self.scale = nodeScale
@@ -78,6 +84,15 @@ class FriendNode: SKShapeNode {
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first, let parent = self.parent else { return }
+
+        if let scene = self.scene as? FriendsScene,
+           scene.isTouchOverSpiral(touch.location(in: scene)) {
+            forwardingToScene = true
+            scene.touchesBegan(touches, with: event)
+            return
+        }
+
+        forwardingToScene = false
         currentTouch = touch
         let loc = touch.location(in: parent)
         lastTouchLocation = loc
@@ -85,17 +100,27 @@ class FriendNode: SKShapeNode {
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if forwardingToScene {
+            self.scene?.touchesMoved(touches, with: event)
+            return
+        }
         guard let touch = touches.first, let parent = self.parent else { return }
         lastTouchLocation = touch.location(in: parent)
         currentTouch = touch
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if forwardingToScene {
+            self.scene?.touchesEnded(touches, with: event)
+            forwardingToScene = false
+            return
+        }
+
         defer {
             currentTouch = nil
             touchStartLocation = nil
         }
-        
+
         // Differentiate a tap from a drag — 22pt matches iOS's own tap tolerance (~half a finger width)
         if let touch = touches.first, let parent = self.parent, let start = touchStartLocation {
             let end = touch.location(in: parent)
@@ -108,33 +133,24 @@ class FriendNode: SKShapeNode {
                 return
             }
         }
-        
-        // If it was dragged and released, recalculate the vector so the spring pulls it back into its lane
-        if let _ = self.parent as? OrbitNode {
-            findOrbit()
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if forwardingToScene {
+            self.scene?.touchesCancelled(touches, with: event)
+            forwardingToScene = false
+            return
         }
+        currentTouch = nil
+        touchStartLocation = nil
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    /// Recalculates the node's position relative to its assigned `orbitRadius`.
-    /// This prevents the physics joint from glitching or snapping violently after the user releases a dragged node.
-    func findOrbit() {
-        let h = sqrt(position.x * position.x + position.y * position.y)
-        let ratio = h / orbitRadius
-        let delta: Double = 1.0 / ratio
-        let oldPosition = self.position
-        let newPosition = CGPoint(x: position.x * delta, y: position.y * delta)
-        let spritePosition = CGPoint(x: oldPosition.x - newPosition.x, y: oldPosition.y - newPosition.y)
-        
-        self.position = newPosition
-        self.sprite.position = spritePosition
-    }
-
     /// Updates the node's position to follow the user's finger.
-    /// Called sequentially by the parent `OrbitNode` during the scene's update loop.
+    /// Called sequentially by `FriendsScene` during the scene's update loop.
     func update() {
         if let _ = currentTouch {
             self.position.x += lastTouchLocation.x - self.position.x

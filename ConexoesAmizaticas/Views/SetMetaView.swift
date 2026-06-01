@@ -33,7 +33,7 @@ struct SetMetaView: View {
         ZStack {
             Rectangle()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .foregroundStyle(.friendProfileBackGround)
+                .foregroundStyle(.friendProfileBackground)
                 .ignoresSafeArea()
 
             VStack(alignment: .center) {
@@ -81,78 +81,17 @@ struct SetMetaView: View {
             .blur(radius: showDeleteConfirmation ? 10 : 0)
 
             if showDeleteConfirmation {
-                Rectangle()
-                    .ignoresSafeArea()
-                    .foregroundColor(.black.opacity(0.6))
-                    .onTapGesture {
-                        withAnimation {
-                            showDeleteConfirmation = false
-                        }
+                ConfirmationOverlay(
+                    imageData: viewModel.getFriendImage()?.pngData(),
+                    preTitle: "Você está prestes a excluir \(viewModel.getFriendName())",
+                    title: "QUER MESMO DELETAR ESTE CONTATO?",
+                    description: "Esta ação é permanente e todo o histórico será perdido.",
+                    onCancel: { withAnimation { showDeleteConfirmation = false } },
+                    onConfirm: {
+                        viewModel.deleteConnection(modelContext: modelContext)
+                        dismiss()
                     }
-
-                VStack {
-                    ZStack {
-                        Circle()
-                            .foregroundStyle(.red)
-                            .frame(width: 140, height: 140)
-                        if let uiImage = viewModel.getFriendImage() {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .clipShape(Circle())
-                                .frame(width: 132, height: 132)
-                        }
-                    }
-
-                    Text("Você está prestes a excluir \(viewModel.getFriendName())")
-                        .padding(.top, 16)
-                        .font(.custom("Sora-Bold", size: 16))
-                        .foregroundStyle(.white)
-                        .multilineTextAlignment(.center)
-
-                    Text("QUER MESMO DELETAR ESTE CONTATO?")
-                        .foregroundStyle(.white)
-                        .font(.custom("Bolota", size: 24))
-                        .fontWeight(.bold)
-                        .frame(width: 280)
-                        .multilineTextAlignment(.center)
-                        .padding(.top, 8)
-
-                    Text("Esta ação é permanente e todo o histórico será perdido.")
-                        .font(.custom("Sora-Light", size: 12))
-                        .foregroundStyle(.white)
-                        .frame(width: 206)
-                        .multilineTextAlignment(.center)
-                        .padding(.top, 8)
-
-                    HStack(spacing: 50) {
-                        Button {
-                            withAnimation {
-                                showDeleteConfirmation = false
-                            }
-                        } label: {
-                            ZStack {
-                                Circle().foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
-                                Image(systemName: "xmark")
-                                    .resizable().frame(width: 32, height: 32)
-                                    .foregroundStyle(.white).bold()
-                            }
-                        }
-                        .frame(width: 72, height: 72)
-
-                        Button {
-                            deletarContato()
-                        } label: {
-                            ZStack {
-                                Circle().foregroundStyle(.white)
-                                Image(systemName: "checkmark")
-                                    .resizable().frame(width: 32, height: 32)
-                                    .foregroundStyle(.red).bold()
-                            }
-                        }
-                        .frame(width: 72, height: 72)
-                    }
-                    .padding(.top, 40)
-                }
+                )
             }
         }
         .environment(\.colorScheme, .light)
@@ -168,16 +107,6 @@ struct SetMetaView: View {
         .onAppear {
             SetMetaOnboarding = false
         }
-    }
-
-    private func deletarContato() {
-        NotificationManager.cancelMetaReminder(for: viewModel.connection)
-        modelContext.delete(viewModel.connection.metaManager)
-        modelContext.delete(viewModel.connection.feedManager)
-        modelContext.delete(viewModel.connection.friend)
-        modelContext.delete(viewModel.connection)
-        try? modelContext.save()
-        dismiss()
     }
 }
 

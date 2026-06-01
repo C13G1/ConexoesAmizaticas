@@ -35,6 +35,9 @@ class FriendsScene: SKScene {
     private var touchStartedOnSpiral = false
     private var touchStartLocation: CGPoint?
 
+    /// The active search query — empty means no filter and every connection in `connections` is on stage.
+    private var currentFilterText: String = ""
+
     init(size: CGSize, connections: Set<Connection>, sceneType: SceneType) {
         self.sceneType = sceneType
         super.init(size: size)
@@ -62,7 +65,9 @@ class FriendsScene: SKScene {
     func initSpiral() {
         let spiral = SKSpriteNode(texture: SKTexture(imageNamed: "Spiral"), size: CGSize(width: 122, height: 122))
         spiral.name = "spiral"
-        spiral.physicsBody = SKPhysicsBody(circleOfRadius: (spiral.size.width - 10) / 2)
+        // The Spiral asset is padded with transparency around the visible drawing, so the physics radius
+        // must be smaller than half the sprite size to let friend nodes visually touch the artwork.
+        spiral.physicsBody = SKPhysicsBody(circleOfRadius: 42)
         spiral.physicsBody?.affectedByGravity = false
         spiral.physicsBody?.isDynamic = false
         self.rootNode.addChild(spiral)
@@ -107,21 +112,33 @@ class FriendsScene: SKScene {
     /// Synchronizes the graphical nodes with the current state of the database.
     /// Safely adds new friends or removes deleted ones without rebuilding the entire physics simulation.
     func updateConnections(receivedConnections: Set<Connection>) {
-        let connectionsToDelete = self.connections.subtracting(receivedConnections)
-        let connectionsToAdd = receivedConnections.subtracting(self.connections)
+        self.connections = receivedConnections
+        syncNodesToVisibleConnections()
+    }
 
-        self.connections.subtract(connectionsToDelete)
-        var nodesToRemove: [SKNode] = []
-        for connection in connectionsToDelete {
-            if let node = self.rootNode.childNode(withName: connection.friend.id.uuidString) {
-                nodesToRemove.append(node)
-            }
+    /// The subset of `connections` that should currently be on stage, respecting the active search filter.
+    private var visibleConnections: Set<Connection> {
+        guard !currentFilterText.isEmpty else { return connections }
+        return connections.filter { $0.friend.name.localizedCaseInsensitiveContains(currentFilterText) }
+    }
+
+    /// Adds nodes for newly visible connections and removes the ones that fell out of view,
+    /// so the physics simulation keeps animating only the relevant subset instead of frozen invisible nodes.
+    private func syncNodesToVisibleConnections() {
+        let target = visibleConnections
+        let targetIDs = Set(target.map { $0.friend.id.uuidString })
+
+        let currentNodes = rootNode.children.compactMap { $0 as? FriendNode }
+        let currentIDs = Set(currentNodes.compactMap { $0.name })
+
+        let nodesToRemove = currentNodes.filter { node in
+            guard let name = node.name else { return false }
+            return !targetIDs.contains(name)
         }
-        self.rootNode.removeChildren(in: nodesToRemove)
+        rootNode.removeChildren(in: nodesToRemove)
 
-        for connection in connectionsToAdd {
+        for connection in target where !currentIDs.contains(connection.friend.id.uuidString) {
             addFriendNode(for: connection)
-            self.connections.insert(connection)
         }
     }
 
@@ -141,21 +158,17 @@ class FriendsScene: SKScene {
         }
     }
 
-    /// Temporarily hides and freezes nodes that do not match the given search text.
+    /// Checks whether the given scene-space point lies over the central spiral node.
+    /// Allows overlapping friend nodes to forward their touch sequence to the scene so the spiral tap still wins.
+    func isTouchOverSpiral(_ sceneLocation: CGPoint) -> Bool {
+        nodes(at: sceneLocation).contains { $0.name == "spiral" }
+    }
+
+    /// Updates the active search filter and re-synchronizes the visible nodes so the unmatched ones
+    /// physically leave the stage instead of remaining as frozen invisible bodies.
     func filterByName(_ text: String) {
-        for child in rootNode.children {
-            guard let friendNode = child as? FriendNode else { continue }
-            let connection = connections.first { $0.friend.id.uuidString == (friendNode.name ?? "") }
-            
-            let visible = text.isEmpty || (connection?.friend.name.localizedCaseInsensitiveContains(text) ?? false)
-            
-            friendNode.isHidden = !visible
-            friendNode.physicsBody?.isDynamic = visible
-            if !visible {
-                friendNode.physicsBody?.velocity = .zero
-                friendNode.physicsBody?.angularVelocity = 0
-            }
-        }
+        currentFilterText = text
+        syncNodesToVisibleConnections()
     }
 
     // MARK: - Touch Handling
@@ -169,13 +182,10 @@ class FriendsScene: SKScene {
         let tan = (location.x) / (location.y)
         touchOffset = atan(tan)
 
-        let touchedNodes = nodes(at: sceneLocation)
-        // Só conta como toque na espiral se nenhum FriendNode (nomeado com UUID) estiver sobreposto
-        let isFriendNodeTouched = touchedNodes.contains { node in
-            guard let name = node.name else { return false }
-            return UUID(uuidString: name) != nil
-        }
-        touchStartedOnSpiral = touchedNodes.contains { $0.name == "spiral" } && !isFriendNodeTouched
+        // The scene only receives the touch when no friend node consumed it, or when a friend node
+        // explicitly forwarded the sequence because the spiral was sitting beneath the press.
+        // In both cases the spiral wins as long as it is in `nodes(at:)`.
+        touchStartedOnSpiral = nodes(at: sceneLocation).contains { $0.name == "spiral" }
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {

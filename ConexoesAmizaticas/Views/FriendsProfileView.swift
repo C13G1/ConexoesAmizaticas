@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 import Aptabase
 
-/// A comprehensive dashboard detailing a specific friendship.
+/// A comprehensive dashboard detailing a specific metaManager.
 ///
 /// `FriendsProfileView` aggregates the shared memory feed (via `PictureScroll`) and the analytical relationship metrics.
 /// It operates as the central hub for interacting with a specific `Connection`, allowing the user to view goals,
@@ -61,7 +61,7 @@ struct FriendsProfileView: View {
 
                 Circle()
                     .frame(width: width * 1.6)
-                    .foregroundStyle(.friendProfileBackGround)
+                    .foregroundStyle(.friendProfileBackground)
                     .padding(.top, (height * -0.6))
 
                 VStack(spacing: 4) {
@@ -89,72 +89,10 @@ struct FriendsProfileView: View {
                         .frame(width: width * 0.8)
                         .fontWeight(.semibold)
 
-                    HStack(spacing: 20.5) {
-                        TextedRoundedRectangle(text: "conectados há",
-                                               subText: "\(viewModel.getConnectionTime()) Dias",
-                                               subTextColor: viewModel.getProfileColor(),
-                                               isTwelve: false)
-                        TextedRoundedRectangle(text: "último encontro",
-                                               subText: lastMeetDaysText,
-                                               subTextColor: viewModel.getProfileColor(),
-                                               isTwelve: false)
-                        TextedRoundedRectangle(text: "promessa",
-                                               subText: viewModel.getMeta().rawValue,
-                                               subTextColor: viewModel.getProfileColor(),
-                                               isTwelve: false)
-                    }
+                    FriendStatsRow(viewModel: viewModel, lastMeetText: lastMeetDaysText)
 
-                    if viewModel.getTimeUntilMeet() < 0 {
-                        TextedRoundedRectangle(width: 351, height: 77,
-                                               text: "vocês prometeram se encontrar dentro de",
-                                               textSize: 15, subText: "\(viewModel.getTimeUntilMeet() * -1) dias atrasados",
-                                               subTextSize: 36,
-                                               subTextColor: viewModel.getProfileColor(),
-                                               isTwelve: false)
-                    } else {
-                        TextedRoundedRectangle(width: 351, height: 77,
-                                               text: "vocês prometeram se encontrar dentro de",
-                                               textSize: 15,
-                                               subText: "\(viewModel.getTimeUntilMeet()) dias",
-                                               subTextSize: 36,
-                                               subTextColor: viewModel.getProfileColor(),
-                                               isTwelve: false)
-                    }
-
-                    NavigationLink(destination: BLEView(profile: ownUser ?? User())) {
-                        ZStack {
-                            HStack(spacing: -40) {
-                                CurvedRectangle(depth: 2)
-                                    .stroke(viewModel.getProfileColor(),
-                                            style: StrokeStyle(
-                                                lineWidth: 5,
-                                                lineCap: .round
-                                            )
-                                    )
-                                    .frame(width: UIScreen.main.bounds.height * 0.0957,
-                                           height: UIScreen.main.bounds.width * 0.0741)
-                                    .rotationEffect(Angle(degrees: 90))
-
-                                Ellipse()
-                                    .frame(width: UIScreen.main.bounds.width * 0.623,
-                                           height: UIScreen.main.bounds.height * 0.123)
-                                    .foregroundStyle(viewModel.getProfileColor())
-
-                                CurvedRectangle(depth: 2)
-                                    .stroke(viewModel.getProfileColor(),
-                                            style: StrokeStyle(
-                                                lineWidth: 5,
-                                                lineCap: .round
-                                            )
-                                    )
-                                    .frame(width: UIScreen.main.bounds.height * 0.0957,
-                                           height: UIScreen.main.bounds.width * 0.0741)
-                                    .rotationEffect(Angle(degrees: -90))
-                            }
-                            Text("registrar\num momento")
-                                .font(.custom("Bolota", size: 24))
-                                .foregroundStyle(.white)
-                        }
+                    RecordMomentButton(color: viewModel.getProfileColor()) {
+                        BLEView(profile: ownUser ?? User())
                     }
 
                     AddPictureButton(viewModel: feedViewModel, color: viewModel.getProfileColor())
@@ -194,10 +132,10 @@ struct FriendsProfileView: View {
                 VStack {
                     Text("novo amigo\nadicionado!")
                         .font(.custom("Bolota", size: 32))
-                        .foregroundStyle(.friendProfileBackGround)
+                        .foregroundStyle(.friendProfileBackground)
                     Text("altere a sua meta com\n\(viewModel.getFriendName()) aqui!")
                         .font(.custom("Sora", size: 20))
-                        .foregroundStyle(.friendProfileBackGround)
+                        .foregroundStyle(.friendProfileBackground)
                         .multilineTextAlignment(.center)
                         .padding(.top, 12)
                 }
@@ -205,72 +143,19 @@ struct FriendsProfileView: View {
             }
 
             if let post = feedViewModel.postToDelete {
-                Color.black.opacity(0.6)
-                    .ignoresSafeArea()
-                    .onTapGesture {
+                ConfirmationOverlay(
+                    imageData: post.images.first,
+                    title: "QUER MESMO DELETAR ESTE MOMENTO?",
+                    description: "Esta ação é permanente e a foto será apagada da conexão.",
+                    confirmIcon: "trash",
+                    onCancel: { withAnimation { feedViewModel.postToDelete = nil } },
+                    onConfirm: {
+                        if let id = feedViewModel.postToDelete?.id {
+                            feedViewModel.deletePost(id: id, modelContext: modelContext)
+                        }
                         withAnimation { feedViewModel.postToDelete = nil }
                     }
-
-                VStack {
-                    ZStack {
-                        Circle()
-                            .foregroundStyle(.red)
-                            .frame(width: 140, height: 140)
-
-                        if let data = post.images.first, let uiImage = UIImage(data: data) {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .scaledToFill()
-                                .clipShape(Circle())
-                                .frame(width: 132, height: 132)
-                        }
-                    }
-
-                    Text("QUER MESMO DELETAR ESTE MOMENTO?")
-                        .foregroundStyle(.white)
-                        .font(.custom("Bolota", size: 24))
-                        .fontWeight(.bold)
-                        .frame(width: 280)
-                        .multilineTextAlignment(.center)
-                        .padding(.top, 16)
-
-                    Text("Esta ação é permanente e a foto será apagada da conexão.")
-                        .font(.custom("Sora-Regular", size: 12))
-                        .foregroundStyle(.white)
-                        .frame(width: 206)
-                        .multilineTextAlignment(.center)
-                        .padding(.top, 8)
-
-                    HStack(spacing: 50) {
-                        Button {
-                            withAnimation { feedViewModel.postToDelete = nil }
-                        } label: {
-                            ZStack {
-                                Circle().foregroundStyle(Color(red: 0.2, green: 0.2, blue: 0.2))
-                                Image(systemName: "xmark")
-                                    .resizable().frame(width: 32, height: 32)
-                                    .foregroundStyle(.white).bold()
-                            }
-                        }
-                        .frame(width: 72, height: 72)
-
-                        Button {
-                            if let id = feedViewModel.postToDelete?.id {
-                                feedViewModel.deletePost(id: id, modelContext: modelContext)
-                            }
-                            withAnimation { feedViewModel.postToDelete = nil }
-                        } label: {
-                            ZStack {
-                                Circle().foregroundStyle(.white)
-                                Image(systemName: "trash")
-                                    .resizable().frame(width: 32, height: 32)
-                                    .foregroundStyle(.red).bold()
-                            }
-                        }
-                        .frame(width: 72, height: 72)
-                    }
-                    .padding(.top, 40)
-                }
+                )
             }
         }
         .toolbar {
