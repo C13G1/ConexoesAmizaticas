@@ -84,7 +84,6 @@ struct InitialView: View {
             vm.bootstrap(connections: connections)
             scene.onFriendTapped = { connection in
                 DispatchQueue.main.async {
-                    guard navigation.count == 0 else { return }
                     navigation.append(connection)
                 }
             }
